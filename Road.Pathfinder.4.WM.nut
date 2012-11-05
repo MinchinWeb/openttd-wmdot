@@ -1,6 +1,16 @@
-/*	Edited by Will and Chris...evil laugh
+/*	RoadPathfinder, part of 
+ *	WmDOT v.3  r.40 [2011-03-25]
+ *	Copyright © 2011 by William Minchin. For more info,
+ *		please visit http://openttd-noai-wmdot.googlecode.com/
+ */
+ 
+ /*	Edited by Will and Chris...evil laugh
  *	Feb 24, 2011
  *	added  _cost_only_existing_roads
+ */
+ 
+/*	This file is licenced under the originl licnese - LGPL v2.1
+ *		and is based on the NoAI Team's Road Pathfinder v3
  */
 
 /* $Id: main.nut 15101 2009-01-16 00:05:26Z truebrain $ */
@@ -15,7 +25,7 @@
  *  route. To use only existing roads, set cost.no_existing_road to
  *  cost.max_cost.
  */
-class Road
+class RoadPathfinder
 {
 	_aystar_class = import("graph.aystar", "", 4);
 	_max_cost = null;              ///< The maximum cost for a route.
@@ -82,7 +92,7 @@ class Road
 	function FindPath(iterations);
 };
 
-class Road.Cost
+class RoadPathfinder.Cost
 {
 	_main = null;
 
@@ -132,7 +142,7 @@ class Road.Cost
 	}
 };
 
-function Road::FindPath(iterations)
+function RoadPathfinder::FindPath(iterations)
 {
 	local test_mode = AITestMode();
 	local ret = this._pathfinder.FindPath(iterations);
@@ -140,7 +150,7 @@ function Road::FindPath(iterations)
 	return ret;
 }
 
-function Road::_GetBridgeNumSlopes(end_a, end_b)
+function RoadPathfinder::_GetBridgeNumSlopes(end_a, end_b)
 {
 	local slopes = 0;
 	local direction = (end_b - end_a) / AIMap.DistanceManhattan(end_a, end_b);
@@ -161,7 +171,7 @@ function Road::_GetBridgeNumSlopes(end_a, end_b)
 	return slopes;
 }
 
-function Road::_Cost(path, new_tile, new_direction, self)
+function RoadPathfinder::_Cost(path, new_tile, new_direction, self)
 {
 	/* path == null means this is the first node of a path, so the cost is 0. */
 	if (path == null) return 0;
@@ -217,7 +227,7 @@ function Road::_Cost(path, new_tile, new_direction, self)
 	return path.GetCost() + cost;
 }
 
-function Road::_Estimate(cur_tile, cur_direction, goal_tiles, self)
+function RoadPathfinder::_Estimate(cur_tile, cur_direction, goal_tiles, self)
 {
 	local min_cost = self._max_cost;
 	/* As estimate we multiply the lowest possible cost for a single tile with
@@ -228,7 +238,7 @@ function Road::_Estimate(cur_tile, cur_direction, goal_tiles, self)
 	return min_cost;
 }
 
-function Road::_Neighbours(path, cur_node, self)
+function RoadPathfinder::_Neighbours(path, cur_node, self)
 {
 	/* self._max_cost is the maximum path cost, if we go over it, the path isn't valid. */
 	if (path.GetCost() >= self._max_cost) return [];
@@ -281,12 +291,12 @@ function Road::_Neighbours(path, cur_node, self)
 	return tiles;
 }
 
-function Road::_CheckDirection(tile, existing_direction, new_direction, self)
+function RoadPathfinder::_CheckDirection(tile, existing_direction, new_direction, self)
 {
 	return false;
 }
 
-function Road::_GetDirection(from, to, is_bridge)
+function RoadPathfinder::_GetDirection(from, to, is_bridge)
 {
 	if (!is_bridge && AITile.GetSlope(to) == AITile.SLOPE_FLAT) return 0xFF;
 	if (from - to == 1) return 1;
@@ -301,7 +311,7 @@ function Road::_GetDirection(from, to, is_bridge)
  * for performance reasons. Tunnels will only be build if no terraforming
  * is needed on both ends.
  */
-function Road::_GetTunnelsBridges(last_node, cur_node, bridge_dir)
+function RoadPathfinder::_GetTunnelsBridges(last_node, cur_node, bridge_dir)
 {
 	local slope = AITile.GetSlope(cur_node);
 	if (slope == AITile.SLOPE_FLAT) return [];
@@ -328,7 +338,7 @@ function Road::_GetTunnelsBridges(last_node, cur_node, bridge_dir)
 	return tiles;
 }
 
-function Road::_IsSlopedRoad(start, middle, end)
+function RoadPathfinder::_IsSlopedRoad(start, middle, end)
 {
 	local NW = 0; //Set to true if we want to build a road to / from the north-west
 	local NE = 0; //Set to true if we want to build a road to / from the north-east
@@ -357,7 +367,7 @@ function Road::_IsSlopedRoad(start, middle, end)
 	return false;
 }
 
-function Road::_CheckTunnelBridge(current_tile, new_tile)
+function RoadPathfinder::_CheckTunnelBridge(current_tile, new_tile)
 {
 	if (!AIBridge.IsBridgeTile(new_tile) && !AITunnel.IsTunnelTile(new_tile)) return false;
 	local dir = new_tile - current_tile;

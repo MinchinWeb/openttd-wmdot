@@ -1,4 +1,6 @@
-/*	WmDOT v.2  r.17		2011-02-28
+
+<!-- saved from url=(0070)https://openttd-noai-wmdot.googlecode.com/svn/tags/WmDOT-v3/Arrays.nut -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"></head><body class=" hasGoogleVoiceExt"><pre style="word-wrap: break-word; white-space: pre-wrap;">/*	WmDOT v.2  r.17		2011-02-28
  *	Array Functions
  *	Copyright © 2011 by William Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
@@ -13,7 +15,7 @@ function Print1DArray(InArray)
 	local Length = InArray.len();
 	local i = 0;
 	local Temp = "";
-	while (i < InArray.len() ) {
+	while (i &lt; InArray.len() ) {
 		Temp = Temp + "  " + InArray[i];
 		i++;
 	}
@@ -28,12 +30,12 @@ function Print2DArray(InArray)
 	local Length = InArray.len();
 	local i = 0;
 	local Temp = "";
-	while (i < InArray.len() ) {
+	while (i &lt; InArray.len() ) {
 		local InnerArray = [];
 		InnerArray = InArray[i];
 		local InnerLength = InnerArray.len();
 		local j = 0;
-		while (j < InnerArray.len() ) {
+		while (j &lt; InnerArray.len() ) {
 			Temp = Temp + "  " + InnerArray[j];
 			j++;
 		}
@@ -51,7 +53,7 @@ function ToSting1DArray(InArray)
 	local Length = InArray.len();
 	local i = 0;
 	local Temp = "";
-	while (i < InArray.len() ) {
+	while (i &lt; InArray.len() ) {
 		Temp = Temp + "  " + InArray[i];
 		i++;
 	}
@@ -66,12 +68,12 @@ function ToSting2DArray(InArray)
 	local Length = InArray.len();
 	local i = 0;
 	local Temp = "";
-	while (i < InArray.len() ) {
+	while (i &lt; InArray.len() ) {
 		local InnerArray = [];
 		InnerArray = InArray[i];
 		local InnerLength = InnerArray.len();
 		local j = 0;
-		while (j < InnerArray.len() ) {
+		while (j &lt; InnerArray.len() ) {
 			Temp = Temp + "  " + InnerArray[j];
 			j++;
 		}
@@ -89,8 +91,8 @@ function ContainedIn2DArray(InArray, SearchValue)
 //
 //	Move to Array library
 	
-	for (local i = 0; i < InArray.len(); i++ ) {
-		for (local j=0; j < InArray[i].len(); j++ ) {
+	for (local i = 0; i &lt; InArray.len(); i++ ) {
+		for (local j=0; j &lt; InArray[i].len(); j++ ) {
 			if (InArray[i][j] == SearchValue) {
 				return true;
 			}
@@ -108,7 +110,7 @@ function ContainedIn1DArray(InArray, SearchValue)
 //
 //	Move to Array library
 	
-	for (local i = 0; i < InArray.len(); i++ ) {
+	for (local i = 0; i &lt; InArray.len(); i++ ) {
 			if (InArray[i] == SearchValue) {
 				return true;
 			}
@@ -117,3 +119,4 @@ function ContainedIn1DArray(InArray, SearchValue)
 	return false;
 }
 
+</pre></body></html>

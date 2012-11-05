@@ -1,4 +1,5 @@
-/*	WmDOT v.1  r.17
+/*	Road building code, part of
+ *	WmDOT v.3  r.40  [2011-03-25]
  *	Copyright © 2011 by William Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
@@ -8,7 +9,7 @@
  *	This code is under the GNU Free Documentation License
  */
 
-function WmDOT::BuildRoad(ConnectPairs)
+function OpDOT::BuildRoad(ConnectPairs)
 //function BuildRoad(ConnectPairs)
 {
 	//	builds a road, given the path
@@ -18,17 +19,17 @@ function WmDOT::BuildRoad(ConnectPairs)
 	AILog.Info("     Connecting " + AITown.GetName(ConnectPairs[0]) + " and " + AITown.GetName(ConnectPairs[1]) + "...");
 	
 	local tick;
-	tick = this.GetTick();	
+	tick = WmDOT.GetTick();	
 	
 	/* Tell OpenTTD we want to build normal road (no tram tracks). */
   AIRoad.SetCurrentRoadType(AIRoad.ROADTYPE_ROAD);
   
   /* Create an instance of the pathfinder. */
-  local pathfinder = RoadPathFinder();
+  local pathfinder = RoadPathfinder();
   
 	//	Set Parameters
-	pathfinder.cost.max_bridge_length = WmMaxBridge;
-	pathfinder.cost.max_tunnel_length = WmMaxTunnel;
+	pathfinder.cost.max_bridge_length = this._MaxBridge;
+	pathfinder.cost.max_tunnel_length = this._MaxTunnel;
 	pathfinder.cost.no_existing_road = 100;		//	default = 40
 	pathfinder.cost.slope = 400;				//	default = 200
 	pathfinder.cost.bridge_per_tile = 250;		//	default = 150
@@ -46,7 +47,7 @@ function WmDOT::BuildRoad(ConnectPairs)
   while (path == false) {
     path = pathfinder.FindPath(100);
  //   this.Sleep(1);
-	CycleCounter+=PathFinderCycles;
+	CycleCounter+=this._PathFinderCycles;
 	if (CycleCounter > 2000) {
 		//	A safety to make sure that the AI doesn't run out
 		//		of money while pathfinding...
@@ -61,8 +62,8 @@ function WmDOT::BuildRoad(ConnectPairs)
   }
   
 	/* If a path was found, build a road over it. */
-	AILog.Info("          Path found. Took " + (this.GetTick() - tick) + " ticks. Building route...");
-	tick = this.GetTick();
+	AILog.Info("          Path found. Took " + (WmDOT.GetTick() - tick) + " ticks. Building route...");
+	tick = WmDOT.GetTick();
 	
 	// Clean out the bank
 	SLMoney.MaxLoan();
@@ -103,5 +104,5 @@ function WmDOT::BuildRoad(ConnectPairs)
 	SLMoney.MakeMaximumPayback();
 	SLMoney.MakeSureToHaveAmount(100);
 	
-	AILog.Info("          Route complete. (MD = " + AIMap.DistanceManhattan(AITown.GetLocation(ConnectPairs[0]), AITown.GetLocation(ConnectPairs[1])) + ") Took " + (this.GetTick() - tick) + " tick(s)."); 
+	AILog.Info("          Route complete. (MD = " + AIMap.DistanceManhattan(AITown.GetLocation(ConnectPairs[0]), AITown.GetLocation(ConnectPairs[1])) + ") Took " + (WmDOT.GetTick() - tick) + " tick(s)."); 
  }

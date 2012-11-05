@@ -1,9 +1,14 @@
-WmDOT Version History
-v.2, r.33, 2011-03-24
-Copyright � 2011 by William Minchin. For more info, please visit
+﻿WmDOT Version History
+v.2, r.40, 2011-03-25
+Copyright © 2011 by William Minchin. For more info, please visit
 	http://openttd-noai-wmdot.googlecode.com/
 
 
+r40	2011-03-25	v3
+r39 2011-03-25	Move road pathfinder from library to .nut file to make
+					installation easier	
+r38	2011-03-25	Move existing 'DOT' code to OpDOT.nut to facilitate move to
+					'operations'
 r33	2011-03-24	v2 - Initial Bananas Release
 				Company no longer renames itself on savegame reloading
 r17	2011-03-01	Now generates the Atlas once per Mode (as opposed for each new
