@@ -1,0 +1,78 @@
+WmDOT Version History
+v.2, r.33, 2011-03-24
+Copyright © 2011 by William Minchin. For more info, please visit
+	http://openttd-noai-wmdot.googlecode.com/
+
+
+r33	2011-03-24	v2 - Initial Bananas Release
+				Company no longer renames itself on savegame reloading
+r17	2011-03-01	Now generates the Atlas once per Mode (as opposed for each new
+					route) and then build all possible routes
+				- Moved existing route checking from Atlas generation to
+					on-demand
+				- Now maintains a list of routes that have been tested and 
+					found to exist
+				Seperated Array functions
+				Add more loan management points
+r16	2011-02-25	Road Pathfinder optimization
+				- now considered v4 of pathfinder
+				- added a couple of lines to the pathfinder to allow it to
+					ignore non connected road tiles (used for searching for
+					already connected towns). This improves search time from
+					about 80-100 ticks/route to 40 ticks/route in the
+					'Remove Existing Connections' function
+r15	2011-02-24	Multiply DOT's running at the same time now run in a
+					semi-cooperative fashion by building HQ in different cities
+				HQInWhatTown(CompanyNo)
+				TileIsWhatTown(TileIn)
+r14	2011-02-19	Build out in zones (speed, quarter map, full map)
+				Build out in steps (capital, connected towns)
+				- combination moves up to six Modes	
+v1				(to be released based on r11...never happened...)
+r11	2011-02-18	Introduces Loan Management
+				- requires SuperLib v6
+				- keeps a minimum amount of money on hand
+				- maxes out the loan to build any link and then pays it back
+r5b	2011-02-18	Keeps track of already built connections
+				Introduces 'Modes'
+					Mode 1 tries to connect all the towns above the population threshold
+					Mode 2 considers (and builds) alternate connections
+					Mode 3 is 'nap' mode
+				Seperated out GNU FDL code
+				Clean up of Debug output
+r4b	2011-02-17	r9 is uploaded to Google Code
+r9	2011-02-12	Computes only half of the matrix (computational savings of 45%
+					in test case)
+				No more crashes upon building all the connects
+r8	2011-02-11	This is the first version that 'works'. It selects a list of
+					towns, weighs them based on distance and populaiton, and
+					then builds connections. However, it can be VERY slow and
+					crashes once everything is connected!
+				Requires RoadPathfinder, v.3
+				RemoveExistingConnections(WmAtlas)
+				BuildRoad(path)
+				- from NoAI Wiki
+r7	2011-02-10	PickTowns()
+				- picks the towns to connect (Trip Generation, Trip Distribution)
+				NameWmDOT()
+				- President now gets title of 'P.Eng'
+r6	2011-02-09	BuildWmHQ()
+				- picks biggest town and builds HQ
+r4				GenerateAtlas()
+r3				GenerateTownList()
+				- uses cut-off population given in settings
+				NameWmDOT()
+
+Roadmap:
+- move array functions to library
+- improve route selection by estimating cost based on building cost rather than pure distance
+- move to grid based route finding
+	- generate 'gateways' for each town
+	- do route finding one grid spacing at a 
+- rewrite build path sequence so I can call it my own
+- figure out how to get the version number to show up in Start()
+- check the town centres are actually roads (use AIRoad::IsRoadTile() )
+- add license file - http://opensource.org/licenses/qtpl ?
+- generally impove the speed of the pathfinder
+- rename and add pathfinder to main folder
+- somehow allow a 'connectioned' matrix to be built based on the array of built connections
