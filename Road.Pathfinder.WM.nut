@@ -1,5 +1,5 @@
-/*	RoadPathfinder, part of 
- *	WmDOT v.3  r.40 [2011-03-25]
+/*	RoadPathfinder v.5, part of 
+ *	WmDOT v.4  r.50 [2011-04-06]
  *	Copyright © 2011 by William Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
@@ -12,6 +12,11 @@
 /*	This file is licenced under the originl licnese - LGPL v2.1
  *		and is based on the NoAI Team's Road Pathfinder v3
  */
+ 
+//	TO-DO
+//	- get the lenght of the path out (AyStar.GetLength)
+//	- get the cost of building the path out (AIAccounting.?)
+ 
 
 /* $Id: main.nut 15101 2009-01-16 00:05:26Z truebrain $ */
 
@@ -25,9 +30,17 @@
  *  route. To use only existing roads, set cost.no_existing_road to
  *  cost.max_cost.
  */
+ 
+//	Requires "AyStar.WM.nut"
+ 
 class RoadPathfinder
 {
-	_aystar_class = import("graph.aystar", "", 4);
+	function GetVersion()       { return 6; }
+	function GetRevision()		{ return 49; }
+	function GetDate()          { return "2011-04-06"; }
+	function GetName()          { return "Road Pathfinder (Wm)"; }
+
+	_aystar_class = null;
 	_max_cost = null;              ///< The maximum cost for a route.
 	_cost_tile = null;             ///< The cost for a single tile.
 	_cost_no_existing_road = null; ///< The cost that is added to _cost_tile if no road exists yet.
@@ -40,14 +53,15 @@ class RoadPathfinder
 	_max_bridge_length = null;     ///< The maximum length of a bridge that will be build.
 	_max_tunnel_length = null;     ///< The maximum length of a tunnel that will be build.
 	_cost_only_existing_roads = null;	   ///< Choose whether to only search through exisitng connected roads
+	_distance_penalty = null;		///< Penalty to use to speed up pathfinder, 1 is no penalty
 
 	cost = null;                   ///< Used to change the costs.
 	_running = null;
 
 	constructor()
 	{
-		this._max_cost = 10000000;
-		this._cost_tile = 100;
+		this._max_cost = 100000;
+		this._cost_tile = 30;
 		this._cost_no_existing_road = 40;
 		this._cost_turn = 100;
 		this._cost_slope = 200;
@@ -57,7 +71,8 @@ class RoadPathfinder
 		this._max_bridge_length = 10;
 		this._max_tunnel_length = 20;
 		this._cost_only_existing_roads = false;
-		this._pathfinder = this._aystar_class(this._Cost, this._Estimate, this._Neighbours, this._CheckDirection, this, this, this, this);
+		this._distance_penalty = 1;
+		this._pathfinder = AyStar(this._Cost, this._Estimate, this._Neighbours, this._CheckDirection, this, this, this, this);
 
 		this.cost = this.Cost(this);
 		this._running = false;
@@ -112,6 +127,7 @@ class RoadPathfinder.Cost
 			case "max_bridge_length": this._main._max_bridge_length = val; break;
 			case "max_tunnel_length": this._main._max_tunnel_length = val; break;
 			case "only_existing_roads":	this._main._cost_only_existing_roads = val; break;
+			case "distance_penalty":	this._main._distance_penalty = val; break;
 			default: throw("the index '" + idx + "' does not exist");
 		}
 
@@ -132,6 +148,7 @@ class RoadPathfinder.Cost
 			case "max_bridge_length": return this._main._max_bridge_length;
 			case "max_tunnel_length": return this._main._max_tunnel_length;
 			case "only_existing_roads":	return this._main._cost_only_existing_roads;
+			case "distance_penalty":		return this._main._distance_penalty;
 			default: throw("the index '" + idx + "' does not exist");
 		}
 	}
@@ -141,6 +158,7 @@ class RoadPathfinder.Cost
 		this._main = main;
 	}
 };
+
 
 function RoadPathfinder::FindPath(iterations)
 {
@@ -233,7 +251,7 @@ function RoadPathfinder::_Estimate(cur_tile, cur_direction, goal_tiles, self)
 	/* As estimate we multiply the lowest possible cost for a single tile with
 	 * with the minimum number of tiles we need to traverse. */
 	foreach (tile in goal_tiles) {
-		min_cost = min(AIMap.DistanceManhattan(cur_tile, tile) * self._cost_tile, min_cost);
+		min_cost = min(AIMap.DistanceManhattan(cur_tile, tile) * self._cost_tile * self._distance_penalty, min_cost);
 	}
 	return min_cost;
 }
