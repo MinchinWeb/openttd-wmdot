@@ -1,5 +1,5 @@
-﻿/*	Town Registrar v.1, part of 
- *	WmDOT v.5  r.89 [2011-04-16]
+﻿/*	Town Registrar v.1, r.89, [2011-04-16]
+ *		part of WmDOT v.5
  *	Copyright © 2011 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */

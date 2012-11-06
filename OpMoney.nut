@@ -1,5 +1,5 @@
-﻿/*	OperationMoney v.1, part of 
- *	WmDOT v.5  r.53a  [2011-03-28]
+﻿/*	OperationMoney v.1, r.53a, [2011-03-31]
+ *		part of WmDOT v.5
  *	Copyright © 2011 by William Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */

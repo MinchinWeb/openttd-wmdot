@@ -1,7 +1,7 @@
-/*	Neighbourhood Class, v.1, part of
- *	Town Registrar v.1, part of 
- *	WmDOT v.5  r.114 [2011-04-26]
- *	Copyright © 2011 by W. Minchin. For more info,
+ï»¿/*	Neighbourhood Class, v.1, r.114, [2011-04-26]
+ *		part of Town Registrar v.1,
+ *		part of WmDOT v.5  
+ *	Copyright Â© 2011 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
  
@@ -77,7 +77,7 @@ function Neighbourhood::SplitNeighbourhood()
 	local avex = (xA + xB) / 2;
 	local avey = (yA + yB) / 2;
 	
-	//	Solve a linear system:  ƒ(x) = y = mx + b
+	//	Solve a linear system:  Æ’(x) = y = mx + b
 	local m = (dx + this._FloatOffset) / (dy + this._FloatOffset);		// slope
 		//	FloatOffset is to avoid divide by zero problems
 //	local b = yA - m * xA;												// y-intercept

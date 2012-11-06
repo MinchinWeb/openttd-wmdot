@@ -1,6 +1,6 @@
-/*	Cleanup Crew v.2, part of 
- *	WmDOT v.6  r.118 [2011-04-28]
- *	Copyright � 2011 by W. Minchin. For more info,
+﻿/*	Cleanup Crew v.2, r.171, [2011-12-22] 
+ *		part of WmDOT v.6
+ *	Copyright © 2011 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
  
@@ -18,8 +18,8 @@
 
 class OpCleanupCrew {
 	function GetVersion()       { return 2; }
-	function GetRevision()		{ return 118; }
-	function GetDate()          { return "2011-04-28"; }
+	function GetRevision()		{ return 171; }
+	function GetDate()          { return "2011-12-22"; }
 	function GetName()          { return "Cleanup Crew"; }
 
 	_heap_class = import("Queue.Fibonacci_Heap", "", 2);
@@ -96,7 +96,7 @@ function OpCleanupCrew::AcceptBuiltTiles(TilePairArray)
 
 	Log.Note("Running CleanupCrew.AcceptBuildTiles...", 3);
 	for (local i = 0; i < TilePairArray.len(); i++ ) {
-//		Log.Note("Inserting " + Array.ToStringTiles1D(TilePairArray[i]) + " : " + i + ".", 4);
+//		Log.Note("Inserting " + Array.ToStingTiles1D(TilePairArray[i]) + " : " + i + ".", 4);
 		this._heap.Insert(TilePairArray[i], AIBase.RandRange(255) );
 	}
 }
@@ -115,10 +115,10 @@ function OpCleanupCrew::SetToRun()
 {
 //	Involved OpDOT to have Cleanup Crew run on the next pass in the main loop
 
-//	Note:	This is set to run at the current moment. However, the main loop
-//			compares run times to the time when the loop started. Therefore,
-//			put CleanupCrew above OpDOT in the loop lists to be sure that
-//			CleanupCrew runs before OpDOT does again.
+//	Note:	This is set to run at the current moment (tick). However, the main
+//			loop compares run times to the time when the loop started.
+//			Therefore, put CleanupCrew above OpDOT in the loop lists to be sure
+//			that CleanupCrew runs before OpDOT does again.
 
 	this._next_run = AIController.GetTick();
 	return this._next_run;
