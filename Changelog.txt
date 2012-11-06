@@ -1,0 +1,81 @@
+﻿WmDOT Changelog
+v.9, r.231, 2012-03-17
+Copyright © 2011-12 by W. Minchin. For more info, please visit
+    http://openttd-noai-wmdot.googlecode.com/  or
+    http://www.tt-forums.net/viewtopic.php?f=65&t=53698
+
+-- About WmDOT ----------------------------------------------------------------
+WmDOT (short for "William's Department of Transportation") is an AI for
+    OpenTTD, a freeware clone of Chris Saywer's Transport Tycoon Deluxe. Having
+    fallen in love with the original, I was quite delighted to find the
+    remake! Of the things that has been added to OpenTTD is custom AI's, of
+    which this is one. For me, it's a way to back in touch with a game I fell
+    in love with years ago and to brush up on my programming skills at the same
+    time.
+
+For full details on WmDOT, see the attached README.txt
+
+-- Full Version History -------------------------------------------------------
+Version 9 [2012-03-14]
+    Added support for FIRS water-based industries. Requries FIRS v0.7.1 or newer.
+    Bug fixes (to work with SuperLib and updated API)
+    Change default Debug Level to 3
+    Should support all of FIRS' water-based industries (requires FIRS v0.7.1)
+    Updated to SuperLib v21 and MetaLibrary v4
+Version 8 [2012-01-21]
+    Can now bridge over canals, rivers, and railroad tracks
+	Fixes bug where WmDOT would crash is the generated Atlas contained no towns
+Version 7 [2011-01-12]
+    Added Operation Hibernia
+    Bug fixes
+    Updated to SuperLib v19 and MetaLibrary v2
+Version 6 [2011-04-28]
+    Now requires MinchinWeb's MetaLibrary v1
+    Fixes bug where WmDOT crashed because the town it was trying to build its
+        HQ in was too big.
+    (Partially) fixes the problem of WmDOT spamming the map with roads. It
+        will now only keep the best path between towns.
+Version 5 [2011-04-13]
+    Will now start building almost as fast (within ~15 days) regardless of map
+        size. It does this by dividing the map into smaller chunks
+    Tweaks to pathfinder
+    Updated for SuperLib v7
+Version 4 [2011-04-08]
+    Changes to pathfinder allowing in to run in 1/20 the time in some cases
+    Double check the road got built
+    Fix problem that was crashing WmDOT on savegame loading
+    Rewrite the innerards to make expansion easier
+Version 3 [2011-03-25]
+    Fix problem loading libraries in v2 by moving pathfinder in house
+Version 2
+    Initial Bananas release
+    Allows multiple instances to work cooperatively
+Version 1
+    Initial working model (no public release)
+
+-- Help! It broke! (Bug Report) -----------------------------------------------
+If WmDOT crashes, please help me fix it! Save a screenshot (under the ? on the
+    far right of the in-game toolbar) and report the bug to either:
+        http://www.tt-forums.net/viewtopic.php?f=65&t=53698
+        http://code.google.com/p/openttd-noai-wmdot/issues/
+
+-- Helpful Links --------------------------------------------------------------
+Get OpenTTD!                                                    www.openttd.org
+TT-Forums - all things Transport Tycoon related               www.tt-forums.net
+WmDOT's thread on TT-Forums: release announcements, bug reports, suggestions,
+    and general commentary
+                            http://www.tt-forums.net/viewtopic.php?f=65&t=53698
+WmDOT on Google Code: source code, and WmDOT: Bleeding Edge edition
+                                    http://code.google.com/p/openttd-noai-wmdot
+To report issues:            http://code.google.com/p/openttd-noai-wmdot/issues
+
+My other projects (for OpenTTD):
+    MinchinWeb's MetaLibrary (for AIs)
+                            http://www.tt-forums.net/viewtopic.php?f=65&t=57903
+    Alberta Town Names      http://www.tt-forums.net/viewtopic.php?f=67&t=53313
+    MinchinWeb's Random Town Name Generator
+                            http://www.tt-forums.net/viewtopic.php?f=67&t=53579
+
+-- Licence -------------------------------------------------------------------
+WmDOT (unless otherwise noted) is licensed under a
+    Creative Commons-Attribution 3.0 licence.

@@ -1,5 +1,5 @@
 ﻿WmDOT Read-me
-v.8, r.214, 2012-01-21
+v.9, r.231, 2012-02-17
 Copyright © 2011-12 by W. Minchin. For more info, please visit
     http://openttd-noai-wmdot.googlecode.com/  or
     http://www.tt-forums.net/viewtopic.php?f=65&t=53698
@@ -25,11 +25,11 @@ WmDOT starts by selecting a 'capital' and builds its Headquarters there. (If
     shorter cross connections to fill out the network.
     
 -- Requirements ---------------------------------------------------------------
-WmDOT requires OpenTTD version 1.0 or newer. This is available as a free
+WmDOT requires OpenTTD version 1.2 or newer. This is available as a free
     download from OpenTTD.org
 As dependencies, WmDOT also requires:
-    - MinchinWeb's MetaLibrary, v.3
-    - SuperLib, v.19 ('SuperLib-19.tar')
+    - MinchinWeb's MetaLibrary, v.4
+    - SuperLib, v.21 ('SuperLib-19.tar')
     - Binary Heap, v.1 ('Queue.BinaryHeap-1.tar')
 
 -- Installation ---------------------------------------------------------------
@@ -78,45 +78,22 @@ Operation Hibernia: GO! .. no go
         from Oil Rigs to Oil Refineries to earn WmDOT a little bit of money.
 
 -- Version History ------------------------------------------------------------
-Version 8 [2011-01-21]
-    Can now bridge over canals, rivers, and railroad tracks
-	Fixes bug where WmDOT would crash is the generated Atlas contained no towns
-Version 7 [2011-01-12]
-    Added Operation Hibernia
-    Bug fixes
-    Updated to SuperLib v19 and MetaLibrary v2
-Version 6 [2011-04-28]
-    Now requires MinchinWeb's MetaLibrary v1
-    Fixes bug where WmDOT crashed because the town it was trying to build its
-        HQ in was too big.
-    (Partially) fixes the problem of WmDOT spamming the map with roads. It
-        will now only keep the best path between towns.
-Version 5 [2011-04-13]
-    Will now start building almost as fast (within ~15 days) regardless of map
-        size. It does this by dividing the map into smaller chunks
-    Tweaks to pathfinder
-    Updated for SuperLib v7
-Version 4 [2011-04-08]
-    Changes to pathfinder allowing in to run in 1/20 the time in some cases
-    Double check the road got built
-    Fix problem that was crashing WmDOT on savegame loading
-    Rewrite the innerards to make expansion easier
-Version 3 [2011-03-25]
-    Fix problem loading libraries in v2 by moving pathfinder in house
-Version 2
-    Initial Bananas release
-    Allows multiple instances to work cooperatively
-Version 1
-    Initial working model (no public release)
+Version 9 [2012-03-14]
+    Added support for FIRS water-based industries. Requries FIRS v0.7.1 or newer.
+    Bug fix (to work with SuperLib)
+
+See the attached CHANGELOG.txt for full version history.
 
 -- Roadmap --------------------------------------------------------------------
 These are features I hope to add to WmDOT shortly. However, this is subject to
     change without notice. However, I am open to suggestions!
-v9  Cleanup Crew improvements, Ship Pathfinder improvements, better FIRS support
-v10 Provide inter-city valuables transportation
-v11 Bring water and food to towns in the desert and above the snowline to help
+v10 Ship Pathfinder improvements
+v11 Dynamic route management
+v12 Grid-based road pathfinder
+v13 Provide inter-city valuables transportation
+v14 Bring water and food to towns in the desert and above the snowline to help
         them grow
-v12 Provide streetcar service in towns
+v15 Provide streetcar service in towns
 
 -- Known Issues ---------------------------------------------------------------
 NewGRF support has not been tested.

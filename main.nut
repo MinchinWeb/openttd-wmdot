@@ -1,23 +1,23 @@
-﻿/*	WmDOT v.8, r.213, [2011-01-21]
+﻿/*	WmDOT v.9, r.231, [2011-03-17]
  *	Copyright © 2011-12 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
  
-// Replace "AIAbstractList" with "AIList" to ensure forward compatibilities
 // Does the Road.Pathfinder provided by the AI Team need to be updated?
 
-import("util.MinchinWeb", "MetaLib", 3);
+import("util.MinchinWeb", "MetaLib", 4);
 	RoadPathfinder <- MetaLib.RoadPathfinder;
 	Array <- MetaLib.Array;
 	Atlas <- MetaLib.Atlas;
 	Marine <- MetaLib.Marine;
-import("util.superlib", "SuperLib", 19);		//	For loan management
+	OpLog <- MetaLib.Log;
+import("util.superlib", "SuperLib", 21);		//	For loan management
 	SLMoney <- SuperLib.Money;
 	Helper <- SuperLib.Helper;
+	AIAbstractList <- AIList	// to support SuperLib v.21
 		
 require("OpDOT.nut");				//	OperationDOT
 require("OpMoney.nut");				//	Operation Money
-require("OpLog.nut");				//	Operation Log
 require("TownRegistrar.nut");		//	Town Registrar
 require("Neighbourhood.nut");		//	Neighbourhood Class	
 // require("Fibonacci.Heap.WM.nut");	//	Fibonacci Heap (Max)
@@ -29,10 +29,10 @@ require("OpHibernia.nut");			//	Operation Hibernia
  class WmDOT extends AIController 
 {
 	//	SETTINGS
-	WmDOTv = 8;
+	WmDOTv = 9;
 	/*	Version number of AI
 	 */	
-	WmDOTr = 213;
+	WmDOTr = 231;
 	/*	Reversion number of AI
 	 */
 	 
@@ -61,14 +61,14 @@ function WmDOT::Start()
 {
 //	For debugging crashes...
 	local Debug_2 = "/* Settings: " + GetSetting("DOT_name1") + "-" + GetSetting("DOT_name2") + " - dl" + GetSetting("Debug_Level") + " // OpDOT: " + GetSetting("OpDOT") + " - " + GetSetting("OpDOT_MinTownSize") + " - " + GetSetting("TownRegistrar_AtlasSize") + " - " + GetSetting("OpDOT_RebuildAttempts") + " // OpHibernia: " + GetSetting("OpHibernia") + " */" ;
-	local Debug_1 = "/* v." + WmDOTv + ", r." + WmDOTr + " // " + AIDate.GetYear(AIDate.GetCurrentDate()) + "-" + AIDate.GetMonth(AIDate.GetCurrentDate()) + "-" + AIDate.GetDayOfMonth(AIDate.GetCurrentDate()) + " start // " + AIMap.GetMapSizeX() + "x" + AIMap.GetMapSizeY() + " map - " + AITown.GetTownCount() + " towns */";
+	local Debug_1 = "/* v." + WmDOTv + ", r." + WmDOTr + " // r." + MetaLib.Extras.GetOpenTTDRevision() + " // " + AIDate.GetYear(AIDate.GetCurrentDate()) + "-" + AIDate.GetMonth(AIDate.GetCurrentDate()) + "-" + AIDate.GetDayOfMonth(AIDate.GetCurrentDate()) + " start // " + AIMap.GetMapSizeX() + "x" + AIMap.GetMapSizeY() + " map - " + AITown.GetTownCount() + " towns */";
 	
 //	AILog.Info("Welcome to WmDOT, version " + GetVersion() + ", revision " + WmDOTr + " by " + GetAuthor() + ".");
-	AILog.Info("Welcome to WmDOT, version " + WmDOTv + ", revision " + WmDOTr + " by W. Minchin.");
-	AILog.Info("Copyright © 2011-12 by W. Minchin. For more info, please visit http://www.tt-forums.net/viewtopic.php?f=65&t=53698")
-	AILog.Info(" ");
+	Log.Note("Welcome to WmDOT, version " + WmDOTv + ", revision " + WmDOTr + " by W. Minchin.", 0);
+	Log.Note("               Copyright © 2011-12 by W. Minchin.", 0);
+	Log.Note("     For more info, please visit http://www.tt-forums.net/viewtopic.php?f=65&t=53698", 0)
+	Log.Note(" ", 0);
 	
-	Log.Settings.DebugLevel = GetSetting("Debug_Level");
 	Log.Note("Loading Libraries...",0);		// Actually, by this point it's already happened
 	Log.Note("     " + MetaLib.GetName() + ", v." + MetaLib.GetVersion() + " r." + MetaLib.GetRevision() + "  loaded!", 0);
 	Log.Note("     " + Log.GetName() + ", v." + Log.GetVersion() + " r." + Log.GetRevision() + "  loaded!",0);
@@ -83,7 +83,6 @@ function WmDOT::Start()
 						//	Fibonacci_Heap_Info()
 	Log.Note("",0);
 	
-	Log.Settings.DebugLevel = GetSetting("Debug_Level");
 	TheGreatLinkUp();
 		
 	if (GetSetting("Debug_Level") == 0) {
@@ -101,7 +100,7 @@ function WmDOT::Start()
 	DOT.Settings.HQTown = HQTown;
 	while (true) {
 		Time = this.GetTick();	
-		Log.Settings.DebugLevel = GetSetting("Debug_Level");
+		Log.UpdateDebugLevel();
 
 		if (Time > Money.State.NextRun)			{ Money.Run(); }
 		if (Time > Towns.State.NextRun)			{ Towns.Run(); }
@@ -133,7 +132,7 @@ function WmDOT::NameWmDOT()
 	/*	This function names the company based on the AI settings.  If the names
 	 *	given by the settings is already taken, a default ('WmDOT', for
 	 *	'William Department of Transportation') is used.  Failing that, a
-	 *	second default ('ZxDOT', chosed becuase I thought it looked cool) is
+	 *	second default ('ZxDOT', chosen becuase I thought it looked cool) is
 	 *	tried.  Failing that, a random one or two letter prefix is chosen and
 	 *	added to DOT until and unused name is found.
 	 */
@@ -358,8 +357,7 @@ function WmDOT::NameWmDOT()
 		
 		tick = this.GetTick() - tick;
 		Log.Note("Company named " + AICompany.GetName(AICompany.COMPANY_SELF) + ". " + AICompany.GetPresidentName(AICompany.COMPANY_SELF) + " is in charge. Took " + tick + " tick(s).",2);
-	}
-	else {
+	} else {
 		Log.Note("Company ALREADY named " + AICompany.GetName(AICompany.COMPANY_SELF) + ". " + AICompany.GetPresidentName(AICompany.COMPANY_SELF) + " remains in charge.",2)
 	}
 }

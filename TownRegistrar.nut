@@ -1,5 +1,5 @@
-﻿/*	Town Registrar v.1, r.212, [2012-01-21]
- *		part of WmDOT v.8
+﻿/*	Town Registrar v.1, r.221, [2012-01-28]
+ *		part of WmDOT v.9
  *	Copyright © 2011-12 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
@@ -14,8 +14,8 @@
  
  class TownRegistrar {
 	function GetVersion()       { return 1; }
-	function GetRevision()		{ return 212; }
-	function GetDate()          { return "2011-01-21"; }
+	function GetRevision()		{ return 221; }
+	function GetDate()          { return "2011-01-28"; }
 	function GetName()          { return "Town Registrar"; }
 		
 	_MaxAtlasSize = null;
@@ -186,11 +186,11 @@ function TownRegistrar::Run()
 	
 		Log.Note(this._ListOfNeighbourhoods.len() + " neighbourhoods generated. Took " + (AIController.GetTick() - tick) + " ticks.",3);
 		
-		if (Log.Settings.DebugLevel >= 3) {
+//		if (Log.Settings.DebugLevel >= 3) {
 			for (local i = 0; i < this._ListOfNeighbourhoods.len(); i++) {
-				this._ListOfNeighbourhoods[i].MarkOut(Log.Settings.DebugLevel);
+				this._ListOfNeighbourhoods[i].MarkOut();
 			}
-		}
+//		}
 		
 		this._NextRun += this._UpdateInterval;
 	} else {

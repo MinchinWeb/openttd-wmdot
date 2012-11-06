@@ -1,5 +1,5 @@
-﻿/*	Operation Hibernia v.2, r.207, [2012-01-14]
- *		part of WmDOT v.8
+﻿/*	Operation Hibernia v.3, r.230, [2012-03-17]
+ *		part of WmDOT v.9
  *	Copyright © 2011-12 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
@@ -13,17 +13,17 @@
  *		Oil Refinaries.
  */
  
-//	Requires MinchinWeb's MetaLibrary v.2
-//	Requires Zuu's SuperLib v.19
+//	Requires MinchinWeb's MetaLibrary v.4
+//	Requires Zuu's SuperLib v.21
 
 //	TO-DO
 //		- if the cargo is passengers (or, I assume, mail), the recieving
 //			industries do not include towns but they probably should...
 
  class OpHibernia {
-	function GetVersion()       { return 2; }
-	function GetRevision()		{ return 207; }
-	function GetDate()          { return "2012-01-14"; }
+	function GetVersion()       { return 3; }
+	function GetRevision()		{ return 230; }
+	function GetDate()          { return "2012-03-17"; }
 	function GetName()          { return "Operation Hibernia"; }
 	
 	
@@ -174,16 +174,19 @@ function OpHibernia::Run() {
 			}
 		}
 		
-		local OldMyIndustries = MyIndustries;
 		foreach (CargoNo in MyCargos) {
 			//	TO-DO: Add a check here to see if we can actually transport the cargo in question!
 			//				SuperLib.Engine.DoesEngineExistForCargo(cargo_id, vehicle_type = -1, no_trams = true, no_articulated = true, only_small_aircrafts = false)
 			
 			///	Get a list of Oil Rigs, and add those without our ships to the sources list;
 			//	Keep only those that are underserviced (less than 25%, typically)
-			MyIndustries = OldMyIndustries;
+			MyIndustries = AIIndustryList();
+			MyIndustries.Valuate(AIIndustry.HasDock);
+			MyIndustries.KeepValue(true.tointeger());
 			MyIndustries.Valuate(AIIndustry.GetLastMonthTransportedPercentage, CargoNo);
 			MyIndustries.KeepBelowValue(this._TransportedCutOff);
+			MyIndustries.Valuate(AIIndustry.GetLastMonthProduction, CargoNo);
+			MyIndustries.KeepAboveValue(1);
 			Log.Note("On Cargo: " + AICargo.GetCargoLabel(CargoNo) + ", " + MyIndustries.Count() + " input Industry kept.", 2);
 			
 			MyIndustries.Valuate(Helper.ItemValuator);
@@ -213,7 +216,7 @@ function OpHibernia::Run() {
 			local tick2 = WmDOT.GetTick();
 			this._Atlas.SetModel(this._AtlasModel);
 			this._Atlas.RunModel();
-			Log.Note("Atlas.RunModel() took " + (WmDOT.GetTick() - tick2) + " ticks.",2);
+			Log.Note("Atlas.RunModel() took " + (WmDOT.GetTick() - tick2) + " ticks.", 2);
 			//	TO-DO:	Apply maximum distance, based on ship travel speeds
 			
 			local KeepTrying = true;
@@ -416,14 +419,7 @@ function OpHibernia::Run() {
 									
 									//	Build Ship and give it orders
 									//	request funds for Ship
-									local CostShip = AIEngine.GetPrice(PickedEngine);
-/*									{
-										local ex = AITestMode();
-										local ac = AIAccounting();
-										AIVehicle.BuildVehicle(Depot1, PickedEngine);
-										CostShip = ac.GetCosts();
-									}
-*/									
+									local CostShip = AIEngine.GetPrice(PickedEngine);								
 									//	TO-DO: Provide for retrofit costs
 									local KeepTrying4 = true;
 									local UnfilledCapacity = MaxCargo;
@@ -441,19 +437,19 @@ function OpHibernia::Run() {
 											if (FirstVehicle == null) {
 												FirstVehicle = MyVehicle;
 												//	start station; full load here
-												AIOrder.AppendOrder(MyVehicle, BuildPair[0], AIOrder.AIOF_FULL_LOAD);
-												Log.Note("Order (Start): " + MyVehicle + " : " + Array.ToStringTiles1D([BuildPair[0]]) + ".", 5);
+												AIOrder.AppendOrder(MyVehicle, AIIndustry.GetDockLocation(MetaLib.Industry.GetIndustryID(BuildPair[0])), AIOrder.OF_FULL_LOAD);
+												Log.Note("Order (Start): " + MyVehicle + " : " + Array.ToStringTiles1D([AIIndustry.GetDockLocation(MetaLib.Industry.GetIndustryID(BuildPair[0]))]) + ".", 5);
 												//	buoys
 												for (local i = 0; i < SPFResults.len(); i++) {
-													AIOrder.AppendOrder(MyVehicle, SPFResults[i], AIOrder.AIOF_NONE);
+													AIOrder.AppendOrder(MyVehicle, SPFResults[i], AIOrder.OF_NONE);
 													Log.Note("Order: " + MyVehicle + " : " + Array.ToStringTiles1D([SPFResults[i]]) + ".", 5);
 												}
 												//	end station
-												AIOrder.AppendOrder(MyVehicle, DockLocation, AIOrder.AIOF_NONE);
+												AIOrder.AppendOrder(MyVehicle, DockLocation, AIOrder.OF_NONE);
 												Log.Note("Order (End): " + MyVehicle + " : " + Array.ToStringTiles1D([DockLocation]) + ".", 5);
 												//	buoys, but backwards
 												for (local i = SPFResults.len() - 1; i >= 0; i--) {
-													AIOrder.AppendOrder(MyVehicle, SPFResults[i], AIOrder.AIOF_NONE);
+													AIOrder.AppendOrder(MyVehicle, SPFResults[i], AIOrder.OF_NONE);
 													Log.Note("Order: " + MyVehicle + " : " + Array.ToStringTiles1D([SPFResults[i]]) + ".", 5);
 												}
 												
