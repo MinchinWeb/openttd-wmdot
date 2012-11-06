@@ -1,5 +1,5 @@
 ﻿WmDOT Read-me
-v.9, r.231, 2012-02-17
+v.10, r.249, 2012-06-27
 Copyright © 2011-12 by W. Minchin. For more info, please visit
     http://openttd-noai-wmdot.googlecode.com/  or
     http://www.tt-forums.net/viewtopic.php?f=65&t=53698
@@ -28,8 +28,8 @@ WmDOT starts by selecting a 'capital' and builds its Headquarters there. (If
 WmDOT requires OpenTTD version 1.2 or newer. This is available as a free
     download from OpenTTD.org
 As dependencies, WmDOT also requires:
-    - MinchinWeb's MetaLibrary, v.4
-    - SuperLib, v.21 ('SuperLib-19.tar')
+    - MinchinWeb's MetaLibrary, v.5
+    - SuperLib, v.24 ('SuperLib-24.tar')
     - Binary Heap, v.1 ('Queue.BinaryHeap-1.tar')
 
 -- Installation ---------------------------------------------------------------
@@ -51,7 +51,7 @@ Once installed, WmDOT can be selected through 'AI Settings' on OpenTTD's main
 Settings can be accessed by going to 'AI Settings', selecting WmDOT, and then
     clicking 'Configure'
 
-Number of days to start this AI after the previous one: 1..
+Number of days to start this AI after the previous one: 1..3600
     - this determines how soon the AI will start
 DOT State (first letter) and (second letter): Default, A..Z
     - what do you want WmDOT to call itself? The default is 'WmDOT'. Note that
@@ -78,29 +78,30 @@ Operation Hibernia: GO! .. no go
         from Oil Rigs to Oil Refineries to earn WmDOT a little bit of money.
 
 -- Version History ------------------------------------------------------------
-Version 9 [2012-03-14]
-    Added support for FIRS water-based industries. Requries FIRS v0.7.1 or newer.
-    Bug fix (to work with SuperLib)
+Version 10 [2012-06-27]
+    Improved ship selection
+    Dynamically add ships to routes
 
 See the attached CHANGELOG.txt for full version history.
 
 -- Roadmap --------------------------------------------------------------------
 These are features I hope to add to WmDOT shortly. However, this is subject to
     change without notice. However, I am open to suggestions!
-v10 Ship Pathfinder improvements
-v11 Dynamic route management
-v12 Grid-based road pathfinder
-v13 Provide inter-city valuables transportation
-v14 Bring water and food to towns in the desert and above the snowline to help
+v11 Dynamically route managmentment (delete extra ships, replace old ships)
+    Ship Pathfinder improvements
+v12 Provide streetcar service in towns
+v13 Grid-based road pathfinder
+v14 Provide 'freeways' between cities
+v15 Provide inter-city valuables transportation
+v16 Bring water and food to towns in the desert and above the snowline to help
         them grow
-v15 Provide streetcar service in towns
 
 -- Known Issues ---------------------------------------------------------------
-NewGRF support has not been tested.
-Bankruptcy: Because WmDOT has no revenue source and so may go bankrupt. This
-    becomes more of an issue in long games, on mountainous and watery maps, and
-    on large maps. Allowing WmDOT to go bankrupt and then restarting itself will
-    allow WmDOT to keep going.
+NewGRF support (beyond FIRS and FISH) has not been tested.
+Bankruptcy: Because WmDOT does not prioritize making money so may go bankrupt. 
+    This becomes more of an issue in long games, on mountainous and watery maps,
+    and on large maps. Allowing WmDOT to go bankrupt and then restarting itself 
+    will allow WmDOT to keep going.
 Save/Load functionality has not been added. On loading a game, WmDOT will take
     some time but should eventually pick up where it left off.
 Building multiple versions of the same routes is a tradeoff for pathfinder
@@ -112,6 +113,9 @@ Pathfinding can take an exceptionally long time if there is no possible path.
     This is most often an issue when the two towns in question are on different
     islands.
 Cleanup Crew does funny things...
+WmDOT will add ships, but does not currently remove them. Therefore, if industry
+    production drops, there could be a number of ships waiting for fill-ups and
+    driving WmDOT to bankruptcy.
 
 -- Help! It broke! (Bug Report) -----------------------------------------------
 If WmDOT crashes, please help me fix it! Save a screenshot (under the ? on the

@@ -1,5 +1,5 @@
-﻿/*	Cleanup Crew v.3, r.213, [2012-01-21] 
- *		part of WmDOT v.8
+﻿/*	Cleanup Crew v.3, r.249, [2012-06-27] 
+ *		part of WmDOT v.10
  *	Copyright © 2011-12 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
@@ -14,15 +14,15 @@
  */ 
  
 //	Requires
-//		Queue.Fibonacci_Heap v.2
+//		Queue.Fibonacci_Heap v.3
 
 class OpCleanupCrew {
 	function GetVersion()       { return 3; }
-	function GetRevision()		{ return 213; }
-	function GetDate()          { return "2012-01-21"; }
+	function GetRevision()		{ return 249; }
+	function GetDate()          { return "2012-06-27"; }
 	function GetName()          { return "Cleanup Crew"; }
 
-	_heap_class = import("Queue.Fibonacci_Heap", "", 2);
+	_heap_class = import("Queue.Fibonacci_Heap", "", 3);
 	_built_tiles = null;
 	_golden_path = null;
 	_heap = null;

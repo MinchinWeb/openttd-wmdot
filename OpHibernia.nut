@@ -1,5 +1,5 @@
-﻿/*	Operation Hibernia v.3, r.230, [2012-03-17]
- *		part of WmDOT v.9
+﻿/*	Operation Hibernia v.4, r.242, [2012-06-23]
+ *		part of WmDOT v.10
  *	Copyright © 2011-12 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
@@ -13,17 +13,17 @@
  *		Oil Refinaries.
  */
  
-//	Requires MinchinWeb's MetaLibrary v.4
-//	Requires Zuu's SuperLib v.21
+//	Requires MinchinWeb's MetaLibrary v.5
+//	Requires Zuu's SuperLib v.24
 
 //	TO-DO
 //		- if the cargo is passengers (or, I assume, mail), the recieving
 //			industries do not include towns but they probably should...
 
  class OpHibernia {
-	function GetVersion()       { return 3; }
-	function GetRevision()		{ return 230; }
-	function GetDate()          { return "2012-03-17"; }
+	function GetVersion()       { return 4; }
+	function GetRevision()		{ return 242; }
+	function GetDate()          { return "2012-06-23"; }
 	function GetName()          { return "Operation Hibernia"; }
 	
 	
@@ -40,6 +40,7 @@
 	
 	Log = null;
 	Money = null;
+	Manager_Ships = null;
 	
 	constructor()
 	{
@@ -57,6 +58,7 @@
 		this.State = this.State(this);
 		Log = OpLog();
 		Money = OpMoney();
+		Manager_Ships = ManShips();
 	}
 }
 
@@ -134,6 +136,7 @@ function OpHibernia::LinkUp()
 {
 	this.Log = WmDOT.Log;
 	this.Money = WmDOT.Money;
+	this.Manager_Ships = WmDOT.Manager_Ships;
 //	ship manager...
 	Log.Note(this.GetName() + " linked up!",3);
 }
@@ -358,7 +361,7 @@ function OpHibernia::Run() {
 							//	Ship Pathfinder must be given a single start tile and a
 							//		single end tile
 							//	Tell the pathfinder to skip Waterbody Check
-							Pathfinder.OverrideWBC()
+							Pathfinder.OverrideWBC();
 							local SPFResults = Pathfinder.FindPath(-1);
 							
 							if (SPFResults != null) {
@@ -409,66 +412,47 @@ function OpHibernia::Run() {
 								Engines.RemoveAboveValue(MaxCargo);
 								Log.Note("Only " + Engines.Count() + " have capacity below " + MaxCargo + ". (" + AIIndustry.GetLastMonthProduction(MetaLib.Industry.GetIndustryID(BuildPair[0]), CargoNo) + " * " + this._CapacityDays + " / 30)", 5);
 								
-								//	Pick the fastest one
-								Engines.Valuate(AIEngine.GetMaxSpeed);
+								//	Pick the best rated one
+								Marine.RateShips(1, 40, 0);
+								Engines.Valuate(Marine.RateShips, 40, CargoNo);
 								Engines.Sort(AIList.SORT_BY_VALUE, AIList.SORT_DESCENDING);
 								
 								if (Engines.Count() > 0) {
 									local PickedEngine = Engines.Begin();
 									Log.Note("Picked engine: " + PickedEngine + " : " + AIEngine.GetName(PickedEngine), 3);
-									
-									//	Build Ship and give it orders
+
 									//	request funds for Ship
-									local CostShip = AIEngine.GetPrice(PickedEngine);								
 									//	TO-DO: Provide for retrofit costs
-									local KeepTrying4 = true;
-									local UnfilledCapacity = MaxCargo;
-									local MyVehicle;
-									local FirstVehicle = null;
-									while (KeepTrying4) {
-										Money.FundsRequest(CostShip * 1.1);
-										MyVehicle = AIVehicle.BuildVehicle(Depot1, PickedEngine);
-										if (AIVehicle.IsValidVehicle(MyVehicle)) {
-											AIVehicle.RefitVehicle(MyVehicle, CargoNo);
-											UnfilledCapacity -= AIVehicle.GetCapacity(MyVehicle, CargoNo);
-											Log.Note("Added Vehicle № " + MyVehicle + "; remaining capacity = " + UnfilledCapacity + ".", 4);
-											
-											///	Give Orders!
-											if (FirstVehicle == null) {
-												FirstVehicle = MyVehicle;
-												//	start station; full load here
-												AIOrder.AppendOrder(MyVehicle, AIIndustry.GetDockLocation(MetaLib.Industry.GetIndustryID(BuildPair[0])), AIOrder.OF_FULL_LOAD);
-												Log.Note("Order (Start): " + MyVehicle + " : " + Array.ToStringTiles1D([AIIndustry.GetDockLocation(MetaLib.Industry.GetIndustryID(BuildPair[0]))]) + ".", 5);
-												//	buoys
-												for (local i = 0; i < SPFResults.len(); i++) {
-													AIOrder.AppendOrder(MyVehicle, SPFResults[i], AIOrder.OF_NONE);
-													Log.Note("Order: " + MyVehicle + " : " + Array.ToStringTiles1D([SPFResults[i]]) + ".", 5);
-												}
-												//	end station
-												AIOrder.AppendOrder(MyVehicle, DockLocation, AIOrder.OF_NONE);
-												Log.Note("Order (End): " + MyVehicle + " : " + Array.ToStringTiles1D([DockLocation]) + ".", 5);
-												//	buoys, but backwards
-												for (local i = SPFResults.len() - 1; i >= 0; i--) {
-													AIOrder.AppendOrder(MyVehicle, SPFResults[i], AIOrder.OF_NONE);
-													Log.Note("Order: " + MyVehicle + " : " + Array.ToStringTiles1D([SPFResults[i]]) + ".", 5);
-												}
-												
-												// send it on it's merry way!!!
-												AIVehicle.StartStopVehicle(MyVehicle);
-												
-											} else {
-												AIOrder.ShareOrders(MyVehicle, FirstVehicle);
-												Log.Note("Order: Shared from " + FirstVehicle + " to " + MyVehicle + ".", 5);
-												AIVehicle.StartStopVehicle(MyVehicle);
-											}
-											
-											if (UnfilledCapacity < AIVehicle.GetCapacity(MyVehicle, CargoNo)) {
-												KeepTrying4 = false;
-											}
-										} else {
-											Log.Note("Vehicle Building failed!!", 4);
-											KeepTrying4 = false;
+									Money.FundsRequest(AIEngine.GetPrice(PickedEngine) * 1.1);
+									//	Build Ship and give it orders
+									local MyVehicle = AIVehicle.BuildVehicle(Depot1, PickedEngine);
+									if (AIVehicle.IsValidVehicle(MyVehicle)) {
+										AIVehicle.RefitVehicle(MyVehicle, CargoNo);
+										Log.Note("Added Vehicle № " + MyVehicle + ".", 4);
+										
+										///	Give Orders!
+										//	start station; full load here
+										AIOrder.AppendOrder(MyVehicle, AIIndustry.GetDockLocation(MetaLib.Industry.GetIndustryID(BuildPair[0])), AIOrder.OF_FULL_LOAD);
+										Log.Note("Order (Start): " + MyVehicle + " : " + Array.ToStringTiles1D([AIIndustry.GetDockLocation(MetaLib.Industry.GetIndustryID(BuildPair[0]))]) + ".", 5);
+										//	buoys
+										for (local i = 0; i < SPFResults.len(); i++) {
+											AIOrder.AppendOrder(MyVehicle, SPFResults[i], AIOrder.OF_NONE);
+											Log.Note("Order: " + MyVehicle + " : " + Array.ToStringTiles1D([SPFResults[i]]) + ".", 5);
 										}
+										//	end station
+										AIOrder.AppendOrder(MyVehicle, DockLocation, AIOrder.OF_NONE);
+										Log.Note("Order (End): " + MyVehicle + " : " + Array.ToStringTiles1D([DockLocation]) + ".", 5);
+										//	buoys, but backwards
+										for (local i = SPFResults.len() - 1; i >= 0; i--) {
+											AIOrder.AppendOrder(MyVehicle, SPFResults[i], AIOrder.OF_NONE);
+											Log.Note("Order: " + MyVehicle + " : " + Array.ToStringTiles1D([SPFResults[i]]) + ".", 5);
+										}
+										
+										// send it on it's merry way!!!
+										AIVehicle.StartStopVehicle(MyVehicle);
+										
+										///	Build one ship on path, and turn over to Ship Route Manager
+										Manager_Ships.AddRoute(MyVehicle, CargoNo);		
 									}
 
 								} else {
@@ -478,7 +462,6 @@ function OpHibernia::Run() {
 							} else {
 								Log.Note("Ship Pathfinder returns negative. Took " + (WmDOT.GetTick() - tick2) + " ticks.",3);
 							}
-							///	Build one ship on path, and turn over to Ship Route Manager
 							
 							KeepTrying = false;
 						} else {
@@ -497,7 +480,8 @@ function OpHibernia::Run() {
 //	Sleep for three months after last OpHibernia run, or a month after the last
 //		ship was added, or ignore if we have no debt
 	this._NextRun = WmDOT.GetTick() + 6500*this._SleepLength/365;	//	Approx. three months
-	Log.Note("OpHibernia finished. Took " + (WmDOT.GetTick() - tick) + " ticks.",2);
+
+	Log.Note("OpHibernia finished. Took " + (WmDOT.GetTick() - tick) + " ticks.", 2);
 	
 	return;
 }

@@ -1,5 +1,5 @@
 ﻿WmDOT Changelog
-v.9, r.231, 2012-03-17
+v.10, r.249, 2012-06-27
 Copyright © 2011-12 by W. Minchin. For more info, please visit
     http://openttd-noai-wmdot.googlecode.com/  or
     http://www.tt-forums.net/viewtopic.php?f=65&t=53698
@@ -16,11 +16,14 @@ WmDOT (short for "William's Department of Transportation") is an AI for
 For full details on WmDOT, see the attached README.txt
 
 -- Full Version History -------------------------------------------------------
+Version 10 [2012-06-27]
+    Improved ship selection
+    Dynamically add ships to routes
+    Updated to SuperLib v24 and MetaLibary v5
 Version 9 [2012-03-14]
-    Added support for FIRS water-based industries. Requries FIRS v0.7.1 or newer.
+    Added support for FIRS water-based industries. Requires FIRS v0.7.1 or newer.
     Bug fixes (to work with SuperLib and updated API)
     Change default Debug Level to 3
-    Should support all of FIRS' water-based industries (requires FIRS v0.7.1)
     Updated to SuperLib v21 and MetaLibrary v4
 Version 8 [2012-01-21]
     Can now bridge over canals, rivers, and railroad tracks

@@ -1,17 +1,17 @@
-﻿/*	WmDOT v.9, r.231, [2011-03-17]
+﻿/*	WmDOT v.10, r.249, [2011-06-27]
  *	Copyright © 2011-12 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
  
 // Does the Road.Pathfinder provided by the AI Team need to be updated?
 
-import("util.MinchinWeb", "MetaLib", 4);
+import("util.MinchinWeb", "MetaLib", 5);
 	RoadPathfinder <- MetaLib.RoadPathfinder;
 	Array <- MetaLib.Array;
 	Atlas <- MetaLib.Atlas;
 	Marine <- MetaLib.Marine;
 	OpLog <- MetaLib.Log;
-import("util.superlib", "SuperLib", 21);		//	For loan management
+import("util.superlib", "SuperLib", 24);		//	For loan management
 	SLMoney <- SuperLib.Money;
 	Helper <- SuperLib.Helper;
 	AIAbstractList <- AIList	// to support SuperLib v.21
@@ -23,16 +23,17 @@ require("Neighbourhood.nut");		//	Neighbourhood Class
 // require("Fibonacci.Heap.WM.nut");	//	Fibonacci Heap (Max)
 require("Cleanup.Crew.nut");		//	Cleanup Crew
 require("OpHibernia.nut");			//	Operation Hibernia
+require("Ship.Manager.nut");		//	Ship Manager
 		
 
  
  class WmDOT extends AIController 
 {
 	//	SETTINGS
-	WmDOTv = 9;
+	WmDOTv = 10;
 	/*	Version number of AI
 	 */	
-	WmDOTr = 231;
+	WmDOTr = 249;
 	/*	Reversion number of AI
 	 */
 	 
@@ -49,6 +50,7 @@ require("OpHibernia.nut");			//	Operation Hibernia
 	DOT = OpDOT();
 	CleanupCrew = OpCleanupCrew();
 	Hibernia = OpHibernia();
+	Manager_Ships = ManShips();
   
 	function Start();
 }
@@ -77,6 +79,7 @@ function WmDOT::Start()
 	Log.Note("     " + Towns.GetName() + ", v." + Towns.GetVersion() + " r." + Towns.GetRevision() + "  loaded!",0);
 	Log.Note("     " + CleanupCrew.GetName() + ", v." + CleanupCrew.GetVersion() + " r." + CleanupCrew.GetRevision() + "  loaded!",0);
 	Log.Note("     " + Hibernia.GetName() + ", v." + Hibernia.GetVersion() + " r." + Hibernia.GetRevision() + "  loaded!",0);
+	Log.Note("     " + Manager_Ships.GetName() + ", v." + Manager_Ships.GetVersion() + " r." + Manager_Ships.GetRevision() + "  loaded!",0);
 	StartInfo();		//	AyStarInfo()
 						//	RoadPathfinder()
 						//	NeighbourhoodInfo()
@@ -100,13 +103,14 @@ function WmDOT::Start()
 	DOT.Settings.HQTown = HQTown;
 	while (true) {
 		Time = this.GetTick();	
-		Log.UpdateDebugLevel();
+//		Log.UpdateDebugLevel();
 
 		if (Time > Money.State.NextRun)			{ Money.Run(); }
 		if (Time > Towns.State.NextRun)			{ Towns.Run(); }
 		if (Time > CleanupCrew.State.NextRun)	{ CleanupCrew.Run(); }
 		if (Time > DOT.State.NextRun)			{ DOT.Run(); }
 		if (Time > Hibernia.State.NextRun)		{ Hibernia.Run(); }
+		if (Time > Manager_Ships.State.NextRun)	{ Manager_Ships.Run(); }
 
 		this.Sleep(1);		
 	}
@@ -115,7 +119,7 @@ function WmDOT::Start()
 function WmDOT::StartInfo()
 {
 //	By placing classes here that need to be created to get their info, we
-//		destroy them right away (which double to clean up the bug report
+//		destroy them right away (which doubles to clean up the bug report
 //		screens and to free up a little bit of memory)
 //	local MyAyStar = AyStarInfo();
 //	Log.Note("     " + MyAyStar.GetName() + ", v." + MyAyStar.GetVersion() + " r." + MyAyStar.GetRevision() + "  loaded!",0);
@@ -494,6 +498,7 @@ function WmDOT::TheGreatLinkUp()
 	Towns.LinkUp();
 	CleanupCrew.LinkUp();
 	Hibernia.LinkUp();
+	Manager_Ships.LinkUp();
 	Log.Note("The Great Link Up is Complete!",1);
 	Log.Note("",1);
 }
