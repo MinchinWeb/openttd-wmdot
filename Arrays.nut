@@ -1,4 +1,4 @@
-/*	WmDOT v.2  r.17		2011-02-28
+/*	WmDOT v.5  r.53d		2011-04-09
  *	Array Functions
  *	Copyright © 2011 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
@@ -88,16 +88,19 @@ function ContainedIn2DArray(InArray, SearchValue)
 //	Accepts 2D Arrays
 //
 //	Move to Array library
-	
-	for (local i = 0; i < InArray.len(); i++ ) {
-		for (local j=0; j < InArray[i].len(); j++ ) {
-			if (InArray[i][j] == SearchValue) {
-				return true;
+	if (InArray == null) {
+		return null;
+	} else {
+		for (local i = 0; i < InArray.len(); i++ ) {
+			for (local j=0; j < InArray[i].len(); j++ ) {
+				if (InArray[i][j] == SearchValue) {
+					return true;
+				}
 			}
 		}
-	}
 
-	return false;
+		return false;
+	}
 }
 
 function ContainedIn1DArray(InArray, SearchValue)
@@ -107,13 +110,16 @@ function ContainedIn1DArray(InArray, SearchValue)
 //	Accepts 1D Arrays
 //
 //	Move to Array library
-	
-	for (local i = 0; i < InArray.len(); i++ ) {
-			if (InArray[i] == SearchValue) {
-				return true;
-			}
-	}
+	if (InArray == null) {
+		return null;
+	} else {
+		for (local i = 0; i < InArray.len(); i++ ) {
+				if (InArray[i] == SearchValue) {
+					return true;
+				}
+		}
 
-	return false;
+		return false;
+	}
 }
 

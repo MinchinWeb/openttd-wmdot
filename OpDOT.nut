@@ -1,5 +1,5 @@
-﻿/*	OperationDOT v.2, part of 
- *	WmDOT v.4  r.53  [2011-04-08]
+﻿/*	OperationDOT v.3, part of 
+ *	WmDOT v.5  r.69  [2011-04-13]
  *	Copyright © 2011 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
@@ -19,9 +19,9 @@
 //	Requires "OpLog.nut"
 //	Requires "OpMoney.nut"
 //		Note that OpDOT runs a seperate money manager from the main program
+//	Requires "TownRegistrar.nut"
 
 //	TO-DO
-//	- return cost of route selection before building
 //	- break into more steps (Modes) to allow breaking during pathfinding
  
  
@@ -36,9 +36,9 @@
 
 
  class OpDOT {
-	function GetVersion()       { return 2; }
-	function GetRevision()		{ return 53; }
-	function GetDate()          { return "2011-04-08"; }
+	function GetVersion()       { return 3; }
+	function GetRevision()		{ return 69; }
+	function GetDate()          { return "2011-04-13"; }
 	function GetName()          { return "Operation DOT"; }
  
 	_MaxAtlasSize = null;		//  UNUSED
@@ -70,8 +70,8 @@
 	_Atlas = null;
 	_TownArray = null;
 	_PairsToConnect = null;
-	_ConnectedPairs = null;
-	_SomeoneElseConnected = null;
+	_ConnectedPairs = null;			//	TO-DO: Tranisition to TownRegistrar
+	_SomeoneElseConnected = null;	//	TO-DO: Tranisition to TownRegistrar
 	_NumOfTownsOnList = null;
 	_BuiltSomething = null;
 	_ModeStart = null;
@@ -81,6 +81,7 @@
 											//	make it run faster but can do
 											//	funny things to the resulting
 											//	path...
+	_Mode7Counter = null;
 	
 	_NextRun = null;
 	_ROI = null;
@@ -88,6 +89,7 @@
 	
 	Log = null;
 	Money = null;
+	Towns = null;
 	
 	 
 	constructor()
@@ -111,13 +113,15 @@
 		this._NextRun = 0;
 		this._RoadType = AIRoad.ROADTYPE_ROAD;
 		this._PathfinderDistancePenalty = 5;
+		this._Mode7Counter = 0;
 		
 		this.Settings = this.Settings(this);
 		this.State = this.State(this);
-		Log = WmDOT.Log;
+		Log = OpLog();
 		Money = OpMoney();
+		Towns = TownRegistrar();
 	}
-};
+}
 
 class OpDOT.Settings {
 
@@ -174,9 +178,9 @@ class OpDOT.Settings {
 	{
 		this._main = main;
 	}
-};
+}
  
- class OpDOT.State {
+class OpDOT.State {
 
 	_main = null;
 	
@@ -195,7 +199,15 @@ class OpDOT.Settings {
 	{
 		this._main = main;
 	}
-};
+}
+
+function OpDOT::LinkUp() 
+{
+	this.Log = WmDOT.Log;
+	this.Money = WmDOT.Money;
+	this.Towns = WmDOT.Towns;
+	Log.Note(this.GetName() + " linked up!",3);
+}
  
 function OpDOT::Run() {
 	//	This is used to keep track of what 'step' the AI is at
@@ -212,36 +224,42 @@ function OpDOT::Run() {
 	//			of towns above the population threshold
 	//		7 - the AI naps ... zzz ...
 	
-	this._NextRun = WmDOT.GetTick();
+	this._NextRun = AIController.GetTick();
 	Log.Note("OpDOT running in Mode " + this._Mode + " at tick " + this._NextRun + ".",1);
 	
-	if (WmDOT.GetSetting("OpDOT") == 0) {
-		this._NextRun += 10000;
+	if (WmDOT.GetSetting("OpDOT") != 1) {
+		this._NextRun = AIController.GetTick() + 13001;			//	6500 ticks is about a year
 		Log.Note("** OpDOT has been disabled. **",0);
 		return;
 	}
 	
-	if (this._ModeStart == true) {
-		if (this._Mode == 1) {
+//	if (this._ModeStart == true) {
+		/* if (this._Mode == 1) {
 			this._TownArray = GenerateTownList(0);
-			//	In Mode 1, all towns are considered regardless of the
-			//		population limit (this doesn't become too onerous because
-			//		Mode 1 has a very small distance limit)
+				// In Mode 1, all towns are considered regardless of the
+				// 	population limit (this doesn't become too onerous because
+				// 	Mode 1 has a very small distance limit)
 		} else {
 			this._TownArray = GenerateTownList();
-		}
-	}
+		} */
+//		this._TownArray = Towns.GenerateTownList(this._HQTown);
+		//	Moving to the TownRegistrar doesn't support overriding the
+		//		population limit on the fly
+		//	Setting population limits can be done by Setting TownRegistrar Mode
+		//		to 0 and then explicitily setting the population limit, and
+		//		then running TownRegistrar
+//	}
 	
 	//	If another town goes above the population threshold, restart 'Mode 1'
 	//	Ignores what happens if you change the population threshold limit down externally...
-	if ( (this._NumOfTownsOnList < this._TownArray.len()) && (this._Mode != 1)) {
-		Log.Note("** Returning to Mode 1. **",2);
-		this._Mode = 1;
-		this._BuiltSomething = false;
-		this._NumOfTownsOnList = this._TownArray.len();
-		this._TownArray = GenerateTownList(0);
-		this._ModeStart = true;
-	}
+//	if ( (this._NumOfTownsOnList < this._TownArray.len()) && (this._Mode != 1) ) {
+//		Log.Note("** Returning to Mode 1. **",2);
+//		this._Mode = 1;
+//		this._BuiltSomething = false;
+//		this._NumOfTownsOnList = this._TownArray.len();
+//		this._TownArray = GenerateTownList(0);
+//		this._ModeStart = true;
+//	}
 	
 	switch (this._Mode) {
 		case 1:
@@ -249,12 +267,30 @@ function OpDOT::Run() {
 		case 3:
 		case 4:
 		case 5:
+		case 6:
 			if (this._ModeStart == true) {
+				if (this._Mode == 2 && this.Towns.Settings.PopLimit == 0) {
+				//	This should only run after moving out of Mode 1 for the
+				//		first time
+					this.Towns.UpdateMode(1);	//	Abide by PopLimit setting
+					this.Towns.Run();			//	Regenerate Neighbourhoods
+				}
+			
+				this._TownArray = this.Towns.GenerateTownList(this._HQTown);
+				//	Moving to the TownRegistrar doesn't support overriding the
+				//		population limit on the fly
+				//	Setting population limits can be done by Setting
+				//		TownRegistrar Mode to 0 and then explicitily setting
+				//		 the population limit, and then running TownRegistrar
 				this._Atlas = GenerateAtlas(this._TownArray);
-				this._Atlas = RemoveExculsiveDepart(this._Atlas, this._HQTown, this._ConnectedPairs, this._Mode);
+				if (this._Mode != 6) {
+					this._Atlas = RemoveExculsiveDepart(this._Atlas, this._HQTown, this._ConnectedPairs, this._Mode);
+				}
 				this._Atlas = RemoveBuiltConnections(this._Atlas, this._ConnectedPairs);
-				this._Atlas = RemoveBuiltConnections(this._Atlas, this._SomeoneElseConnected);
-				this._Atlas = RemoveOverDistance(this._Atlas, GetMaxDistance(this._Mode));
+				if (this._Mode != 6) {
+					this._Atlas = RemoveBuiltConnections(this._Atlas, this._SomeoneElseConnected);
+					this._Atlas = RemoveOverDistance(this._Atlas, GetMaxDistance(this._Mode));
+				}
 				this._Atlas = ApplyTripGenerationModel(this._Atlas);
 				this._ModeStart = false;
 			}
@@ -278,6 +314,10 @@ function OpDOT::Run() {
 					//		maintained in the given Atlas)
 						this._Mode++;
 						Log.Note("** Moving to Mode " + this._Mode + ". **",2);
+					} else if (this._Mode == 6) {
+					//	if something has been built (in Modes 6), rebuild atlas
+					//		 and try again
+						Log.Note("** Restarting in Mode " + this._Mode + ". **",2);
 					} else {
 					//	If we're in Mode 3 or higher, have built a
 					//		connection might open up new possibilities;
@@ -290,53 +330,57 @@ function OpDOT::Run() {
 				this._ModeStart = true;
 				this._BuiltSomething = false;
 			} else {
-				//	Now that we have the pair, best for an existing connection and only build the road if it doesn't exist				
 				local TestAtlas = [[this._PairsToConnect[0], 0, 1],[this._PairsToConnect[1], 0, 0]];
-				TestAtlas = RemoveExistingConnections(TestAtlas);
+				if (this._Mode != 6) {
+					//	Now that we have the pair, test for an existing connection and only build the road if it doesn't exist
+					TestAtlas = RemoveExistingConnections(TestAtlas);
+				}
 				
-				if (TestAtlas[0][2] == 1) {
-					local tick = WmDOT.GetTick();
+				if ((this._Mode == 6) || (TestAtlas[0][2] == 1) ) {
+					local tick = AIController.GetTick();
 					local KeepTrying = true;
 					local Tries = 1;
 					local Path;
-					local BuildCost;
-					local OldLength;
+					local BuildCost = 0;
 					
-					Log.Note("Attempt " + Tries + " to connect " +AITown.GetName(this._PairsToConnect[0]) + " to " + AITown.GetName(this._PairsToConnect[1]) + ".", 3)
+					Log.Note("Attempt " + Tries + " to connect " +AITown.GetName(this._PairsToConnect[0]) + " to " + AITown.GetName(this._PairsToConnect[1]) + ".", 3);
 					Path = RunPathfinderOnTownPairs(this._PairsToConnect);
-					OldLength = Path.GetLength();
 					
-					while (KeepTrying == true) {
+					while (KeepTrying == true && Path != null) {
 						Tries++;
-						Log.Note("Pathfinding took " + (WmDOT.GetTick() - tick) + " ticks. (MD = " + AIMap.DistanceManhattan(AITown.GetLocation(this._PairsToConnect[0]),AITown.GetLocation(this._PairsToConnect[1])) + ", Length = " + OldLength + ").",3);
-						tick = WmDOT.GetTick();
+						Log.Note("Pathfinding took " + (AIController.GetTick() - tick) + " ticks. (MD = " + AIMap.DistanceManhattan(AITown.GetLocation(this._PairsToConnect[0]),AITown.GetLocation(this._PairsToConnect[1])) + ", Length = " + Path.GetLength() + ").",3);
+						tick = AIController.GetTick();
 						BuildCost = GetPathBuildCost(Path);
-						Log.Note("Cost of path is " + BuildCost + "£. Took " + (WmDOT.GetTick() - tick) + " ticks.", 3);
+						Log.Note("Cost of path is " + BuildCost + "£. Took " + (AIController.GetTick() - tick) + " ticks.", 3);
 						Money.FundsRequest(BuildCost*1.1);		//	To allow for inflation during construction
 						BuildPath(Path);
 						
 						//	Test to see if construction worked by running the
 						//		pathfinder and computing build cost of the 
 						//		second path
-						tick = WmDOT.GetTick();
+						tick = AIController.GetTick();
 						Log.Note("Attempt " + Tries + " to connect " +AITown.GetName(this._PairsToConnect[0]) + " to " + AITown.GetName(this._PairsToConnect[1]) + ".", 3)
-						Path = RunPathfinderOnTownPairs(this._PairsToConnect);
+//						Path = RunPathfinderOnTownPairs(this._PairsToConnect);
 						BuildCost = GetPathBuildCost(Path);
+						// TO-DO:	Check that the bridges and tunnels got
+						//			built; if unbuildable, their cost remains 0£
 						
 						if (BuildCost == 0) {
 							Log.Note("Successful connection!",3);
 							KeepTrying = false;
 						}						
-						if (Tries >= 10 && KeepTrying == true) {
+						if ((Tries >= (WmDOT.GetSetting("OpDOT_RebuildAttempts") + 1)) && (KeepTrying == true)) {
 							Log.Warning("After " + Tries + " tries, unable to build path from " +AITown.GetName(this._PairsToConnect[0]) + " to " + AITown.GetName(this._PairsToConnect[1]) + ".")
 							KeepTrying = false;
 						}
-//						if (KeepTrying == true) {
-	//						Log.Note("Attempt " + Tries + " to connect " +AITown.GetName(this._PairsToConnect[0]) + " to " + AITown.GetName(this._PairsToConnect[1]) + ".", 4)
-		//				}
 					}
 					
+					if (Path == null) {
+						Log.Warning("Pathfinding took " + (AIController.GetTick() - tick) + " ticks and failed. (MD = " + AIMap.DistanceManhattan(AITown.GetLocation(this._PairsToConnect[0]),AITown.GetLocation(this._PairsToConnect[1])) + ").");
+					}
+
 					this._ConnectedPairs.push(this._PairsToConnect);	//	Add the pair to the list of built roads
+					// Towns.RegisterConnection(this._PairsToConnect[0],this._PairsToConnect[1]);
 					this._Atlas = RemoveBuiltConnections(this._Atlas, [this._PairsToConnect]);
 					this._BuiltSomething = true;
 				} else if (TestAtlas[0][2] == 0) {
@@ -349,56 +393,26 @@ function OpDOT::Run() {
 				}
 			}
 			
-			this._NextRun = WmDOT.GetTick() + (this._SleepLength - (WmDOT.GetTick() % this._SleepLength));
-			break;
-			
-		case 6:
-			if (this._ModeStart == true) {
-				this._Atlas = GenerateAtlas(this._TownArray);
-				this._Atlas = RemoveBuiltConnections(this._Atlas, this._ConnectedPairs);
-				this._Atlas = ApplyTripGenerationModel(this._Atlas);
-				//	Doesn't consider roads built by others or indirect connections
-				//	Doesn't require potential new roads to attach to exisiting network
-			}
-
-			this._PairsToConnect = PickTowns(this._Atlas);
-			
-			//	If everything is connected, bump it up to 'Mode 7'
-			if (this._PairsToConnect == null) {
-				if (this._BuiltSomething == false) {
-				//	If nothing has been built, move to next mode; if
-				//		something has been built (in Modes 6),
-				//		rebuild atlas and try again
-					this._Mode++;
-					Log.Note("** Moving to Mode " + this._Mode + ". **",2);
-				} else {
-					Log.Note("** Restarting in Mode " + this._Mode + ". **",2);
-				}
-				this._ModeStart = true;
-				this._BuiltSomething = false;
-			} else {
-				//	Now that we have the pair, test for an existing
-				//		connection and only build the road if it 
-				//		doesn't exist						
-				local tick = WmDOT.GetTick();
-				local Path = RunPathfinderOnTownPairs(this._PairsToConnect);
-				Log.Note("Pathfinding took " + (WmDOT.GetTick() - tick) + " ticks. (MD=" + AIMap.DistanceManhattan(AITown.GetLocation(this._PairsToConnect[0]),AITown.GetLocation(this._PairsToConnect[1])) + ")",3);
-				tick = WmDOT.GetTick();
-				local BuildCost = GetPathBuildCost(Path);
-				Log.Note("Cost of path is " + BuildCost + "£. Took " + (WmDOT.GetTick() - tick) + " ticks.", 3);
-				Money.FundsRequest(BuildCost*1.1);		//	To allow for inflation during construction
-				BuildPath(Path);
-				this._ConnectedPairs.push(this._PairsToConnect);	//	Add the pair to the list of built roads
-				this._Atlas = RemoveBuiltConnections(this._Atlas, [this._PairsToConnect]);
-				this._BuiltSomething = true;
-			}
-			
-			this._NextRun = WmDOT.GetTick() + (this._SleepLength - (WmDOT.GetTick() % this._SleepLength));
+			this._NextRun = AIController.GetTick() + (this._SleepLength - (AIController.GetTick() % this._SleepLength));
 			break;
 
 		case 7:
-			this._NextRun = WmDOT.GetTick() + ((this._SleepLength * 10) - (WmDOT.GetTick() % (this._SleepLength * 10)));
-			Log.Note("It's tick " + WmDOT.GetTick() + " and apparently I've done everything! I'm taking a nap... Next run at " + this._NextRun + ".",2);
+			// Checks if the number of neighbourhoods == 1; if so sleep; if
+			//		not, increase the population limit in steps of the PopLimit
+			//		setting, and rerun the TownRegistrar and then OpDOT,
+			//		starting in Mode 3
+			if (this.Towns.State.NeighbourhoodCount == 1) {
+				this._NextRun = AIController.GetTick() + ((this._SleepLength * 10) - (AIController.GetTick() % (this._SleepLength * 10)));
+				Log.Note("In Mode 7: It's tick " + AIController.GetTick() + " and apparently I've done everything! I'm taking a nap... Next run at " + this._NextRun + ".",2);
+			} else {
+				this._Mode7Counter ++;
+				Log.Note("In Mode 7: It's tick " + AIController.GetTick() + " and I'm resetting the Atlas with a population limit of " + (WmDOT.GetSetting("OpDOT_MinTownSize") * (this._Mode7Counter + 1) ) + ".",2);				
+				this.Towns.UpdateMode(0);
+				this.Towns.Settings.PopLimit = (WmDOT.GetSetting("OpDOT_MinTownSize") * (this._Mode7Counter + 1) );
+				this._Mode = 3;
+				this._ModeStart = true;
+				this._BuiltSomething = false;
+			}
 			break;
 	}
 
@@ -495,11 +509,11 @@ function OpDOT::RemoveExculsiveDepart(WmAtlas, HQTown, ConnectedPairs, Mode)
 {
 //	Designed to only allow connections based on already connected towns.
 //	In Modes 1 & 2, anything not connecting directly to the 'capital' is removed
-//	In Modes 3 & 4, anything not connected to the capital is (directly or via
-//		already built roads) is removed
+//	In Modes 3, 4, & 5, anything not connected to the capital is (directly or
+//		via already built roads) is removed
 
 	local tick;
-	tick = WmDOT.GetTick();
+	tick = AIController.GetTick();
 	
 	local Count = 0;
 	
@@ -520,7 +534,7 @@ function OpDOT::RemoveExculsiveDepart(WmAtlas, HQTown, ConnectedPairs, Mode)
 			}
 			
 			Log.Note(ToSting2DArray(WmAtlas), 4);
-			Log.Note(Count + " routes removed. Took " + (WmDOT.GetTick() - tick) + " ticks.",3);
+			Log.Note(Count + " routes removed. Took " + (AIController.GetTick() - tick) + " ticks.",3);
 			return WmAtlas;
 		case 3:
 		case 4:
@@ -539,7 +553,7 @@ function OpDOT::RemoveExculsiveDepart(WmAtlas, HQTown, ConnectedPairs, Mode)
 			}			
 			
 			Log.Note(ToSting2DArray(WmAtlas), 4);
-			Log.Note(Count + " routes removed. Took " + (WmDOT.GetTick() - tick) + " ticks.", 3);
+			Log.Note(Count + " routes removed. Took " + (AIController.GetTick() - tick) + " ticks.", 3);
 			return WmAtlas;
 		default:
 			return WmAtlas;
@@ -551,7 +565,7 @@ function OpDOT::RemoveBuiltConnections(WmAtlas, ConnectedPairs)
 //	Removes roadpairs that have already been built
 	Log.Note("Removing already built roads...",2);
 	
-	local tick = WmDOT.GetTick();
+	local tick = AIController.GetTick();
 	local TownA = 0;
 	local TownB = 0;
 	local Count = 0;
@@ -582,7 +596,7 @@ function OpDOT::RemoveBuiltConnections(WmAtlas, ConnectedPairs)
 	
 	Log.Note(ToSting2DArray(WmAtlas), 4);
 //	if (this._PrintTownAtlas == true) AILog.Info("               " + WmArray.2D.Print(WmAtlas));
-	Log.Note(Count + " routes removed. Took " + (WmDOT.GetTick() - tick) + " ticks.", 3);
+	Log.Note(Count + " routes removed. Took " + (AIController.GetTick() - tick) + " ticks.", 3);
 
 	return WmAtlas;
 
@@ -596,7 +610,7 @@ function OpDOT::RemoveOverDistance(WmAtlas, MaxDistance)
 	Log.Note("Removing towns further than " + MaxDistance + " tiles apart...",2)
 	
 	local tick;
-	tick = WmDOT.GetTick();
+	tick = AIController.GetTick();
 	
 	local Count = 0;
 	
@@ -614,7 +628,7 @@ function OpDOT::RemoveOverDistance(WmAtlas, MaxDistance)
 	}
 	Log.Note(ToSting2DArray(WmAtlas),4);
 //	if (this._PrintTownAtlas == true) AILog.Info("               " + WmArray.2D.Print(WmAtlas));
-	Log.Note(Count + " routes removed. Took " + (WmDOT.GetTick() - tick) + " ticks.", 3);
+	Log.Note(Count + " routes removed. Took " + (AIController.GetTick() - tick) + " ticks.", 3);
 
 	return WmAtlas;
 }
@@ -628,7 +642,7 @@ function OpDOT::ApplyTripGenerationModel(WmAtlas)
 	//	T is calculated by assuming each tile is 1 mile square = (d/v)
 
 //	local tick;
-//	tick = WmDOT.GetTick();
+//	tick = AIController.GetTick();
 	
 	local Speed = GetSpeed();
 	
@@ -668,7 +682,7 @@ function OpDOT::PickTowns(WmAtlas)
 	//		each town pair
 
 	local tick;
-	tick = WmDOT.GetTick();
+	tick = AIController.GetTick();
 	
 	//	Ok, next step: find the highest rated pair
 	local Maxi = null;
@@ -689,7 +703,7 @@ function OpDOT::PickTowns(WmAtlas)
 		Maxi = WmAtlas[Maxi][0];
 		Maxj = WmAtlas[Maxj][0];
 		
-		Log.Note("     The best rated pair is " + AITown.GetName(Maxi) + " and " + AITown.GetName(Maxj) + ". Took " + (WmDOT.GetTick() - tick) + " ticks.",2)
+		Log.Note("     The best rated pair is " + AITown.GetName(Maxi) + " and " + AITown.GetName(Maxj) + ". Took " + (AIController.GetTick() - tick) + " ticks.",2)
 		
 		return [Maxi, Maxj];
 	}
@@ -715,7 +729,7 @@ function OpDOT::RemoveExistingConnections(WmAtlas)
 	Log.Note("Removing already joined towns. This can take a while...",2)
 	
 	local tick;
-	tick = WmDOT.GetTick();
+	tick = AIController.GetTick();
 	
 	//	create instance of road pathfinder
 	local pathfinder = RoadPathfinder();
@@ -770,7 +784,7 @@ function OpDOT::RemoveExistingConnections(WmAtlas)
 	
 	Log.Note(ToSting2DArray(WmAtlas),4);
 	
-	tick = WmDOT.GetTick() - tick;
+	tick = AIController.GetTick() - tick;
 	Log.Note(RemovedCount + " of " + ExaminedCount + " routes removed. Took " + tick + " tick(s).", 3);
 	
 	return WmAtlas;
@@ -878,9 +892,9 @@ function OpDOT::RunPathfinder(Start, End)
 												//	default tile cost is 30
 	pathfinder.cost.max_bridge_length = this._MaxBridge;
 	pathfinder.cost.max_tunnel_length = this._MaxTunnel;
-	pathfinder.cost.no_existing_road = 160;		//	default = 40
-	pathfinder.cost.slope = 300;				//	default = 200
-	pathfinder.cost.bridge_per_tile = 200;		//	default = 150
+	pathfinder.cost.no_existing_road = 301;		//	default = 40
+	pathfinder.cost.slope = 150;				//	default = 200
+	pathfinder.cost.bridge_per_tile = 750;		//	default = 150
 												//	the hope is that random bridges on flat ground won't
 												//		show up, but they will for the little dips  \_/
 	pathfinder.cost.turn = 50;					//	default = 100
@@ -895,11 +909,10 @@ function OpDOT::RunPathfinder(Start, End)
 	while (path == false) {
 		path = pathfinder.FindPath(this._PathFinderCycles);
 		CycleCounter+=this._PathFinderCycles;
-		if (CycleCounter % 2000 == 0) {
+		if ((CycleCounter % 2000 < this._PathFinderCycles) || (this._PathFinderCycles > 2000) ) {
 			//	A safety to make sure that the AI doesn't run out
 			//		of money while pathfinding...
 			Money.GreaseMoney();
-//			CycleCounter = 0;
 			WmDOT.Sleep(1);
 		}
 	}
@@ -936,6 +949,7 @@ function OpDOT::GetPathBuildCost(Path)
 //	Note that due to inflation, this value can get stale
 //	Returns null if the test build fails
 
+//	Log.Note("Starting the Bean Counters...",4);
 	local BeanCounter = AIAccounting();
 	local TestMode = AITestMode();
 
@@ -972,7 +986,8 @@ function OpDOT::GetPathBuildCost(Path)
 						if (!AITunnel.BuildTunnel(AIVehicle.VT_ROAD, Path.GetTile())) {
 						//	At this point, an error has occured while building the tunnel.
 						//	Fail the pathfiner
-							return null;
+						//	return null;
+						Log.Warning("OpDOT::GetPathBuildCost can't build a tunnel from " + AIMap.GetTileX(Path.GetTile()) + "," + AIMap.GetTileY(Path.GetTile()) + " to " + AIMap.GetTileX(SubPath.GetTile()) + "," + AIMap.GetTileY(SubPath.GetTile()) + "!!" );
 						}
 					} else {
 					//	if not a tunnel, we assume we're buildng a bridge
@@ -982,7 +997,8 @@ function OpDOT::GetPathBuildCost(Path)
 						if (!AIBridge.BuildBridge(AIVehicle.VT_ROAD, BridgeList.Begin(), Path.GetTile(), SubPath.GetTile())) {
 						//	At this point, an error has occured while building the bridge.
 						//	Fail the pathfiner
-							return null;
+						//	return null;
+						Log.Warning("OpDOT::GetPathBuildCost can't build a bridge from " + AIMap.GetTileX(Path.GetTile()) + "," + AIMap.GetTileY(Path.GetTile()) + " to " + AIMap.GetTileX(SubPath.GetTile()) + "," + AIMap.GetTileY(SubPath.GetTile()) + "!!" );
 						}
 					}
 				}
@@ -992,7 +1008,14 @@ function OpDOT::GetPathBuildCost(Path)
 	}
 	
 	//	End build sequence
-	return BeanCounter.GetCosts();
+//	Log.Note("BuildCost is " + BeanCounter.GetCosts() + "£.",4);
+//	if (BeanCounter.GetCosts() == null) {
+//		Log.Warning("GetPathBuildCost returns 'null'.");
+//		return 0;	//	not ideal, but it keeps the rest from crashing
+//	TO-DO: Why would this return 'null' in any case?		
+//	} else {
+		return BeanCounter.GetCosts();
+//	}
 }
 
 function OpDOT::BuildPath(Path)
@@ -1031,10 +1054,19 @@ function OpDOT::BuildPath(Path)
 						AITile.DemolishTile(Path.GetTile());
 					}
 					if (AITunnel.GetOtherTunnelEnd(Path.GetTile()) == SubPath.GetTile()) {
+					//	The assumption here is that the land hasn't changed
+					//		from when the pathfinder was run and when we try to
+					//		build the path. If the tunnel building fails, we
+					//		get the 'can't build tunnel' message, but if the
+					//		land has changed such that the tunnel end is at a
+					//		different spot than is was when the pathfinder ran,
+					//		we skip tunnel building and try and build a bridge
+					//		instead, which will fail because the slopes are wrong...
 						if (!AITunnel.BuildTunnel(AIVehicle.VT_ROAD, Path.GetTile())) {
 						//	At this point, an error has occured while building the tunnel.
 						//	Fail the pathfiner
-							return null;
+						//	return null;
+							Log.Warning("OpDOT::BuildPath can't build a tunnel from " + AIMap.GetTileX(Path.GetTile()) + "," + AIMap.GetTileY(Path.GetTile()) + " to " + AIMap.GetTileX(SubPath.GetTile()) + "," + AIMap.GetTileY(SubPath.GetTile()) + "!!" );
 						}
 					} else {
 					//	if not a tunnel, we assume we're buildng a bridge
@@ -1044,7 +1076,8 @@ function OpDOT::BuildPath(Path)
 						if (!AIBridge.BuildBridge(AIVehicle.VT_ROAD, BridgeList.Begin(), Path.GetTile(), SubPath.GetTile())) {
 						//	At this point, an error has occured while building the bridge.
 						//	Fail the pathfiner
-							return null;
+						//	return null;
+						Log.Warning("OpDOT::BuildPath can't build a bridge from " + AIMap.GetTileX(Path.GetTile()) + "," + AIMap.GetTileY(Path.GetTile()) + " to " + AIMap.GetTileX(SubPath.GetTile()) + "," + AIMap.GetTileY(SubPath.GetTile()) + "!! (or the tunnel end moved...)" );
 						}
 					}
 				}
@@ -1062,7 +1095,7 @@ function OpDOT::LengthOfExistingConnections(TileA, TileB)
 	Log.Note("Checking existing Connection.",3)
 	
 	local tick;
-	tick = WmDOT.GetTick();
+	tick = AIController.GetTick();
 	
 	//	create instance of road pathfinder
 	local pathfinder = RoadPathfinder();
@@ -1091,10 +1124,10 @@ function OpDOT::LengthOfExistingConnections(TileA, TileB)
 	}
 	
 	if (path != null) {
-		Log.Note("Path found from " + AIMap.GetTileX(TileA) + "," + AIMap.GetTileY(TileA) + " to " + AIMap.GetTileX(TileB) + "," + AIMap.GetTileY(TileB) + ". Took " + (WmDOT.GetTick() - tick) + " tick(s).", 4);
+		Log.Note("Path found from " + AIMap.GetTileX(TileA) + "," + AIMap.GetTileY(TileA) + " to " + AIMap.GetTileX(TileB) + "," + AIMap.GetTileY(TileB) + ". Took " + (AIController.GetTick() - tick) + " tick(s).", 4);
 		return path.GetLength();
 	} else {
-		Log.Note("No path found from " + AIMap.GetTileX(TileA) + "," + AIMap.GetTileY(TileA) + " to " + AIMap.GetTileX(TileB) + "," + AIMap.GetTileY(TileB) + ". Took " + (WmDOT.GetTick() - tick) + " tick(s).", 4);
+		Log.Note("No path found from " + AIMap.GetTileX(TileA) + "," + AIMap.GetTileY(TileA) + " to " + AIMap.GetTileX(TileB) + "," + AIMap.GetTileY(TileB) + ". Took " + (AIController.GetTick() - tick) + " tick(s).", 4);
 		return -1;	
 	}
 }

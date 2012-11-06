@@ -1,5 +1,5 @@
 ﻿/*	OperationMoney v.1, part of 
- *	WmDOT v.4  r.44  [2011-03-28]
+ *	WmDOT v.5  r.53a  [2011-03-28]
  *	Copyright © 2011 by William Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
@@ -9,7 +9,7 @@
 
  class OpMoney {
 	function GetVersion()       { return 1; }
-	function GetRevision()		{ return 44; }
+	function GetRevision()		{ return "53a"; }
 	function GetDate()          { return "2011-03-31"; }
 	function GetName()          { return "Operation Money"; }
  
@@ -30,7 +30,7 @@
 		this.Settings = this.Settings(this);
 		this.State = this.State(this);
 		
-		Log = WmDOT.Log;
+		Log = OpLog;
 	}
 };
 
@@ -61,7 +61,7 @@ class OpMoney.Settings {
 	{
 		this._main = main;
 	}
-};
+}
  
  class OpMoney.State {
 
@@ -79,11 +79,17 @@ class OpMoney.Settings {
 	{
 		this._main = main;
 	}
-};
+}
+
+function OpMoney::LinkUp() 
+{
+	this.Log = WmDOT.Log;
+	Log.Note(this.GetName() + " linked up!",3);
+}
  
 function OpMoney::Run() {
 //	Repays the loan and keeps a small balance on hand
-	this._NextRun = WmDOT.GetTick();
+	this._NextRun = AIController.GetTick();
 	Log.Note("OpMoney running at tick " + this._NextRun + ".",1);
 	this._NextRun += this._SleepLength;
 	

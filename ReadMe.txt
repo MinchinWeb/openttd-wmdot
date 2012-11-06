@@ -1,5 +1,5 @@
 ﻿WmDOT Read-me
-v.4, r.52d, 2011-04-08
+v.5, r.70, 2011-04-13
 Copyright © 2011 by W. Minchin. For more info, please visit
     http://openttd-noai-wmdot.googlecode.com/
 
@@ -13,7 +13,7 @@ WmDOT (short for "William's Department of Transportation") is an AI for
     time.
 
 -- Requirements ---------------------------------------------------------------
-WmDOT required OpenTTD version 1.0 or better. This is available as a free
+WmDOT requires OpenTTD version 1.0 or better. This is available as a free
     download from OpenTTD.org
 As dependances, WmDOT also requires:
     - SuperLib, v.6 ('SuperLib-6.tar')
@@ -66,8 +66,18 @@ Operation DOT: GO! or no go
 The minimum size of towns to connect: 0..10000
     - this is the minimum size of towns WmDOT connects to the highway network
     - this setting can be changed in-game
+Atlas Size: 20..150
+	- this is how many towns WmDOT deals with at a time. Larger values can
+		significanly slow down WmDOT's building speed and may lock the game
+Rebuild Attempts: 1..15
+	- if for some reason WmDOT couldn't finish a route (e.g. a bus was in the
+		in way), it will try again this many times
 
 -- Version History ------------------------------------------------------------
+Version 5 [2011-04-13]
+	Will now start building almost as fast (within ~15 days) regardless of map
+		size. It does this by dividing the map into smaller chunks
+	Tweaks to pathfinder
 Version 4 [2011-04-08]
     Changes to pathfinder allowing in to run in 1/20 the time in some cases
     Double check the road got built
@@ -79,12 +89,11 @@ Version 2
     Intial Bananas release
     Allows multiple instances to work cooperatively
 Version 1
-    Initial working model
+    Initial working model (no public release)
 
 -- Roadmap --------------------------------------------------------------------
 These are features I hope to add to WmDOT shortly. However, this is subject to
     change without notice. I am open to suggestions however!
-v5. Support for large maps
 v6. Bring water and food to towns in the desert and above the snowline to help
         them grow
 v7. Provide streetcar service in towns
@@ -94,20 +103,18 @@ Bankruptcy: Because WmDOT has no revenue source and so may go bankrupt. This
     becomes more of an issue in long games, on mountainous and watery maps, and
     on large maps. Allowing WmDOT to go bankrupt and then restarting itself will
     allowWmDOT to keep going.
-Save/Load functionality has no been added. On loading a game, WmDOT will take
+Save/Load functionality has not been added. On loading a game, WmDOT will take
     some time but should eventaully pick up where it left off.
-Building multiple routes is a tradeoff for pathfinder speed. If it becomes
-    excessive, let me know.
-Freezes on large maps. Due to the way WmDOT sorts through the map, as map size
-    grows (technically, the number of towns), the processing requirements rise
-    exponentially. It is not advised to run WmDOT on maps will more than 100
-    towns (roughly, a 512x512 map with a high number of towns).
+Building multiple versions of the same routes is a tradeoff for pathfinder
+	speed. If it becomes excessive, let me know.
 Pathfinding can take an exceptionally long time if there is no possible path.
     This is most often an issue when the two towns in question are on different
     islands.
+Superlib v6 is no longer available on Bananas. It should still be available via
+	TT-Forums.net.
 
 -- Help! It broke! (Bug Report) -----------------------------------------------
-If WmDOT crashes, please help me fix it. Save a screenshot (under the ? on the
+If WmDOT crashes, please help me fix it! Save a screenshot (under the ? on the
     far right of the in-game toolbar) and report the bug to either:
         http://www.tt-forums.net/viewtopic.php?f=65&t=53698
         http://code.google.com/p/openttd-noai-wmdot/issues/
