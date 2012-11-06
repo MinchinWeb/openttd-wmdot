@@ -1,5 +1,6 @@
-﻿/*	OperationDOT v.4, part of 
- *	WmDOT v.6  r.118 [2011-04-28]
+﻿/*	OperationDOT v.4-GS, r.163, [2011-12-17], 
+ *		part of WmDOT v.6-GS
+ *		adapted from WmDOT v.6, r.118 [2011-04-28]
  *	Copyright © 2011 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
@@ -12,10 +13,9 @@
  *		generating alternate connections. No revenue stream.
  */ 
  
-//	Requires SuperLib v7
+//	Requires SuperLib v16
 //	Requires MinchinWeb's MetaLib v1
 //	Requires "OpLog.nut"
-//	Requires "OpMoney.nut"
 //	Requires "TownRegistrar.nut"
 //	Requires "Cleanup.Crew.nut"
 
@@ -31,24 +31,24 @@
 //			Route', keep it; otherwise destroy the connection
  
  
-/*	AILog.Info("OpDOT settings: " + MyDOT.Settings.PrintTownAtlas + " " + MyDOT.Settings.MaxAtlasSize + " " + MyDOT.Settings.FloatOffset);
+/*	GSLog.Info("OpDOT settings: " + MyDOT.Settings.PrintTownAtlas + " " + MyDOT.Settings.MaxAtlasSize + " " + MyDOT.Settings.FloatOffset);
 	
 	MyDOT.Settings.PrintTownAtlas = true;
 	MyDOT.Settings.MaxAtlasSize = 250;
 	MyDOT.Settings.FloatOffset = 0.1;
 	
-	AILog.Info("OpDOT settings: " + MyDOT.Settings.PrintTownAtlas + " " + MyDOT.Settings.MaxAtlasSize + " " + MyDOT.Settings.FloatOffset);
+	GSLog.Info("OpDOT settings: " + MyDOT.Settings.PrintTownAtlas + " " + MyDOT.Settings.MaxAtlasSize + " " + MyDOT.Settings.FloatOffset);
 */
 
 
  class OpDOT {
-	function GetVersion()       { return 3; }
-	function GetRevision()		{ return 114; }
-	function GetDate()          { return "2011-04-26"; }
+	function GetVersion()       { return 4; }
+	function GetRevision()		{ return 163; }
+	function GetDate()          { return "2011-12-17"; }
 	function GetName()          { return "Operation DOT"; }
  
 	_SleepLength = null;
-	//	Controls how many ticks the AI sleeps between iterations.
+	//	Controls how many ticks the GS sleeps between iterations.
 	 
 	_FloatOffset = null;
 	//	Offset used to convert numbers from intregers to floating point
@@ -57,7 +57,7 @@
 	//	Set the number of tries the pathfinders should run for
 	 
 	_DebugLevel = null;
-	//	How much is output to the AIDebug Screen
+	//	How much is output to the GSDebug Screen
 	//	0 - run silently
 	//	1 - only that the mode is running and the town pair it tries to join
 	//	2 - 'normal' debugging - each step
@@ -81,7 +81,6 @@
 	_Cost = null;
 	
 	Log = null;
-	Money = null;
 	Towns = null;
 	CleanupCrew = null;
 	
@@ -102,13 +101,12 @@
 		this._BuiltSomething = false;
 		this._ModeStart = true;
 		this._NextRun = 0;
-		this._RoadType = AIRoad.ROADTYPE_ROAD;
+		this._RoadType = GSRoad.ROADTYPE_ROAD;
 		this._Mode7Counter = 0;
 		
 		this.Settings = this.Settings(this);
 		this.State = this.State(this);
 		Log = OpLog();
-		Money = OpMoney();
 		Towns = TownRegistrar();
 		CleanupCrew = OpCleanupCrew();
 	}
@@ -187,14 +185,13 @@ class OpDOT.State {
 function OpDOT::LinkUp() 
 {
 	this.Log = WmDOT.Log;
-	this.Money = WmDOT.Money;
 	this.Towns = WmDOT.Towns;
 	this.CleanupCrew = WmDOT.CleanupCrew;
 	Log.Note(this.GetName() + " linked up!",3);
 }
  
 function OpDOT::Run() {
-	//	This is used to keep track of what 'step' the AI is at
+	//	This is used to keep track of what 'step' the GS is at
 	//		1 - joins all towns under first distance threshold to capital
 	//		2 - joins all towns under second distance threshold and over
 	//			population threshold to capital
@@ -206,13 +203,13 @@ function OpDOT::Run() {
 	//			(without regard to distance)
 	//		6 - considers (and builts as apppropriate) all possible connections
 	//			of towns above the population threshold
-	//		7 - the AI naps ... zzz ...
+	//		7 - the GS naps ... zzz ...
 	
-	this._NextRun = AIController.GetTick();
+	this._NextRun = GSController.GetTick();
 	Log.Note("OpDOT running in Mode " + this._Mode + " at tick " + this._NextRun + ".",1);
 	
 	if (WmDOT.GetSetting("OpDOT") != 1) {
-		this._NextRun = AIController.GetTick() + 13001;			//	6500 ticks is about a year
+		this._NextRun = GSController.GetTick() + 13001;			//	6500 ticks is about a year
 		Log.Note("** OpDOT has been disabled. **",0);
 		return;
 	}
@@ -294,31 +291,30 @@ function OpDOT::Run() {
 				
 //				if ((this._Mode == 6) || (TestAtlas[0][2] == 1) ) {
 				if (TestAtlas[0][2] == 1) {
-					local tick = AIController.GetTick();
+					local tick = GSController.GetTick();
 					local KeepTrying = true;
 					local Tries = 1;
 					local PathFinder;
 					local BuildCost = 0;
 					
-					Log.Note("Attempt " + Tries + " to connect " +AITown.GetName(this._PairsToConnect[0]) + " to " + AITown.GetName(this._PairsToConnect[1]) + ".", 3);
+					Log.Note("Attempt " + Tries + " to connect " +GSTown.GetName(this._PairsToConnect[0]) + " to " + GSTown.GetName(this._PairsToConnect[1]) + ".", 3);
 					PathFinder = RunPathfinderOnTownPairs(this._PairsToConnect);
 					
 					while (KeepTrying == true && PathFinder.GetPath() != null) {
 						Tries++;
-						Log.Note("Pathfinding took " + (AIController.GetTick() - tick) + " ticks. (MD = " + AIMap.DistanceManhattan(AITown.GetLocation(this._PairsToConnect[0]),AITown.GetLocation(this._PairsToConnect[1])) + ", Length = " + PathFinder.GetPathLength() + ").",3);
-						tick = AIController.GetTick();
+						Log.Note("Pathfinding took " + (GSController.GetTick() - tick) + " ticks. (MD = " + GSMap.DistanceManhattan(GSTown.GetLocation(this._PairsToConnect[0]),GSTown.GetLocation(this._PairsToConnect[1])) + ", Length = " + PathFinder.GetPathLength() + ").",3);
+						tick = GSController.GetTick();
 						CleanupCrew.AcceptBuiltTiles(PathFinder.TilesPairsToBuild() );
 						BuildCost = PathFinder.GetBuildCost();
-						Log.Note("Cost of path is " + BuildCost + "£. Took " + (AIController.GetTick() - tick) + " ticks.", 3);
-						Money.FundsRequest(BuildCost*1.1);		//	To allow for inflation during construction
+						Log.Note("Cost of path is " + BuildCost + "£. Took " + (GSController.GetTick() - tick) + " ticks.", 3);
 						PathFinder.BuildPath();
-//						AILog.Info(Array.ToString2D(PathFinder.PathToTilePairs()));
+//						GSLog.Info(Array.ToString2D(PathFinder.PathToTilePairs()));
 						
 						//	Test to see if construction worked by running the
 						//		pathfinder and computing build cost of the 
 						//		second path
-						tick = AIController.GetTick();
-						Log.Note("Attempt " + Tries + " to connect " +AITown.GetName(this._PairsToConnect[0]) + " to " + AITown.GetName(this._PairsToConnect[1]) + ".", 3)
+						tick = GSController.GetTick();
+						Log.Note("Attempt " + Tries + " to connect " +GSTown.GetName(this._PairsToConnect[0]) + " to " + GSTown.GetName(this._PairsToConnect[1]) + ".", 3)
 						PathFinder = RunPathfinderOnTownPairs(this._PairsToConnect);
 						BuildCost = PathFinder.GetBuildCost();
 						// TO-DO:	Check that the bridges and tunnels got
@@ -331,7 +327,7 @@ function OpDOT::Run() {
 							KeepTrying = false;
 						}						
 						if ((Tries >= (WmDOT.GetSetting("OpDOT_RebuildAttempts") + 1)) && (KeepTrying == true)) {
-							Log.Warning("After " + Tries + " tries, unable to build path from " +AITown.GetName(this._PairsToConnect[0]) + " to " + AITown.GetName(this._PairsToConnect[1]) + ".");
+							Log.Warning("After " + Tries + " tries, unable to build path from " +GSTown.GetName(this._PairsToConnect[0]) + " to " + GSTown.GetName(this._PairsToConnect[1]) + ".");
 							CleanupCrew.AcceptGoldenPath(PathFinder.PathToTilePairs());
 							CleanupCrew.SetToRun();
 							KeepTrying = false;
@@ -339,7 +335,7 @@ function OpDOT::Run() {
 					}
 					
 					if (PathFinder.GetPath() == null) {
-						Log.Warning("Pathfinding took " + (AIController.GetTick() - tick) + " ticks and failed. (MD = " + AIMap.DistanceManhattan(AITown.GetLocation(this._PairsToConnect[0]),AITown.GetLocation(this._PairsToConnect[1])) + ").");
+						Log.Warning("Pathfinding took " + (GSController.GetTick() - tick) + " ticks and failed. (MD = " + GSMap.DistanceManhattan(GSTown.GetLocation(this._PairsToConnect[0]),GSTown.GetLocation(this._PairsToConnect[1])) + ").");
 					}
 
 					this._ConnectedPairs.push(this._PairsToConnect);	//	Add the pair to the list of built roads
@@ -356,7 +352,7 @@ function OpDOT::Run() {
 				}
 			}
 			
-			this._NextRun = AIController.GetTick() + (this._SleepLength - (AIController.GetTick() % this._SleepLength));
+			this._NextRun = GSController.GetTick() + (this._SleepLength - (GSController.GetTick() % this._SleepLength));
 			break;
 
 		case 7:
@@ -365,11 +361,11 @@ function OpDOT::Run() {
 			//		setting, and rerun the TownRegistrar and then OpDOT,
 			//		starting in Mode 3
 			if (this.Towns.State.NeighbourhoodCount == 1) {
-				this._NextRun = AIController.GetTick() + ((this._SleepLength * 10) - (AIController.GetTick() % (this._SleepLength * 10)));
-				Log.Note("In Mode 7: It's tick " + AIController.GetTick() + " and apparently I've done everything! I'm taking a nap... Next run at " + this._NextRun + ".",2);
+				this._NextRun = GSController.GetTick() + ((this._SleepLength * 10) - (GSController.GetTick() % (this._SleepLength * 10)));
+				Log.Note("In Mode 7: It's tick " + GSController.GetTick() + " and apparently I've done everything! I'm taking a nap... Next run at " + this._NextRun + ".",2);
 			} else {
 				this._Mode7Counter ++;
-				Log.Note("In Mode 7: It's tick " + AIController.GetTick() + " and I'm resetting the Atlas with a population limit of " + (WmDOT.GetSetting("OpDOT_MinTownSize") * (this._Mode7Counter + 1) ) + ".",2);				
+				Log.Note("In Mode 7: It's tick " + GSController.GetTick() + " and I'm resetting the Atlas with a population limit of " + (WmDOT.GetSetting("OpDOT_MinTownSize") * (this._Mode7Counter + 1) ) + ".",2);				
 				this.Towns.UpdateMode(0);
 				this.Towns.Settings.PopLimit = (WmDOT.GetSetting("OpDOT_MinTownSize") * (this._Mode7Counter + 1) );
 				this._Mode = 3;
@@ -386,21 +382,21 @@ function OpDOT::Run() {
  
  function OpDOT::GenerateTownList(SetPopLimit = -1)
 {
-//	'SetPopLimit' allows overriding of the AI setting for the minimum size of
+//	'SetPopLimit' allows overriding of the GS setting for the minimum size of
 //		towns to consider 
 
 	Log.Note("Generating Atlas...",2);
 	// Generate TownList
-	local WmTownList = AITownList();
-	WmTownList.Valuate(AITown.GetPopulation);
+	local WmTownList = GSTownList();
+	WmTownList.Valuate(GSTown.GetPopulation);
 	local PopLimit;
 	if (SetPopLimit < 0) {
-	PopLimit = WmDOT.GetSetting("OpDOT_MinTownSize");
+		PopLimit = WmDOT.GetSetting("OpDOT_MinTownSize");
 	} else {
-	PopLimit = SetPopLimit;
+		PopLimit = SetPopLimit;
 	}
 	WmTownList.KeepAboveValue(PopLimit);				// cuts under the pop limit
-	Log.Note("     Ignoring towns with population under " + PopLimit + ". " + WmTownList.Count() + " of " + AITown.GetTownCount() + " towns left.",2);
+	Log.Note("     Ignoring towns with population under " + PopLimit + ". " + WmTownList.Count() + " of " + GSTown.GetTownCount() + " towns left.",2);
 	
 	local WmTownArray = [];
 	WmTownArray.resize(WmTownList.Count());
@@ -410,7 +406,6 @@ function OpDOT::Run() {
 		iTown = WmTownList.Next();
 	}
 	
-
 	return WmTownArray;
 }
 
@@ -443,18 +438,17 @@ function OpDOT::GenerateAtlas(WmTownArray)
 	
 	for(local i=0; i < WmTownArray.len(); i++) {
 		iTown = WmTownArray[i];
-		Log.Note(iTown + ". " + AITown.GetName(iTown) + " - " + AITown.GetPopulation(iTown) + " - " + AIMap.GetTileX(AITown.GetLocation(iTown)) + ", " + AIMap.GetTileY(AITown.GetLocation(iTown)),4);
+		Log.Note(iTown + ". " + GSTown.GetName(iTown) + " - " + GSTown.GetPopulation(iTown) + " - " + GSMap.GetTileX(GSTown.GetLocation(iTown)) + ", " + GSMap.GetTileY(GSTown.GetLocation(iTown)),4);
 		local TempArray = [];		// Generate the Array one 'line' at a time
 		TempArray.resize(WmTownArray.len()+1);
 		TempArray[0]=iTown;
-		local jTown = AITown();
+		local jTown = GSTown();
 		for (local j = 0; j < WmTownArray.len(); j++) {
 			if (i >= j) {
 				TempArray[j+1] = 0;		// Make it so it only generates half the array.
-			}
-			else {
+			} else {
 				jTown = WmTownArray[j];
-				TempArray[j+1] = AIMap.DistanceManhattan(AITown.GetLocation(iTown),AITown.GetLocation(jTown));
+				TempArray[j+1] = GSMap.DistanceManhattan(GSTown.GetLocation(iTown),GSTown.GetLocation(jTown));
 			}
 		}
 		WmAtlas[i]=TempArray;
@@ -473,7 +467,7 @@ function OpDOT::RemoveExculsiveDepart(WmAtlas, HQTown, ConnectedPairs, Mode)
 //		via already built roads) is removed
 
 	local tick;
-	tick = AIController.GetTick();
+	tick = GSController.GetTick();
 	
 	local Count = 0;
 	
@@ -494,7 +488,7 @@ function OpDOT::RemoveExculsiveDepart(WmAtlas, HQTown, ConnectedPairs, Mode)
 			}
 			
 			Log.Note(Array.ToString2D(WmAtlas), 4);
-			Log.Note(Count + " routes removed. Took " + (AIController.GetTick() - tick) + " ticks.",3);
+			Log.Note(Count + " routes removed. Took " + (GSController.GetTick() - tick) + " ticks.",3);
 			return WmAtlas;
 		case 3:
 		case 4:
@@ -513,7 +507,7 @@ function OpDOT::RemoveExculsiveDepart(WmAtlas, HQTown, ConnectedPairs, Mode)
 			}			
 			
 			Log.Note(Array.ToString2D(WmAtlas), 4);
-			Log.Note(Count + " routes removed. Took " + (AIController.GetTick() - tick) + " ticks.", 3);
+			Log.Note(Count + " routes removed. Took " + (GSController.GetTick() - tick) + " ticks.", 3);
 			return WmAtlas;
 		default:
 			return WmAtlas;
@@ -525,7 +519,7 @@ function OpDOT::RemoveBuiltConnections(WmAtlas, ConnectedPairs)
 //	Removes roadpairs that have already been built
 	Log.Note("Removing already built roads...",2);
 	
-	local tick = AIController.GetTick();
+	local tick = GSController.GetTick();
 	local TownA = 0;
 	local TownB = 0;
 	local Count = 0;
@@ -555,7 +549,7 @@ function OpDOT::RemoveBuiltConnections(WmAtlas, ConnectedPairs)
 	}
 	
 	Log.Note(Array.ToString2D(WmAtlas), 4);
-	Log.Note(Count + " routes removed. Took " + (AIController.GetTick() - tick) + " ticks.", 3);
+	Log.Note(Count + " routes removed. Took " + (GSController.GetTick() - tick) + " ticks.", 3);
 
 	return WmAtlas;
 
@@ -569,7 +563,7 @@ function OpDOT::RemoveOverDistance(WmAtlas, MaxDistance)
 	Log.Note("Removing towns further than " + MaxDistance + " tiles apart...",2)
 	
 	local tick;
-	tick = AIController.GetTick();
+	tick = GSController.GetTick();
 	
 	local Count = 0;
 	
@@ -586,7 +580,7 @@ function OpDOT::RemoveOverDistance(WmAtlas, MaxDistance)
 		}
 	}
 	Log.Note(Array.ToString2D(WmAtlas),4);
-	Log.Note(Count + " routes removed. Took " + (AIController.GetTick() - tick) + " ticks.", 3);
+	Log.Note(Count + " routes removed. Took " + (GSController.GetTick() - tick) + " ticks.", 3);
 
 	return WmAtlas;
 }
@@ -600,7 +594,7 @@ function OpDOT::ApplyTripGenerationModel(WmAtlas)
 	//	T is calculated by assuming each tile is 1 mile square = (d/v)
 
 //	local tick;
-//	tick = AIController.GetTick();
+//	tick = GSController.GetTick();
 	
 	local Speed = GetSpeed();
 	
@@ -614,7 +608,7 @@ function OpDOT::ApplyTripGenerationModel(WmAtlas)
 			if (dtemp != 0) {					// avoid divide by zero
 				dtemp = WmAtlas[i][j] + this._FloatOffset;	//	small offset to make it a floating point number
 				local Ttemp = (dtemp / Speed);
-				local TPop = (AITown.GetPopulation(WmAtlas[i][0]) + AITown.GetPopulation(WmAtlas[j-1][0]) + this._FloatOffset);
+				local TPop = (GSTown.GetPopulation(WmAtlas[i][0]) + GSTown.GetPopulation(WmAtlas[j-1][0]) + this._FloatOffset);
 														// j-1 offset needed to get town
 				FactorTemp = (TPop / (Ttemp * Ttemp));		// doesn't recognize exponents
 			}
@@ -638,7 +632,7 @@ function OpDOT::PickTowns(WmAtlas)
 	//		each town pair
 
 	local tick;
-	tick = AIController.GetTick();
+	tick = GSController.GetTick();
 	
 	//	Ok, next step: find the highest rated pair
 	local Maxi = null;
@@ -659,11 +653,10 @@ function OpDOT::PickTowns(WmAtlas)
 		Maxi = WmAtlas[Maxi][0];
 		Maxj = WmAtlas[Maxj][0];
 		
-		Log.Note("     The best rated pair is " + AITown.GetName(Maxi) + " and " + AITown.GetName(Maxj) + ". Took " + (AIController.GetTick() - tick) + " ticks.",2)
+		Log.Note("     The best rated pair is " + GSTown.GetName(Maxi) + " and " + GSTown.GetName(Maxj) + ". Took " + (GSController.GetTick() - tick) + " ticks.",2)
 		
 		return [Maxi, Maxj];
-	}
-	else {
+	} else {
 		Log.Note("     No remaining town pairs to join!",2);
 		return null;
 	}
@@ -685,15 +678,15 @@ function OpDOT::RemoveExistingConnections(WmAtlas)
 	Log.Note("Removing already joined towns. This can take a while...",2)
 	
 	local tick;
-	tick = AIController.GetTick();
+	tick = GSController.GetTick();
 	
 	//	create instance of road pathfinder
 	local pathfinder = RoadPathfinder();
 	//	pathfinder settings
 	pathfinder.PresetCheckExisting()
 	
-	local iTown = AITile();
-	local jTown = AITile();
+	local iTown = GSTile();
+	local jTown = GSTile();
 	local RemovedCount = 0;
 	local ExaminedCount = 0;
 	
@@ -706,13 +699,12 @@ function OpDOT::RemoveExistingConnections(WmAtlas)
 				local CycleCounter = 0;
 				while (path == false) {
 					path = pathfinder.FindPath(this._PathFinderCycles);
-//					AIController.Sleep(1);
+//					GSController.Sleep(1);
 					CycleCounter+=this._PathFinderCycles;
 					if ((CycleCounter % 2000 < this._PathFinderCycles) || (this._PathFinderCycles > 2000)) {
-						//	A safety to make sure that the AI doesn't run out
+						//	A safety to make sure that the GS doesn't run out
 						//		of money while pathfinding...
-						Money.GreaseMoney();
-						AIController.Sleep(1);
+//						GSController.Sleep(1);
 					}
 				}
 				
@@ -720,21 +712,17 @@ function OpDOT::RemoveExistingConnections(WmAtlas)
 				
 				if (path != null) {
 					WmAtlas[i][j] = 0;
-					Log.Note("Path found from " + AITown.GetName(WmAtlas[i][0]) + " to " + AITown.GetName(WmAtlas[j-1][0]) + ".", 4);
+					Log.Note("Path found from " + GSTown.GetName(WmAtlas[i][0]) + " to " + GSTown.GetName(WmAtlas[j-1][0]) + ".", 4);
 					RemovedCount++;
 				}
 				ExaminedCount++;
-				if ((ExaminedCount % 10) == 0) {
-					//	Make sure we don't run out of money...
-					Money.GreaseMoney();
-				}
 			}
 		}
 	}
 	
 	Log.Note(Array.ToString2D(WmAtlas),4);
 	
-	tick = AIController.GetTick() - tick;
+	tick = GSController.GetTick() - tick;
 	Log.Note(RemovedCount + " of " + ExaminedCount + " routes removed. Took " + tick + " tick(s).", 3);
 	
 	return WmAtlas;
@@ -752,7 +740,7 @@ function OpDOT::GetSpeed()
 	//	- get speeds from vehicles acually introduced in the game
 	
 	local GameYear = 0;
-	GameYear = AIDate.GetYear(AIDate.GetCurrentDate());
+	GameYear = GSDate.GetYear(GSDate.GetCurrentDate());
 	
 	local GameYearCase = 4;		// Convert to case numbers here because 
 								//		Squirrel's switch statement doesn't
@@ -798,7 +786,7 @@ function OpDOT::GetMaxDistance(Mode)
 	//		towns in the further one, and then lastly, all towns
 	
 	local Speed = GetSpeed();
-	local FractionMap = ((AIMap.GetMapSizeX() + AIMap.GetMapSizeY()) /2) / 2;	//	That gives you access to about a quarter of the map
+	local FractionMap = ((GSMap.GetMapSizeX() + GSMap.GetMapSizeY()) /2) / 2;	//	That gives you access to about a quarter of the map
 	if (Mode == 1 || Mode == 3) {
 		return min(Speed, FractionMap);
 	}
@@ -835,10 +823,13 @@ function OpDOT::RunPathfinder(Start, End)
 //	Takes Bridge Length, Tunnel Lenght, and Road Type from OpDOT settings.
 //	Returns the pathfinder instance
 	
-	AIRoad.SetCurrentRoadType(this._RoadType);
+	GSRoad.SetCurrentRoadType(this._RoadType);
 	local pathfinder = RoadPathfinder();
 	pathfinder.PresetQuickAndDirty();			//	Set Parameters
 	pathfinder.InitializePath([Start], [End]);	// Give the source and goal tiles to the pathfinder.
+
+	local TempCompany = GSCompanyMode(0);		// XX hack required by the GS framework to make the pathfinder work...
+												//		TO-DO: Check first to make sure Company 0 exists...
 	
 	local path = false;
 	local CycleCounter = 0;
@@ -847,16 +838,15 @@ function OpDOT::RunPathfinder(Start, End)
 		path = pathfinder.FindPath(this._PathFinderCycles);
 		CycleCounter+=this._PathFinderCycles;
 		if ((CycleCounter % 2000 < this._PathFinderCycles) || (this._PathFinderCycles > 2000) ) {
-			//	A safety to make sure that the AI doesn't run out
+			//	A safety to make sure that the GS doesn't run out
 			//		of money while pathfinding...
-			Money.GreaseMoney();
-			AIController.Sleep(1);
+//			GSController.Sleep(1);
 		}
 	}
 	
 	if (path == null) {
 	//	No path was found
-		Log.Warning("pathfinder.FindPath return null - seeking path from " + AIMap.GetTileX(Start) + "," + AIMap.GetTileY(Start) + " to " + AIMap.GetTileX(End) + "," + AIMap.GetTileY(End) + ".");
+		Log.Warning("pathfinder.FindPath return null - seeking path from " + GSMap.GetTileX(Start) + "," + GSMap.GetTileY(Start) + " to " + GSMap.GetTileX(End) + "," + GSMap.GetTileY(End) + ".");
 	}
 	
 	return pathfinder;
@@ -868,8 +858,8 @@ function OpDOT::RunPathfinderOnTowns(TownA, TownB)
 //	TO-DO:
 //	- add check that the center of town is indeed a road tile
 
-	Log.Note("Connecting " + AITown.GetName(TownA) + " and " + AITown.GetName(TownB) + "...", 2);
-	return RunPathfinder(AITown.GetLocation(TownA),AITown.GetLocation(TownB));
+	Log.Note("Connecting " + GSTown.GetName(TownA) + " and " + GSTown.GetName(TownB) + "...", 2);
+	return RunPathfinder(GSTown.GetLocation(TownA),GSTown.GetLocation(TownB));
 }
 
 function OpDOT::RunPathfinderOnTownPairs(ConnectPairs)
@@ -883,7 +873,7 @@ function OpDOT::LengthOfExistingConnections(TileA, TileB)
 	Log.Note("Checking existing Connection.",3)
 	
 	local tick;
-	tick = AIController.GetTick();
+	tick = GSController.GetTick();
 	
 	local pathfinder = RoadPathfinder();	//	create instance of road pathfinder
 	pathfinder.PresetExistingCheck();		//	pathfinder settings
@@ -893,22 +883,21 @@ function OpDOT::LengthOfExistingConnections(TileA, TileB)
 	local CycleCounter = 0;
 	while (path == false) {
 		path = pathfinder.FindPath(this._PathFinderCycles);
-//					AIController.Sleep(1);
+//					GSController.Sleep(1);
 		CycleCounter+=this._PathFinderCycles;
 		if ((CycleCounter % 2000 < this._PathFinderCycles) || (this._PathFinderCycles > 2000)) {
-			//	A safety to make sure that the AI doesn't run out
+			//	A safety to make sure that the GS doesn't run out
 			//		of money while pathfinding...
-			Money.GreaseMoney();
 //			CycleCounter = 0;
-			AIController.Sleep(1);
+//			GSController.Sleep(1);
 		}
 	}
 	
 	if (path != null) {
-		Log.Note("Path found from " + AIMap.GetTileX(TileA) + "," + AIMap.GetTileY(TileA) + " to " + AIMap.GetTileX(TileB) + "," + AIMap.GetTileY(TileB) + ". Took " + (AIController.GetTick() - tick) + " tick(s).", 4);
+		Log.Note("Path found from " + GSMap.GetTileX(TileA) + "," + GSMap.GetTileY(TileA) + " to " + GSMap.GetTileX(TileB) + "," + GSMap.GetTileY(TileB) + ". Took " + (GSController.GetTick() - tick) + " tick(s).", 4);
 		return path.GetLength();
 	} else {
-		Log.Note("No path found from " + AIMap.GetTileX(TileA) + "," + AIMap.GetTileY(TileA) + " to " + AIMap.GetTileX(TileB) + "," + AIMap.GetTileY(TileB) + ". Took " + (AIController.GetTick() - tick) + " tick(s).", 4);
+		Log.Note("No path found from " + GSMap.GetTileX(TileA) + "," + GSMap.GetTileY(TileA) + " to " + GSMap.GetTileX(TileB) + "," + GSMap.GetTileY(TileB) + ". Took " + (GSController.GetTick() - tick) + " tick(s).", 4);
 		return -1;	
 	}
 }
@@ -919,9 +908,9 @@ function OpDOT::LengthOfExistingConnectionsOnTowns(TownA, TownB)
 //	TO-DO:
 //	- add check that the center of town is indeed a road tile
 
-	Log.Note("Checking connection length between " + AITown.GetName(TownA) + " and " + AITown.GetName(TownB) + "...", 2);
+	Log.Note("Checking connection length between " + GSTown.GetName(TownA) + " and " + GSTown.GetName(TownB) + "...", 2);
 	
-	return LengthOfExistingConnections(AITown.GetLocation(TownA),AITown.GetLocation(TownB));
+	return LengthOfExistingConnections(GSTown.GetLocation(TownA),GSTown.GetLocation(TownB));
 }
 
 function OpDOT::LengthOfExistingConnectionsOnTownPairs(ConnectPairs)

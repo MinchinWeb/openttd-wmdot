@@ -1,5 +1,6 @@
-/*	Cleanup Crew v.2, part of 
- *	WmDOT v.6  r.118 [2011-04-28]
+/*	Cleanup Crew v.2-GS, [2011-12-17], part of
+ *		part of WmDOT v.6-GS,
+ *		adapted from WmDOT v.6  r.118 [2011-04-28]
  *	Copyright © 2011 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
@@ -18,8 +19,8 @@
 
 class OpCleanupCrew {
 	function GetVersion()       { return 2; }
-	function GetRevision()		{ return 118; }
-	function GetDate()          { return "2011-04-28"; }
+	function GetRevision()		{ return 163; }
+	function GetDate()          { return "2011-12-17"; }
 	function GetName()          { return "Cleanup Crew"; }
 
 	_heap_class = import("Queue.Fibonacci_Heap", "", 2);
@@ -29,18 +30,16 @@ class OpCleanupCrew {
 	_next_run = null;
 	_road_type = null;
 	
-	Money = null;
 	Log = null;
 	
 	State = null;
 	
 	constructor() {
-		this.Money = OpMoney();
 		this.Log = OpLog();
 		this.State = this.State(this);
 		this._heap = this._heap_class();
 		this._next_run = 10000;
-		this._road_type = AIRoad.ROADTYPE_ROAD;
+		this._road_type = GSRoad.ROADTYPE_ROAD;
 	}
 
 }
@@ -69,7 +68,6 @@ class OpCleanupCrew.State {
 function OpCleanupCrew::LinkUp() 
 {
 	this.Log = WmDOT.Log;
-	this.Money = WmDOT.Money;
 	Log.Note(this.GetName() + " linked up!",3);
 }
 
@@ -81,7 +79,7 @@ function OpCleanupCrew::Reset()
 	this._golden_path = null;
 	this._heap = null;
 	this._heap = this._heap_class();
-	this._next_run = AIController.GetTick() + 10000;
+	this._next_run = GSController.GetTick() + 10000;
 }
 
 
@@ -97,7 +95,7 @@ function OpCleanupCrew::AcceptBuiltTiles(TilePairArray)
 	Log.Note("Running CleanupCrew.AcceptBuildTiles...", 3);
 	for (local i = 0; i < TilePairArray.len(); i++ ) {
 //		Log.Note("Inserting " + Array.ToStringTiles1D(TilePairArray[i]) + " : " + i + ".", 4);
-		this._heap.Insert(TilePairArray[i], AIBase.RandRange(255) );
+		this._heap.Insert(TilePairArray[i], GSBase.RandRange(255) );
 	}
 }
 
@@ -120,14 +118,14 @@ function OpCleanupCrew::SetToRun()
 //			put CleanupCrew above OpDOT in the loop lists to be sure that
 //			CleanupCrew runs before OpDOT does again.
 
-	this._next_run = AIController.GetTick();
+	this._next_run = GSController.GetTick();
 	return this._next_run;
 }
 
 function OpCleanupCrew::Run()
 {
 //	This is where the real action is!
-	local tick = AIController.GetTick();
+	local tick = GSController.GetTick();
 	if (this._golden_path == null) {
 		Log.Note("Cleanup Crew: At tick " + tick + ".",1);
 		Log.Note("          There has been no 'Golden Path' set so, yum, yeah...we're still unemployed...", 1);
@@ -136,28 +134,24 @@ function OpCleanupCrew::Run()
 	}
 	
 	Log.Note("Cleanup Crew is employed at tick " + tick + ".",1);
-	//	Funds Request
-//	Money.FundsRequest()
 	
-	AIRoad.SetCurrentRoadType(this._road_type);
+	GSRoad.SetCurrentRoadType(this._road_type);
 	local TestPair;
 	local i = 0;
 	while (this._heap.Count() > 0) {
 		local count = this._heap.Count();	// For debugging
 		TestPair = this._heap.Pop();
 		if (!Array.ContainedInPairs(this._golden_path, TestPair[0], TestPair[1])) {
-			if (AIMap.DistanceManhattan(TestPair[0], TestPair[1]) == 1) {
-				Money.GreaseMoney((AIRoad.GetBuildCost(this._road_type, AIRoad.BT_ROAD) * 2.5).tointeger() );
-				AIRoad.RemoveRoadFull(TestPair[0], TestPair[1]);
+			if (GSMap.DistanceManhattan(TestPair[0], TestPair[1]) == 1) {
+				GSRoad.RemoveRoadFull(TestPair[0], TestPair[1]);
 				i++;
 				Log.Note(i +". Testpair at " + Array.ToStringTiles1D(TestPair) + " removed.", 4);
 			} else {
 			// we're either a tunnel or a bridge, remove both!
 				i++;
 				Log.Note(i +". Testpair at " + Array.ToStringTiles1D(TestPair) + " removed. (Bridge or Tunnel)", 4);
-				Money.GreaseMoney((AIRoad.GetBuildCost(this._road_type, AIRoad.BT_ROAD) * AIMap.DistanceManhattan(TestPair[0], TestPair[1]) * 2) );
-				AIBridge.RemoveBridge(TestPair[0]);
-				AITunnel.RemoveTunnel(TestPair[0]);
+				GSBridge.RemoveBridge(TestPair[0]);
+				GSTunnel.RemoveTunnel(TestPair[0]);
 			}
 		} else {
 			Log.Note(i +". Testpair at " + Array.ToStringTiles1D(TestPair) + " NOT removed.", 4);
@@ -166,7 +160,7 @@ function OpCleanupCrew::Run()
 
 	this.Reset();
 	
-	Log.Note("Cleanup Crew's work is complete, took " + (AIController.GetTick() - tick) + " ticks, " + i + " tiles removed.", 2);
+	Log.Note("Cleanup Crew's work is complete, took " + (GSController.GetTick() - tick) + " ticks, " + i + " tiles removed.", 2);
 }
 
 function OpCleanupCrew::SetRoadType(ARoadType)

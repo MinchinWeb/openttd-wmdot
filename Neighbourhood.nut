@@ -1,14 +1,14 @@
-/*	Neighbourhood Class, v.1, part of
- *	Town Registrar v.1, part of 
- *	WmDOT v.5  r.114 [2011-04-26]
+/*	Neighbourhood Class, v.1-GS, r.163 [2011-12-17], part of
+ *		Town Registrar v.1, part of 
+ *		WmDOT v.5  r.114 [2011-04-26]
  *	Copyright © 2011 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
  
 class NeighbourhoodInfo {
 	function GetVersion()       { return 1; }
-	function GetRevision()		{ return 114; }
-	function GetDate()          { return "2011-04-26"; }
+	function GetRevision()		{ return 163; }
+	function GetDate()          { return "2011-12-17"; }
 	function GetName()          { return "Neighbourhood Library"; }
 }
 
@@ -67,11 +67,11 @@ function Neighbourhood::SplitNeighbourhood()
 	
 	local CapitalA = this.GetHighestPopulation();
 	local CapitalB = this.GetHighestPopulation([CapitalA]);
-	Log.Note("New capitals are " + AITown.GetName(CapitalA) + " and " + AITown.GetName(CapitalB) + ".",4);
-	local xA = AIMap.GetTileX(AITown.GetLocation(CapitalA));
-	local yA = AIMap.GetTileY(AITown.GetLocation(CapitalA));
-	local xB = AIMap.GetTileX(AITown.GetLocation(CapitalB));
-	local yB = AIMap.GetTileY(AITown.GetLocation(CapitalB));
+	Log.Note("New capitals are " + GSTown.GetName(CapitalA) + " and " + GSTown.GetName(CapitalB) + ".",4);
+	local xA = GSMap.GetTileX(GSTown.GetLocation(CapitalA));
+	local yA = GSMap.GetTileY(GSTown.GetLocation(CapitalA));
+	local xB = GSMap.GetTileX(GSTown.GetLocation(CapitalB));
+	local yB = GSMap.GetTileY(GSTown.GetLocation(CapitalB));
 	local dx = xA - xB;
 	local dy = yA - yB;
 	local avex = (xA + xB) / 2;
@@ -93,8 +93,8 @@ function Neighbourhood::SplitNeighbourhood()
 	local xtest, ytest, ydivide;
 	
 	for (local i = 0; i  < this._townlist.len(); i++) {
-		xtest = AIMap.GetTileX(AITown.GetLocation(this._townlist[i]));
-		ytest = AIMap.GetTileY(AITown.GetLocation(this._townlist[i]));
+		xtest = GSMap.GetTileX(GSTown.GetLocation(this._townlist[i]));
+		ytest = GSMap.GetTileY(GSTown.GetLocation(this._townlist[i]));
 		ydivide = m * xtest + b;
 		if (ytest < ydivide) {
 			NA.push(this._townlist[i]);
@@ -118,9 +118,9 @@ function Neighbourhood::GetHighestPopulation(IgnoreList = [-1])
 	local KeepIndex = -1;
 	
 	for (local i = 0; i  < this._townlist.len(); i++) {
-		if ((Array.ContainedIn1D(IgnoreList, this._townlist[i]) != true) && AITown.GetPopulation(this._townlist[i]) > HighPop) {
+		if ((Array.ContainedIn1D(IgnoreList, this._townlist[i]) != true) && GSTown.GetPopulation(this._townlist[i]) > HighPop) {
 			KeepIndex = this._townlist[i];
-			HighPop = AITown.GetPopulation(this._townlist[i]);
+			HighPop = GSTown.GetPopulation(this._townlist[i]);
 		}
 	}
 	
@@ -162,11 +162,11 @@ function Neighbourhood::MarkOut(DebugLevel = 5)
 //		noted with stars **
 
 	//	Now place
-	SuperLib.Helper.SetSign(AITown.GetLocation(this._townlist[0]), "** " + this._index + " **", true);
+	SuperLib.Helper.SetSign(GSTown.GetLocation(this._townlist[0]), "** " + this._index + " **", true);
 	if (DebugLevel >= 5) {
 		for (local i = 1; i < this._townlist.len(); i++) {
 			local text = this._index;
-			SuperLib.Helper.SetSign(AITown.GetLocation(this._townlist[i]), text, true);
+			SuperLib.Helper.SetSign(GSTown.GetLocation(this._townlist[i]), text, true);
 		}
 	}
 }

@@ -1,19 +1,15 @@
-﻿/*	WmDOT v.6  r.118 [2011-04-28]
+﻿/*	WmDOT v.6-GS  r.164 [2011-12-17],
+ *		adapted from WmDOT v.6  r.118 [2011-04-28]
  *	Copyright © 2011 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
 
-import("util.MinchinWeb", "MetaLib", 1);
+import("util.MinchinWeb", "MetaLib", 2);
 	RoadPathfinder <- MetaLib.RoadPathfinder;
 	Array <- MetaLib.Array;
-import("util.superlib", "SuperLib", 7);		//	For loan management
-	SLMoney <- SuperLib.Money;
-
-// require("Arrays.nut");				//	My Array library
-									//		I need to play with this more to
-									//		get it to work the way I want		
+import("util.superlib", "SuperLib", 17);		//	For loan management
+		
 require("OpDOT.nut");				//	OperationDOT
-require("OpMoney.nut");				//	Operation Money
 require("OpLog.nut");				//	Operation Log
 require("TownRegistrar.nut");		//	Town Registrar
 require("Neighbourhood.nut");		//	Neighbourhood Class	
@@ -22,26 +18,19 @@ require("Cleanup.Crew.nut");		//	Cleanup Crew
 		
 
  
- class WmDOT extends AIController 
+ class WmDOT extends GSController 
 {
 	//	SETTINGS
 	WmDOTv = 6;
-	/*	Version number of AI
+	/*	Version number of GS
 	 */	
-	WmDOTr = 118;
-	/*	Reversion number of AI
+	WmDOTr = 163;
+	/*	Reversion number of GS
 	 */
-	 
-	SingleLetterOdds = 7;
-	/*	Control on single letter companies.  Set this value higher to increase
-	 *	the chances of a single letter DOT name (eg. 'CDOT').		
-	 */
-	
 	//	END SETTINGS
 	
 	Log = OpLog();
 	Towns = TownRegistrar();
-	Money = OpMoney();
 	DOT = OpDOT();
 	CleanupCrew = OpCleanupCrew();
   
@@ -56,18 +45,17 @@ function WmDOT::Start()
 {
 //	For debugging crashes...
 	local Debug_2 = "/* Settings: " + GetSetting("DOT_name1") + "-" + GetSetting("DOT_name2") + " - dl" + GetSetting("Debug_Level") + " // OpDOT: " + GetSetting("OpDOT") + " - " + GetSetting("OpDOT_MinTownSize") + " - " + GetSetting("TownRegistrar_AtlasSize") + " - " + GetSetting("OpDOT_RebuildAttempts") + " */" ;
-	local Debug_1 = "/* v." + WmDOTv + ", r." + WmDOTr + " // " + AIDate.GetYear(AIDate.GetCurrentDate()) + "-" + AIDate.GetMonth(AIDate.GetCurrentDate()) + "-" + AIDate.GetDayOfMonth(AIDate.GetCurrentDate()) + " start // " + AIMap.GetMapSizeX() + "x" + AIMap.GetMapSizeY() + " map - " + AITown.GetTownCount() + " towns */";
+	local Debug_1 = "/* v." + WmDOTv + "-GS, r." + WmDOTr + " // " + GSDate.GetYear(GSDate.GetCurrentDate()) + "-" + GSDate.GetMonth(GSDate.GetCurrentDate()) + "-" + GSDate.GetDayOfMonth(GSDate.GetCurrentDate()) + " start // " + GSMap.GetMapSizeX() + "x" + GSMap.GetMapSizeY() + " map - " + GSTown.GetTownCount() + " towns */";
 	
-//	AILog.Info("Welcome to WmDOT, version " + GetVersion() + ", revision " + WmDOTr + " by " + GetAuthor() + ".");
-	AILog.Info("Welcome to WmDOT, version " + WmDOTv + ", revision " + WmDOTr + " by W. Minchin.");
-	AILog.Info("Copyright © 2011 by W. Minchin. For more info, please visit http://www.tt-forums.net/viewtopic.php?f=65&t=53698")
-	AILog.Info(" ");
+//	GSLog.Info("Welcome to WmDOT, version " + GetVersion() + ", revision " + WmDOTr + " by " + GetAuthor() + ".");
+	GSLog.Info("Welcome to WmDOT, version " + WmDOTv + ", revision " + WmDOTr + ", GameScript Edition, by W. Minchin.");
+	GSLog.Info("Copyright © 2011 by W. Minchin. For more info, please visit http://www.tt-forums.net/viewtopic.php?f=65&t=53698")
+	GSLog.Info(" ");
 	
 	Log.Settings.DebugLevel = GetSetting("Debug_Level");
 	Log.Note("Loading Libraries...",0);		// Actually, by this point it's already happened
 
 	Log.Note("     " + Log.GetName() + ", v." + Log.GetVersion() + " r." + Log.GetRevision() + "  loaded!",0);
-	Log.Note("     " + Money.GetName() + ", v." + Money.GetVersion() + " r." + Money.GetRevision() + "  loaded!",0);
 	Log.Note("     " + DOT.GetName() + ", v." + DOT.GetVersion() + " r." + DOT.GetRevision() + "  loaded!",0);
 	Log.Note("     " + Towns.GetName() + ", v." + Towns.GetVersion() + " r." + Towns.GetRevision() + "  loaded!",0);
 	Log.Note("     " + CleanupCrew.GetName() + ", v." + CleanupCrew.GetVersion() + " r." + CleanupCrew.GetRevision() + "  loaded!",0);
@@ -81,28 +69,25 @@ function WmDOT::Start()
 	TheGreatLinkUp();
 		
 	if (GetSetting("Debug_Level") == 0) {
-		Log.Note("Increase Debug Level in AI settings to get more verbose output.",0);
+		Log.Note("Increase Debug Level in GS settings to get more verbose output.",0);
 		Log.Note("",0);
 	}
 	
-	AIRoad.SetCurrentRoadType(AIRoad.ROADTYPE_ROAD);
+	GSRoad.SetCurrentRoadType(GSRoad.ROADTYPE_ROAD);
 		//	Build normal road (no tram tracks)
 	
-	NameWmDOT();
-	local HQTown = BuildWmHQ();
 	local Time;
-	
-	DOT.Settings.HQTown = HQTown;
+	DOT.Settings.HQTown = BuildWmHQ();
+
 	while (true) {
 		Time = this.GetTick();	
 		Log.Settings.DebugLevel = GetSetting("Debug_Level");
 
-		if (Time > Money.State.NextRun)			{ Money.Run(); }
 		if (Time > Towns.State.NextRun)			{ Towns.Run(); }
 		if (Time > CleanupCrew.State.NextRun)	{ CleanupCrew.Run(); }
 		if (Time > DOT.State.NextRun)			{ DOT.Run(); }
 
-		this.Sleep(1);		
+//		this.Sleep(1);		
 	}
 }
 
@@ -121,242 +106,6 @@ function WmDOT::StartInfo()
 //	Log.Note("     " + FHI.GetName() + ", v." + FHI.GetVersion() + " r." + FHI.GetRevision() + "  loaded!",0);
 }
 
-function WmDOT::NameWmDOT()
-{
-	/*	This function names the company based on the AI settings.  If the names
-	 *	given by the settings is already taken, a default ('WmDOT', for
-	 *	'William Department of Transportation') is used.  Failing that, a
-	 *	second default ('ZxDOT', chosed becuase I thought it looked cool) is
-	 *	tried.  Failing that, a random one or two letter prefix is chosen and
-	 *	added to DOT until and unused name is found.
-	 */
-
-	Log.Note("Naming Company...",1);
-	
-	// Test for already named company (basically just an issue on
-	//		savegame loading)
-	local OldName = AICompany.GetName(AICompany.ResolveCompanyID(AICompany.COMPANY_SELF));
-	Log.Note("Currently named " + OldName + " (" + OldName.find("DOT") + ")." ,3);
-	if (OldName.find("DOT")== null) {
-		local tick;
-		tick = this.GetTick();
-		
-		// Get Name Settings and Build Name String
-		local Name2 = WmDOT.GetSetting("DOT_name2");
-		local NewName = "";
-		Log.Note("Name settings are " + WmDOT.GetSetting("DOT_name1") + " " + WmDOT.GetSetting("DOT_name2") + ".",2);
-		switch (WmDOT.GetSetting("DOT_name1"))
-		{
-			case 0: 
-				NewName = "Wm";
-				break;
-			case 1: 
-				NewName = "A";
-				break;
-			case 2: 
-				NewName = "B";
-				break;
-			case 3: 
-				NewName = "C";
-				break;
-			case 4: 
-				NewName = "D";
-				break;
-			case 5: 
-				NewName = "E";
-				break;
-			case 6: 
-				NewName = "F";
-				break;
-			case 7: 
-				NewName = "G";
-				break;
-			case 8: 
-				NewName = "H";
-				break;
-			case 9: 
-				NewName = "I";
-				break;
-			case 10: 
-				NewName = "J";
-				break;
-			case 11: 
-				NewName = "K";
-				break;
-			case 12: 
-				NewName = "L";
-				break;
-			case 13: 
-				NewName = "M";
-				break;
-			case 14: 
-				NewName = "N";
-				break;
-			case 15: 
-				NewName = "O";
-				break;
-			case 16: 
-				NewName = "P";
-				break;
-			case 17: 
-				NewName = "Q";
-				break;
-			case 18: 
-				NewName = "R";
-				break;
-			case 19: 
-				NewName = "S";
-				break;
-			case 20: 
-				NewName = "T";
-				break;
-			case 21: 
-				NewName = "U";
-				break;
-			case 22: 
-				NewName = "V";
-				break;
-			case 23: 
-				NewName = "W";
-				break;
-			case 24: 
-				NewName = "X";
-				break;
-			case 25: 
-				NewName = "Y";
-				break;
-			case 26: 
-				NewName = "Z";
-				break;
-			default:
-				AILog.Warning("          Unexpected DOT_name1 parameter.");
-				break;
-		}
-		switch (WmDOT.GetSetting("DOT_name2"))
-		{
-			case 0: 
-				break;
-			case 1: 
-				NewName = NewName + "a";
-				break;
-			case 2: 
-				NewName = NewName + "b";
-				break;
-			case 3: 
-				NewName = NewName + "c";
-				break;
-			case 4: 
-				NewName = NewName + "d";
-				break;
-			case 5: 
-				NewName = NewName + "e";
-				break;
-			case 6: 
-				NewName = NewName + "f";
-				break;
-			case 7: 
-				NewName = NewName + "g";
-				break;
-			case 8: 
-				NewName = NewName + "h";
-				break;
-			case 9: 
-				NewName = NewName + "i";
-				break;
-			case 10: 
-				NewName = NewName + "j";
-				break;
-			case 11: 
-				NewName = NewName + "k";
-				break;
-			case 12: 
-				NewName = NewName + "l";
-				break;
-			case 13: 
-				NewName = NewName + "m";
-				break;
-			case 14: 
-				NewName = NewName + "n";
-				break;
-			case 15: 
-				NewName = NewName + "o";
-				break;
-			case 16: 
-				NewName = NewName + "p";
-				break;
-			case 17: 
-				NewName = NewName + "q";
-				break;
-			case 18: 
-				NewName = NewName + "r";
-				break;
-			case 19: 
-				NewName = NewName + "s";
-				break;
-			case 20: 
-				NewName = NewName + "t";
-				break;
-			case 21: 
-				NewName = NewName + "u";
-				break;
-			case 22: 
-				NewName = NewName + "v";
-				break;
-			case 23: 
-				NewName = NewName + "w";
-				break;
-			case 24: 
-				NewName = NewName + "x";
-				break;
-			case 25: 
-				NewName = NewName + "y";
-				break;
-			case 26: 
-				NewName = NewName + "z";
-				break;
-			default:
-				AILog.Warning("          Unexpected DOT_name2 parameter.");
-				break;
-		}
-		NewName = NewName + "DOT"
-		if (!AICompany.SetName(NewName))
-		{
-			Log.Note("Setting Company Name failed. Trying default...",3);
-			if (!AICompany.SetName("WmDOT"))
-			{
-				Log.Note("Default failed. Trying backup...",3)
-				if (!AICompany.SetName("ZxDOT"))
-				{
-					Log.Note("Backup failed. Trying random...",3)
-					do
-					{
-						local c;
-						c = AIBase.RandRange(26) + 65;
-						NewName = c.tochar();
-						c = AIBase.RandRange(26 + SingleLetterOdds) + 97;
-						if (c <= 122)
-						{
-							NewName = NewName + c.tochar();
-						}
-						NewName = NewName + "DOT";					
-					} while (!AICompany.SetName(NewName))
-				}
-			}
-		}
-		
-		//	Add 'P.Eng' to the end of the founder's name
-		NewName = AICompany.GetPresidentName(AICompany.COMPANY_SELF);
-		NewName += ", P.Eng"
-		AICompany.SetPresidentName(NewName);
-		
-		tick = this.GetTick() - tick;
-		Log.Note("Company named " + AICompany.GetName(AICompany.COMPANY_SELF) + ". " + AICompany.GetPresidentName(AICompany.COMPANY_SELF) + " is in charge. Took " + tick + " tick(s).",2);
-	}
-	else {
-		Log.Note("Company ALREADY named " + AICompany.GetName(AICompany.COMPANY_SELF) + ". " + AICompany.GetPresidentName(AICompany.COMPANY_SELF) + " remains in charge.",2)
-	}
-}
-
 function WmDOT::BuildWmHQ()
 {
 	//  TO-DO
@@ -370,23 +119,15 @@ function WmDOT::BuildWmHQ()
 	local tick;
 	tick = this.GetTick();
 	
-//	AICompany.BuildCompanyHQ(0xA284);
-	
-	// Check for exisiting HQ (mine)
-	if (AICompany.GetCompanyHQ(AICompany.ResolveCompanyID(AICompany.COMPANY_SELF)) != -1) {
-		Log.Note("What are you trying to pull on me?? HQ are already established at " + AIMap.GetTileX(AICompany.GetCompanyHQ(AICompany.COMPANY_SELF)) + ", " +  AIMap.GetTileY(AICompany.GetCompanyHQ(AICompany.COMPANY_SELF)) + " in town no. " + HQInWhatTown(AICompany.COMPANY_SELF) + ".",2);
-		return HQInWhatTown(AICompany.COMPANY_SELF);		//	Actually return the town where the HQ is...
-	}
-	
 	// Gets a list of the towns	
-	local WmTownList = AITownList();
+	local WmTownList = GSTownList();
 	//	Remove the towns with a DOT HQ and make a note of them - TODO
 	local DotHQList = [];
-	for (local i=0; i < AICompany.COMPANY_LAST; i++) {
+	for (local i=0; i < GSCompany.COMPANY_LAST; i++) {
 		//	Test if company has built HQ
-//		AILog.Info("     Testing Company " + i + ".");
-		if (AICompany.GetCompanyHQ(AICompany.ResolveCompanyID(i)) != -1) {
-			local TestName = AICompany.GetName(i);
+//		GSLog.Info("     Testing Company " + i + ".");
+		if (GSCompany.GetCompanyHQ(GSCompany.ResolveCompanyID(i)) != -1) {
+			local TestName = GSCompany.GetName(i);
 			if (TestName.find("DOT") != null) {
 				Log.Note("DOT HQ found for company no. " + i + " in town " + HQInWhatTown(i) + ".",3);
 				DotHQList.append(HQInWhatTown(i));
@@ -394,8 +135,8 @@ function WmDOT::BuildWmHQ()
 		}
 	}
 
-	WmTownList.Valuate(AITown.GetPopulation);	
-	local HQTown = AITown();	
+	WmTownList.Valuate(GSTown.GetPopulation);	
+	local HQTown = GSTown();	
 	HQTown = WmTownList.Begin();
 	local OriginalHQTown = HQTown;
 	
@@ -405,38 +146,8 @@ function WmDOT::BuildWmHQ()
 	}
 	//	TO-DO: Doesn't address the case where all towns have a DOT HQ in them...
 	
-	local Walker = MetaLib.SpiralWalker();
-	Walker.Start(AITown.GetLocation(HQTown));
-	local HQBuilt = false;
-	while (HQBuilt == false) {
-		HQBuilt = AICompany.BuildCompanyHQ(Walker.Walk());
-//		AISign.BuildSign(Walker.GetTile(), Walker.GetStep());
-		
-		// Safety: Break if it tries for 400 times and still doesn't work!
-		if (Walker.GetStage() == 40) {
-			Log.Warning("Failed to build HQ!");
-			HQTown = WmTownList.Next();
-			while (Array.ContainedIn1D(DotHQList, HQTown)) {
-				Log.Note("Failed best for HQTown " + HQTown + ".",3);
-				HQTown = WmTownList.Next();
-				
-				//	TO-DO: Is this check needed here, or is the check two lines down good enough?
-				if (WmTownList.IsEnd() == true) {
-					Log.Warning("Failed to Build HQ. Returning town " + OriginalHQTown + " anyway...");
-					return OriginalHQTown;
-				}
-			}
-			if (WmTownList.IsEnd() == true) {
-				Log.Warning("Failed to Build HQ. Returning town " + OriginalHQTown + " anyway...");
-				return OriginalHQTown;
-			}
-			Walker.Start(AITown.GetLocation(HQTown));	
-			
-		}
-	}
-	
 	tick = this.GetTick() - tick;
-	Log.Note("HQ built at "+ AIMap.GetTileX(Walker.GetTile()) + ", " + AIMap.GetTileY(Walker.GetTile()) + ". Took " + Walker.GetStep() + " tries. Took " + tick + " tick(s).",2);
+//	Log.Note("HQ built at "+ GSMap.GetTileX(Walker.GetTile()) + ", " + GSMap.GetTileY(Walker.GetTile()) + ". Took " + Walker.GetStep() + " tries. Took " + tick + " tick(s).",2);
 	return HQTown;
 }
 
@@ -447,12 +158,12 @@ function WmDOT::HQInWhatTown(CompanyNo)
 //	-2 means that the HQ is beyond a town's influence
 	
 	//	Test for valid CompanyID
-	if (AICompany.ResolveCompanyID(CompanyNo) == -1) {
+	if (GSCompany.ResolveCompanyID(CompanyNo) == -1) {
 		Log.Warning("Invalid Company ID!");
 		return -1;
 	}
 	
-	local PreReturn = AICompany.GetCompanyHQ(CompanyNo);
+	local PreReturn = GSCompany.GetCompanyHQ(CompanyNo);
 	PreReturn = TileIsWhatTown(PreReturn);
 	if (PreReturn == -1) {
 		Log.Warning("Company in Invalid Town!");
@@ -470,9 +181,9 @@ function WmDOT::TileIsWhatTown(TileIn)
 	
 	local TestValue = false;
 	
-	for (local i = 0; i < AITown.GetTownCount(); i++) {
-		TestValue = AITown.IsWithinTownInfluence(i, TileIn);
-//		AILog.Info("          " + i + ". Testing Town " + " and returns " + TestValue);
+	for (local i = 0; i < GSTown.GetTownCount(); i++) {
+		TestValue = GSTown.IsWithinTownInfluence(i, TileIn);
+//		GSLog.Info("          " + i + ". Testing Town " + " and returns " + TestValue);
 		if (TestValue == true) {
 			return i;
 		}
@@ -485,7 +196,6 @@ function WmDOT::TileIsWhatTown(TileIn)
 function WmDOT::TheGreatLinkUp()
 {
 	DOT.LinkUp();
-	Money.LinkUp();
 	Towns.LinkUp();
 	CleanupCrew.LinkUp();
 	Log.Note("The Great Link Up is Complete!",1);
@@ -494,16 +204,16 @@ function WmDOT::TheGreatLinkUp()
 
 
 /*
-function TestAI::Save()
+function TestGS::Save()
  {
    local table = {};	
    //TODO: Add your save data to the table.
    return table;
  }
  
- function TestAI::Load(version, data)
+ function TestGS::Load(version, data)
  {
-   AILog.Info(" Loaded");
+   GSLog.Info(" Loaded");
    //TODO: Add your loading routines.
  }
  */

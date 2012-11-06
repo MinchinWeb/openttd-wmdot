@@ -1,20 +1,19 @@
-﻿/*	Logging Interface v.2, r.118 part of 
- *	WmDOT v.5  r.53f  [2011-03-30]
+﻿/*	Logging Interface v.2-GS, r.163 [2011-12-17],
+ *		part of WmDOT v.6-GS
+ *		adapted from WmDOT v.5  r.53f  [2011-03-30]
  *	Copyright © 2011 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
- 
-//	Requires SuperLib v6 or better
 
 
  class OpLog {
-	function GetVersion()       { return 3; }
-	function GetRevision()		{ return 118; }
-	function GetDate()          { return "2011-04-28"; }
+	function GetVersion()       { return 2; }
+	function GetRevision()		{ return 163; }
+	function GetDate()          { return "2011-12-17"; }
 	function GetName()          { return "Logging Interface"; }
  
 	_DebugLevel = null;
-	//	How much is output to the AIDebug Screen
+	//	How much is output to the GSDebug Screen
 	//	0 - run silently
 	//	1 - Operations Noted here
 	//	2 - 'normal' debugging - each step
@@ -68,18 +67,18 @@ function OpLog::Note(Message, Level=3) {
 			Message = "     " + Message;
 			Level--;
 		}
-		AILog.Info(Message);
+		GSLog.Info(Message);
 	}
  }
  
  function OpLog::Warning(Message) {
-	AILog.Warning(Message);
+	GSLog.Warning(Message);
  }
  
  function OpLog::Error(Message) {
-	AILog.Error(Message);
+	GSLog.Error(Message);
  }
  
 function OpLog::PrintDebugLevel() {
-	AILog.Info("OpLog is running at level " + this._DebugLevel + ".");
+	GSLog.Info("OpLog is running at level " + this._DebugLevel + ".");
  }
