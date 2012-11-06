@@ -1,5 +1,5 @@
 ﻿WmDOT Read-me
-v.7, r.200, 2012-01-12
+v.8, r.214, 2012-01-21
 Copyright © 2011-12 by W. Minchin. For more info, please visit
     http://openttd-noai-wmdot.googlecode.com/  or
     http://www.tt-forums.net/viewtopic.php?f=65&t=53698
@@ -28,7 +28,7 @@ WmDOT starts by selecting a 'capital' and builds its Headquarters there. (If
 WmDOT requires OpenTTD version 1.0 or newer. This is available as a free
     download from OpenTTD.org
 As dependencies, WmDOT also requires:
-    - MinchinWeb's MetaLibrary, v.2
+    - MinchinWeb's MetaLibrary, v.3
     - SuperLib, v.19 ('SuperLib-19.tar')
     - Binary Heap, v.1 ('Queue.BinaryHeap-1.tar')
 
@@ -78,6 +78,9 @@ Operation Hibernia: GO! .. no go
         from Oil Rigs to Oil Refineries to earn WmDOT a little bit of money.
 
 -- Version History ------------------------------------------------------------
+Version 8 [2011-01-21]
+    Can now bridge over canals, rivers, and railroad tracks
+	Fixes bug where WmDOT would crash is the generated Atlas contained no towns
 Version 7 [2011-01-12]
     Added Operation Hibernia
     Bug fixes
@@ -109,12 +112,11 @@ Version 1
 -- Roadmap --------------------------------------------------------------------
 These are features I hope to add to WmDOT shortly. However, this is subject to
     change without notice. However, I am open to suggestions!
-v8  Road pathfinder improvements, Cleanup Crew improvements, Ship Pathfinder
-        improvements
-v9  Provide inter-city valuables transportation
-v10 Bring water and food to towns in the desert and above the snowline to help
+v9  Cleanup Crew improvements, Ship Pathfinder improvements, better FIRS support
+v10 Provide inter-city valuables transportation
+v11 Bring water and food to towns in the desert and above the snowline to help
         them grow
-v11 Provide streetcar service in towns
+v12 Provide streetcar service in towns
 
 -- Known Issues ---------------------------------------------------------------
 NewGRF support has not been tested.
@@ -132,6 +134,7 @@ Building multiple versions of the same routes is a tradeoff for pathfinder
 Pathfinding can take an exceptionally long time if there is no possible path.
     This is most often an issue when the two towns in question are on different
     islands.
+Cleanup Crew does funny things...
 
 -- Help! It broke! (Bug Report) -----------------------------------------------
 If WmDOT crashes, please help me fix it! Save a screenshot (under the ? on the

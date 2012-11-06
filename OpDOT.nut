@@ -1,5 +1,5 @@
-﻿/*	OperationDOT v.4, r.182, [2012-01-01],  
- *		part of WmDOT v.7
+﻿/*	OperationDOT v.5, r.212, [2012-01-21],  
+ *		part of WmDOT v.8
  *	Copyright © 2011-12 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
@@ -12,8 +12,8 @@
  *		generating alternate connections. No revenue stream.
  */ 
  
-//	Requires SuperLib v7
-//	Requires MinchinWeb's MetaLib v2
+//	Requires SuperLib v19
+//	Requires MinchinWeb's MetaLib v3
 //	Requires "OpLog.nut"
 //	Requires "OpMoney.nut"
 //	Requires "TownRegistrar.nut"
@@ -21,15 +21,6 @@
 
 //	TO-DO
 //	- break into more steps (Modes) to allow breaking during pathfinding
-//	- add CleaupCrew() after each link connections to remove extra built roads
-//		- for each road connections pair:
-//				- check if it's connected, if so don't do anything (don't build)
-//					if not, build and add to 'built' heap with random priority
-//		- dump the path to 'Safe Route'
-//				- 'Safe Route' is replaced everythime a new path is built
-//		- after final route, Pop the 'built' heap: if the pair exists in 'Safe
-//			Route', keep it; otherwise destroy the connection
- 
  
 /*	AILog.Info("OpDOT settings: " + MyDOT.Settings.PrintTownAtlas + " " + MyDOT.Settings.MaxAtlasSize + " " + MyDOT.Settings.FloatOffset);
 	
@@ -42,9 +33,9 @@
 
 
  class OpDOT {
-	function GetVersion()       { return 4; }
-	function GetRevision()		{ return 118; }
-	function GetDate()          { return "2011-04-28"; }
+	function GetVersion()       { return 5; }
+	function GetRevision()		{ return 212; }
+	function GetDate()          { return "2012-01-21"; }
 	function GetName()          { return "Operation DOT"; }
  
 	_SleepLength = null;
@@ -176,6 +167,15 @@ class OpDOT.State {
 			case "Cost":			return this._main._Cost; break;
 			default: throw("The index '" + idx + "' does not exist");
 		}
+	}
+	
+	function _set(idx, val)
+	{
+		switch (idx) {
+			case "NextRun":				this._main._NextRun = val; break;
+			default: throw("The index '" + idx + "' does not exist");
+		}
+		return val;
 	}
 	
 	constructor(main)
@@ -692,8 +692,8 @@ function OpDOT::RemoveExistingConnections(WmAtlas)
 	//	pathfinder settings
 	pathfinder.PresetCheckExisting()
 	
-	local iTown = AITile();
-	local jTown = AITile();
+//	local iTown = AITile();
+//	local jTown = AITile();
 	local RemovedCount = 0;
 	local ExaminedCount = 0;
 	
@@ -716,7 +716,7 @@ function OpDOT::RemoveExistingConnections(WmAtlas)
 					}
 				}
 				
-				Log.Note("Was trying to find path from " + iTown + " to " + jTown + ": " + path, 4)
+				Log.Note("Was trying to find path from" + Array.ToStringTiles1D([AITown.GetLocation(WmAtlas[i][0])]) + " to" + Array.ToStringTiles1D([AITown.GetLocation(WmAtlas[j-1][0])]) + ": " + path, 4)
 				
 				if (path != null) {
 					WmAtlas[i][j] = 0;
@@ -744,46 +744,70 @@ function OpDOT::RemoveExistingConnections(WmAtlas)
 
 function OpDOT::GetSpeed()
 {
-	//	Gets max travel speed, given the game year
-	//	Based on original game buses in temporate
+	//	Gets max travel speed for buses
+	//	Backup system is based on original game buses in temporate
 	//		http://wiki.openttd.org/Buses
 	
-	//	TO-DO
-	//	- get speeds from vehicles actually introduced in the game
-	
+	local ReturnSpeed;
 	local GameYear = 0;
 	GameYear = AIDate.GetYear(AIDate.GetCurrentDate());
 	
-	local GameYearCase = 4;		// Convert to case numbers here because 
-								//		Squirrel's switch statement doesn't
-								//		seem to play nice with inline evaluations
-	if (GameYear < 2008) {
-		GameYearCase = 3;
-	}
-	if (GameYear < 1986) {
-		GameYearCase = 2;
-	}
-	if (GameYear < 1964)
-		GameYearCase = 1;
+	local BusList = AIEngineList(AIVehicle.VT_ROAD);
+	//	Drop trams
+	BusList.Valuate(AIEngine.GetRoadType);
+	BusList.KeepValue(AIRoad.ROADTYPE_ROAD);
+	// Ignore "Eye Candy" -> usually have running costs or price of zero
+	BusList.Valuate(AIEngine.GetPrice);
+	BusList.RemoveValue(0);
+	BusList.Valuate(AIEngine.GetRunningCost);
+	BusList.RemoveValue(0);
+	//	Keep only passenger vehicles
+	BusList.Valuate(AIEngine.CanRefitCargo, Helper.GetPAXCargo());
+	BusList.KeepValue(true.tointeger());
+	
+	if (BusList.Count() > 0) {
+		BusList.Valuate(AIEngine.GetMaxSpeed);
+		BusList.Sort(AIList.SORT_BY_VALUE, AIList.SORT_DESCENDING);
+		Log.Note("GetSpeed() using " + AIEngine.GetName(BusList.Begin()) + " that goes " + AIEngine.GetMaxSpeed(BusList.Begin()) + "km/h", 5);
+		ReturnSpeed = AIEngine.GetMaxSpeed(BusList.Begin());
+		ReturnSpeed *= 1.00584;		//	Convert to km/h
+		ReturnSpeed /= 1.609344;	//	Convert to mph
+		ReturnSpeed = ReturnSpeed.tointeger();	//	Convert to integer
+	} else {
+	// Backup if there's no buses in the game...
+		Log.Warning("No Busses in game. Reverted to backup for GetSpeed().");
 		
-	local ReturnSpeed;
-	switch (GameYearCase)
-	{
-		case 4:
-			ReturnSpeed = 79;	// mph, only because they're nicer numbers
-			break;
-		case 3:
-			ReturnSpeed = 70;
-			break;
-		case 2:
-			ReturnSpeed = 55;
-			break;
-		case 1:
-			ReturnSpeed = 35;
-			break;
-		default:
-			ReturnSpeed = 1;
-			break;
+		local GameYearCase = 4;		// Convert to case numbers here because 
+									//		Squirrel's switch statement doesn't
+									//		seem to play nice with inline evaluations
+		if (GameYear < 2008) {
+			GameYearCase = 3;
+		}
+		if (GameYear < 1986) {
+			GameYearCase = 2;
+		}
+		if (GameYear < 1964)
+			GameYearCase = 1;
+			
+
+		switch (GameYearCase)
+		{
+			case 4:
+				ReturnSpeed = 79;	// mph, only because they're nicer numbers
+				break;
+			case 3:
+				ReturnSpeed = 70;
+				break;
+			case 2:
+				ReturnSpeed = 55;
+				break;
+			case 1:
+				ReturnSpeed = 35;
+				break;
+			default:
+				ReturnSpeed = 1;
+				break;
+		}
 	}
 	
 	Log.Note("Before Return: " + ReturnSpeed + " mph in GameYear " + GameYear, 4);

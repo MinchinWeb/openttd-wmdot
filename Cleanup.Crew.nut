@@ -1,6 +1,6 @@
-﻿/*	Cleanup Crew v.2, r.171, [2011-12-22] 
- *		part of WmDOT v.6
- *	Copyright © 2011 by W. Minchin. For more info,
+﻿/*	Cleanup Crew v.3, r.213, [2012-01-21] 
+ *		part of WmDOT v.8
+ *	Copyright © 2011-12 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
  
@@ -17,9 +17,9 @@
 //		Queue.Fibonacci_Heap v.2
 
 class OpCleanupCrew {
-	function GetVersion()       { return 2; }
-	function GetRevision()		{ return 171; }
-	function GetDate()          { return "2011-12-22"; }
+	function GetVersion()       { return 3; }
+	function GetRevision()		{ return 213; }
+	function GetDate()          { return "2012-01-21"; }
 	function GetName()          { return "Cleanup Crew"; }
 
 	_heap_class = import("Queue.Fibonacci_Heap", "", 2);
@@ -148,7 +148,12 @@ function OpCleanupCrew::Run()
 		if (!Array.ContainedInPairs(this._golden_path, TestPair[0], TestPair[1])) {
 			if (AIMap.DistanceManhattan(TestPair[0], TestPair[1]) == 1) {
 				Money.GreaseMoney((AIRoad.GetBuildCost(this._road_type, AIRoad.BT_ROAD) * 2.5).tointeger() );
-				AIRoad.RemoveRoadFull(TestPair[0], TestPair[1]);
+				//	Use RemoveRoad, but go uphill
+				if (AITile.GetMinHeight(TestPair[0]) < AITile.GetMinHeight(TestPair[0])) {
+					AIRoad.RemoveRoad(TestPair[0], TestPair[1]);
+				} else {
+					AIRoad.RemoveRoad(TestPair[1], TestPair[0]);
+				}
 				i++;
 				Log.Note(i +". Testpair at " + Array.ToStringTiles1D(TestPair) + " removed.", 4);
 			} else {

@@ -1,14 +1,14 @@
-﻿/*	Neighbourhood Class, v.1, r.114, [2011-04-26]
+﻿/*	Neighbourhood Class, v.1, r.212, [2012-01-21]
  *		part of Town Registrar v.1,
- *		part of WmDOT v.5  
- *	Copyright © 2011 by W. Minchin. For more info,
+ *		part of WmDOT v.8  
+ *	Copyright © 2011-12 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
  
 class NeighbourhoodInfo {
 	function GetVersion()       { return 1; }
-	function GetRevision()		{ return 114; }
-	function GetDate()          { return "2011-04-26"; }
+	function GetRevision()		{ return 212; }
+	function GetDate()          { return "2012-01-21"; }
 	function GetName()          { return "Neighbourhood Library"; }
 }
 
@@ -162,7 +162,7 @@ function Neighbourhood::MarkOut(DebugLevel = 5)
 //		noted with stars **
 
 	//	Now place
-	SuperLib.Helper.SetSign(AITown.GetLocation(this._townlist[0]), "** " + this._index + " **", true);
+	Helper.SetSign(AITown.GetLocation(this._townlist[0]), "** " + this._index + " **", true);
 	if (DebugLevel >= 5) {
 		for (local i = 1; i < this._townlist.len(); i++) {
 			local text = this._index;
