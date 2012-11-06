@@ -1,14 +1,14 @@
 /*	Neighbourhood Class, v.1, part of
  *	Town Registrar v.1, part of 
- *	WmDOT v.5  r.53f  [2011-04-09]
+ *	WmDOT v.5  r.114 [2011-04-26]
  *	Copyright © 2011 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
  
 class NeighbourhoodInfo {
 	function GetVersion()       { return 1; }
-	function GetRevision()		{ return "53f"; }
-	function GetDate()          { return "2011-04-09"; }
+	function GetRevision()		{ return 114; }
+	function GetDate()          { return "2011-04-26"; }
 	function GetName()          { return "Neighbourhood Library"; }
 }
 
@@ -103,8 +103,8 @@ function Neighbourhood::SplitNeighbourhood()
 		}
 	}
 	
-	Log.Note("NA is: " + ToSting1DArray(NA),4);
-	Log.Note("NB is: " + ToSting1DArray(NB),4);
+	Log.Note("NA is: " + Array.ToString1D(NA),4);
+	Log.Note("NB is: " + Array.ToString1D(NB),4);
 	
 	
 	return [NA,NB];
@@ -118,7 +118,7 @@ function Neighbourhood::GetHighestPopulation(IgnoreList = [-1])
 	local KeepIndex = -1;
 	
 	for (local i = 0; i  < this._townlist.len(); i++) {
-		if ((ContainedIn1DArray(IgnoreList, this._townlist[i]) != true) && AITown.GetPopulation(this._townlist[i]) > HighPop) {
+		if ((Array.ContainedIn1D(IgnoreList, this._townlist[i]) != true) && AITown.GetPopulation(this._townlist[i]) > HighPop) {
 			KeepIndex = this._townlist[i];
 			HighPop = AITown.GetPopulation(this._townlist[i]);
 		}

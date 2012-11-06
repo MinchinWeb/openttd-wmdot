@@ -1,16 +1,15 @@
-﻿/*	WmDOT v.5  r.70 [2011-04-13]
+﻿/*	WmDOT v.6  r.118 [2011-04-28]
  *	Copyright © 2011 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
 
-require("AyStar.WM.nut");			//	A* Graph
-									//	Requires "Binary_Heap" Library v.1
-require("Road.Pathfinder.WM.nut");	//	class RoadPathfinder
-
-import("util.superlib", "SuperLib", 6);		//	For loan management
+import("util.MinchinWeb", "MetaLib", 1);
+	RoadPathfinder <- MetaLib.RoadPathfinder;
+	Array <- MetaLib.Array;
+import("util.superlib", "SuperLib", 7);		//	For loan management
 	SLMoney <- SuperLib.Money;
 
-require("Arrays.nut");				//	My Array library
+// require("Arrays.nut");				//	My Array library
 									//		I need to play with this more to
 									//		get it to work the way I want		
 require("OpDOT.nut");				//	OperationDOT
@@ -18,17 +17,18 @@ require("OpMoney.nut");				//	Operation Money
 require("OpLog.nut");				//	Operation Log
 require("TownRegistrar.nut");		//	Town Registrar
 require("Neighbourhood.nut");		//	Neighbourhood Class	
-require("Fibonacci.Heap.WM.nut");	//	Fibonacci Heap (Max)
+// require("Fibonacci.Heap.WM.nut");	//	Fibonacci Heap (Max)
+require("Cleanup.Crew.nut");		//	Cleanup Crew
 		
 
  
  class WmDOT extends AIController 
 {
 	//	SETTINGS
-	WmDOTv = 5;
+	WmDOTv = 6;
 	/*	Version number of AI
 	 */	
-	WmDOTr = 70;
+	WmDOTr = 118;
 	/*	Reversion number of AI
 	 */
 	 
@@ -43,6 +43,7 @@ require("Fibonacci.Heap.WM.nut");	//	Fibonacci Heap (Max)
 	Towns = TownRegistrar();
 	Money = OpMoney();
 	DOT = OpDOT();
+	CleanupCrew = OpCleanupCrew();
   
 	function Start();
 }
@@ -69,6 +70,7 @@ function WmDOT::Start()
 	Log.Note("     " + Money.GetName() + ", v." + Money.GetVersion() + " r." + Money.GetRevision() + "  loaded!",0);
 	Log.Note("     " + DOT.GetName() + ", v." + DOT.GetVersion() + " r." + DOT.GetRevision() + "  loaded!",0);
 	Log.Note("     " + Towns.GetName() + ", v." + Towns.GetVersion() + " r." + Towns.GetRevision() + "  loaded!",0);
+	Log.Note("     " + CleanupCrew.GetName() + ", v." + CleanupCrew.GetVersion() + " r." + CleanupCrew.GetRevision() + "  loaded!",0);
 	StartInfo();		//	AyStarInfo()
 						//	RoadPathfinder()
 						//	NeighbourhoodInfo()
@@ -95,9 +97,10 @@ function WmDOT::Start()
 		Time = this.GetTick();	
 		Log.Settings.DebugLevel = GetSetting("Debug_Level");
 
-		if (Time > Money.State.NextRun)		{ Money.Run(); }
-		if (Time > Towns.State.NextRun)		{ Towns.Run(); }
-		if (Time > DOT.State.NextRun)		{ DOT.Run(); }
+		if (Time > Money.State.NextRun)			{ Money.Run(); }
+		if (Time > Towns.State.NextRun)			{ Towns.Run(); }
+		if (Time > CleanupCrew.State.NextRun)	{ CleanupCrew.Run(); }
+		if (Time > DOT.State.NextRun)			{ DOT.Run(); }
 
 		this.Sleep(1);		
 	}
@@ -108,14 +111,14 @@ function WmDOT::StartInfo()
 //	By placing classes here that need to be created to get their info, we
 //		destroy them right away (which double to clean up the bug report
 //		screens and to free up a little bit of memory)
-	local MyAyStar = AyStarInfo();
-	Log.Note("     " + MyAyStar.GetName() + ", v." + MyAyStar.GetVersion() + " r." + MyAyStar.GetRevision() + "  loaded!",0);
+//	local MyAyStar = AyStarInfo();
+//	Log.Note("     " + MyAyStar.GetName() + ", v." + MyAyStar.GetVersion() + " r." + MyAyStar.GetRevision() + "  loaded!",0);
 	local MyRoadPathfiner = RoadPathfinder();
-	Log.Note("     " + MyRoadPathfiner.GetName() + ", v." + MyRoadPathfiner.GetVersion() + " r." + MyRoadPathfiner.GetRevision() + "  loaded!",0);	
+	Log.Note("     " + MyRoadPathfiner.Info.GetName() + ", v." + MyRoadPathfiner.Info.GetVersion() + " r." + MyRoadPathfiner.Info.GetRevision() + "  loaded!",0);	
 	local MyNeighbourhood = NeighbourhoodInfo();
 	Log.Note("     " + MyNeighbourhood.GetName() + ", v." + MyNeighbourhood.GetVersion() + " r." + MyNeighbourhood.GetRevision() + "  loaded!",0);
-	local FHI = Fibonacci_Heap_Info();
-	Log.Note("     " + FHI.GetName() + ", v." + FHI.GetVersion() + " r." + FHI.GetRevision() + "  loaded!",0);
+//	local FHI = Fibonacci_Heap_Info();
+//	Log.Note("     " + FHI.GetName() + ", v." + FHI.GetVersion() + " r." + FHI.GetRevision() + "  loaded!",0);
 }
 
 function WmDOT::NameWmDOT()
@@ -394,75 +397,46 @@ function WmDOT::BuildWmHQ()
 	WmTownList.Valuate(AITown.GetPopulation);	
 	local HQTown = AITown();	
 	HQTown = WmTownList.Begin();
+	local OriginalHQTown = HQTown;
 	
-	while (ContainedIn1DArray(DotHQList, HQTown)) {
+	while (Array.ContainedIn1D(DotHQList, HQTown)) {
 		Log.Note("Failed best for HQTown " + HQTown + ".",3);
 		HQTown = WmTownList.Next();
 	}
+	//	TO-DO: Doesn't address the case where all towns have a DOT HQ in them...
 	
-	// Get tile index of the centre of town
-	local HQx;
-	local HQy;
-	HQx = AIMap.GetTileX(AITown.GetLocation(HQTown));
-	HQy = AIMap.GetTileY(AITown.GetLocation(HQTown));
-	Log.Note("HQ will be build in " + AITown.GetName(HQTown) + " at " + HQx + ", " + HQy + ".",3);
-	
-	// Starts a spiral out from the centre of town, trying to build the HQ until it works!
-	local dx = -1;
-	local dy =  0;
-	local Steps = 0;
-	local Stage = 1;
-	local StageMax = 1;
-	local StageSteps = 0;
+	local Walker = MetaLib.SpiralWalker();
+	Walker.Start(AITown.GetLocation(HQTown));
 	local HQBuilt = false;
-	
 	while (HQBuilt == false) {
-		HQx += dx;
-		HQy += dy;
-		HQBuilt = AICompany.BuildCompanyHQ(AIMap.GetTileIndex(HQx,HQy));
-		Steps ++;
-		StageSteps ++;
-//			AILog.Info("          Step " + Steps + ". dx=" + dx + " dy=" + dy + ". Trying at "+ HQx + ", " + HQy + ". Stage: " + Stage + ". StageMax: " + StageMax + ". StageSteps: " + StageSteps + ".")
-
-		// Check if it's time to turn
-		if (StageSteps == StageMax) {
-			StageSteps = 0;
-			if (Stage % 2 == 0) {
-				StageMax++;
-			}
-			Stage ++;
-			
-			// Turn Clockwise
-			switch (dx) {
-				case 0:
-					switch (dy) {
-						case -1:
-							dx = -1;
-							dy =  0;
-							break;
-						case 1:
-							dx = 1;
-							dy = 0;
-							break;
-					}
-					break;
-				case -1:
-					dx = 0;
-					dy = 1;
-					break;
-				case 1:
-					dx =  0;
-					dy = -1;
-					break;
-			}
-		}
-
-		// Safety: Break if it tries for 20 times and still doesn't work!
-		if (Stage == 20) return -1;			
-	}
+		HQBuilt = AICompany.BuildCompanyHQ(Walker.Walk());
+//		AISign.BuildSign(Walker.GetTile(), Walker.GetStep());
 		
+		// Safety: Break if it tries for 400 times and still doesn't work!
+		if (Walker.GetStage() == 40) {
+			Log.Warning("Failed to build HQ!");
+			HQTown = WmTownList.Next();
+			while (Array.ContainedIn1D(DotHQList, HQTown)) {
+				Log.Note("Failed best for HQTown " + HQTown + ".",3);
+				HQTown = WmTownList.Next();
+				
+				//	TO-DO: Is this check needed here, or is the check two lines down good enough?
+				if (WmTownList.IsEnd() == true) {
+					Log.Warning("Failed to Build HQ. Returning town " + OriginalHQTown + " anyway...");
+					return OriginalHQTown;
+				}
+			}
+			if (WmTownList.IsEnd() == true) {
+				Log.Warning("Failed to Build HQ. Returning town " + OriginalHQTown + " anyway...");
+				return OriginalHQTown;
+			}
+			Walker.Start(AITown.GetLocation(HQTown));	
+			
+		}
+	}
+	
 	tick = this.GetTick() - tick;
-	Log.Note("HQ built at "+ HQx + ", " + HQy + ". Took " + Steps + " tries. Took " + tick + " tick(s).",2);
+	Log.Note("HQ built at "+ AIMap.GetTileX(Walker.GetTile()) + ", " + AIMap.GetTileY(Walker.GetTile()) + ". Took " + Walker.GetStep() + " tries. Took " + tick + " tick(s).",2);
 	return HQTown;
 }
 
@@ -513,6 +487,7 @@ function WmDOT::TheGreatLinkUp()
 	DOT.LinkUp();
 	Money.LinkUp();
 	Towns.LinkUp();
+	CleanupCrew.LinkUp();
 	Log.Note("The Great Link Up is Complete!",1);
 	Log.Note("",1);
 }

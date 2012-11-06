@@ -1,5 +1,5 @@
 ﻿/*	Town Registrar v.1, part of 
- *	WmDOT v.5  r.69 [2011-04-13]
+ *	WmDOT v.5  r.89 [2011-04-16]
  *	Copyright © 2011 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
@@ -14,8 +14,8 @@
  
  class TownRegistrar {
 	function GetVersion()       { return 1; }
-	function GetRevision()		{ return 69; }
-	function GetDate()          { return "2011-04-12"; }
+	function GetRevision()		{ return 89; }
+	function GetDate()          { return "2011-04-16"; }
 	function GetName()          { return "Town Registrar"; }
 		
 	_MaxAtlasSize = null;
@@ -219,17 +219,17 @@ function TownRegistrar::RegisterConnection(TownA, TownB)
 //	After building or finding a connection, the Town Registrar records it as a
 //		town<>town, a town<>neighbourhood, and a neighbourhood<>neighbourhood
 //		connection
-	if (ContainedIn1DArray(this._ConnectionsTT[TownA], TownB) != true) {
+	if (Array.ContainedIn1D(this._ConnectionsTT[TownA], TownB) != true) {
 		this._ConnectionsTT[TownA].push(TownB);
 		this._ConnectionsTT[TownB].push(TownA);
-		if (ContainedIn1DArray(this._ConnectionsTN[TownA], this._LookUpList[TownB]) != true) {
+		if (Array.ContainedIn1D(this._ConnectionsTN[TownA], this._LookUpList[TownB]) != true) {
 			this._ConnectionsTN[TownA].push(this._LookUpList[TownB]);
-			if (ContainedIn1DArray(this._ConnectionsNN[this._LookUpList[TownA]], this._LookUpList[TownB]) != true) {
+			if (Array.ContainedIn1D(this._ConnectionsNN[this._LookUpList[TownA]], this._LookUpList[TownB]) != true) {
 				this._ConnectionsNN[this._LookUpList[TownA]].push(this._LookUpList[TownB]);
 				this._ConnectionsNN[this._LookUpList[TownB]].push(this._LookUpList[TownA]);
 			}
 		}
-		if (ContainedIn1DArray(this._ConnectionsTN[TownB], this._LookUpList[TownA]) != true) {
+		if (Array.ContainedIn1D(this._ConnectionsTN[TownB], this._LookUpList[TownA]) != true) {
 			this._ConnectionsTN[TownB].push(this._LookUpList[TownA]);
 		}
 		

@@ -1,4 +1,4 @@
-﻿/*	Logging Interface v.2, part of 
+﻿/*	Logging Interface v.2, r.118 part of 
  *	WmDOT v.5  r.53f  [2011-03-30]
  *	Copyright © 2011 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
@@ -9,8 +9,8 @@
 
  class OpLog {
 	function GetVersion()       { return 3; }
-	function GetRevision()		{ return "53f"; }
-	function GetDate()          { return "2011-04-10"; }
+	function GetRevision()		{ return 118; }
+	function GetDate()          { return "2011-04-28"; }
 	function GetName()          { return "Logging Interface"; }
  
 	_DebugLevel = null;
@@ -78,4 +78,8 @@ function OpLog::Note(Message, Level=3) {
  
  function OpLog::Error(Message) {
 	AILog.Error(Message);
+ }
+ 
+function OpLog::PrintDebugLevel() {
+	AILog.Info("OpLog is running at level " + this._DebugLevel + ".");
  }
