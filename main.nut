@@ -1,4 +1,4 @@
-﻿/*	WmDOT v.10, r.249, [2011-06-27]
+﻿/*	WmDOT v.11, r.252, [2011-06-30]
  *	Copyright © 2011-12 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
@@ -24,16 +24,17 @@ require("Neighbourhood.nut");		//	Neighbourhood Class
 require("Cleanup.Crew.nut");		//	Cleanup Crew
 require("OpHibernia.nut");			//	Operation Hibernia
 require("Ship.Manager.nut");		//	Ship Manager
+require("Event.Handler.nut");		//	Event Handler
 		
 
  
  class WmDOT extends AIController 
 {
 	//	SETTINGS
-	WmDOTv = 10;
+	WmDOTv = 11;
 	/*	Version number of AI
 	 */	
-	WmDOTr = 249;
+	WmDOTr = 252;
 	/*	Reversion number of AI
 	 */
 	 
@@ -51,6 +52,8 @@ require("Ship.Manager.nut");		//	Ship Manager
 	CleanupCrew = OpCleanupCrew();
 	Hibernia = OpHibernia();
 	Manager_Ships = ManShips();
+	Event = Events();
+	
   
 	function Start();
 }
@@ -80,6 +83,7 @@ function WmDOT::Start()
 	Log.Note("     " + CleanupCrew.GetName() + ", v." + CleanupCrew.GetVersion() + " r." + CleanupCrew.GetRevision() + "  loaded!",0);
 	Log.Note("     " + Hibernia.GetName() + ", v." + Hibernia.GetVersion() + " r." + Hibernia.GetRevision() + "  loaded!",0);
 	Log.Note("     " + Manager_Ships.GetName() + ", v." + Manager_Ships.GetVersion() + " r." + Manager_Ships.GetRevision() + "  loaded!",0);
+	Log.Note("     " + Event.GetName() + ", v." + Event.GetVersion() + " r." + Event.GetRevision() + "  loaded!",0);
 	StartInfo();		//	AyStarInfo()
 						//	RoadPathfinder()
 						//	NeighbourhoodInfo()
@@ -111,6 +115,7 @@ function WmDOT::Start()
 		if (Time > DOT.State.NextRun)			{ DOT.Run(); }
 		if (Time > Hibernia.State.NextRun)		{ Hibernia.Run(); }
 		if (Time > Manager_Ships.State.NextRun)	{ Manager_Ships.Run(); }
+		if (Time > Event.State.NextRun)			{ Event.Run(); }
 
 		this.Sleep(1);		
 	}
@@ -499,6 +504,7 @@ function WmDOT::TheGreatLinkUp()
 	CleanupCrew.LinkUp();
 	Hibernia.LinkUp();
 	Manager_Ships.LinkUp();
+	Event.LinkUp();
 	Log.Note("The Great Link Up is Complete!",1);
 	Log.Note("",1);
 }

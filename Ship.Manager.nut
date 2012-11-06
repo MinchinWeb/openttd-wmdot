@@ -1,5 +1,5 @@
-﻿/*	Ship Manager v.1, r.238, [2012-06-21]
- *		part of WmDOT v.10
+﻿/*	Ship Manager v.2, r.252, [2012-06-30]
+ *		part of WmDOT v.11
  *	Copyright © 2012 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
  */
@@ -17,6 +17,7 @@ class ManShips {
 	_NextRun = null;
 	_SleepLength = null;	//	as measured in days
 	_AllRoutes = null;
+	_ShipsToSell = null;
 	
 	Log = null;
 	Money = null;
@@ -26,6 +27,7 @@ class ManShips {
 		this._NextRun = 0;
 		this._SleepLength = 30;
 		this._AllRoutes = [];
+		this._ShipsToSell = [];
 		
 		this.Settings = this.Settings(this);
 		this.State = this.State(this);
@@ -103,10 +105,10 @@ function ManShips::LinkUp()
 
  
 function ManShips::Run() {
-	Log.Note("Ship Manager running at tick " + WmDOT.GetTick() + ".",1);
+	Log.Note("Ship Manager running at tick " + AIController.GetTick() + ".",1);
 	
 	//	reset counter
-	this._NextRun = WmDOT.GetTick() + this._SleepLength * 17;
+	this._NextRun = AIController.GetTick() + this._SleepLength * 17;
 	
 	for (local i=0; i < this._AllRoutes.len(); i++) {
 		//	Add Ships
@@ -118,10 +120,36 @@ function ManShips::Run() {
 			AIVehicle.StartStopVehicle(MyVehicle);
 			Log.Note("New Vehicle Added: " + MyVehicle, 4);
 			this._AllRoutes[i]._LastUpdate = WmDOT.GetTick();
-//		} else {
+		} else {
 			//  Delete extra ships
 			//	if there are three ships waiting at to fill up, delete them
-			
+			local Waiting = AIVehicleList();
+			Log.Note(Waiting.Count() + " vehicles...", 6);
+			Waiting.Valuate(AIVehicle.GetVehicleType);
+			Waiting.KeepValue(AIVehicle.VT_WATER);
+			Log.Note(Waiting.Count() + " ships...", 6);
+			Waiting.Valuate(AIVehicle.GetCapacity, this._AllRoutes[i]._Cargo);
+			Waiting.KeepAboveValue(0);
+			Log.Note(Waiting.Count() + " ships that carry " + AICargo.GetCargoLabel(this._AllRoutes[i]._Cargo) + "...", 6);
+			Waiting.Valuate(MetaLib.Station.DistanceFromStation, this._AllRoutes[i]._SourceStation);
+			Waiting.KeepBelowValue(6);
+			Log.Note(Waiting.Count() + " ships close enough...", 6);
+			local FirstCount = Waiting.Count();
+			if (FirstCount > 3) {
+				Waiting.Valuate(AIVehicle.GetCargoLoad, this._AllRoutes[i]._Cargo);
+				Waiting.KeepBelowValue(1);
+				Log.Note(Waiting.Count() + " ships empty enough...", 6);
+				Waiting.Sort(AIList.SORT_BY_ITEM, AIList.SORT_DESCENDING);
+				local SellVehicle;
+				SellVehicle = Waiting.Begin();
+				//	Skip the first vehicle at least...
+				do {
+					SellVehicle = Waiting.Next();
+					AIVehicle.SendVehicleToDepot(SellVehicle);
+					this._ShipsToSell.push(SellVehicle);					
+					Log.Note("Vehicle #" + SellVehicle + " sent to depot to be sold.", 4);
+				} while (!Waiting.IsEnd())
+			}
 		}
 	}
 }
