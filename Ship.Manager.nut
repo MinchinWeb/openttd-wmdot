@@ -1,4 +1,4 @@
-﻿/*	Ship Manager v.2, r.252, [2012-06-30]
+﻿/*	Ship Manager v.2, [2012-11-25]
  *		part of WmDOT v.11
  *	Copyright © 2012 by W. Minchin. For more info,
  *		please visit http://openttd-noai-wmdot.googlecode.com/
@@ -9,8 +9,8 @@
  
 class ManShips {
 	function GetVersion()       { return 1; }
-	function GetRevision()		{ return 238; }
-	function GetDate()          { return "2012-06-21"; }
+	function GetRevision()		{ return 0; }
+	function GetDate()          { return "2012-11-25"; }
 	function GetName()          { return "Ship Manager"; }
 	
 	
@@ -167,6 +167,14 @@ function ManShips::AddRoute (ShipID, CargoNo)
 			i = 1000;	//break
 		}
 	}
+	// Name Ship - format: Town_Name Cargo R[Route Number]-[incremented number]
+	local temp_name = "";
+	temp_name += AITown.GetName(AIStation.GetNearestTown(TempRoute._SourceStation));
+	temp_name = temp_name + " " + AICargo.GetCargoLabel(CargoNo) + " R";
+	temp_name += (this._AllRoutes.len() + 1) + "-1";
+	AIVehicle.SetName(ShipID, temp_name);
+	
+	
 //	TempRoute._Depot = Marine.NearestDepot(TempRoute._SourceStation);
 	TempRoute._LastUpdate = WmDOT.GetTick();
 	
