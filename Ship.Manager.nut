@@ -43,6 +43,7 @@ class Route {
 	_SourceStation = null;		// StationID of where cargo is picked up
 	_Depot = null;				// TileID of depot
 	_LastUpdate = null;			// last time (in ticks) that the route was updated
+	_GroupID = null;			// ID of Group containing Ship
 }
 
 class ManShips.Settings {
@@ -167,6 +168,7 @@ function ManShips::AddRoute (ShipID, CargoNo)
 			i = 1000;	//break
 		}
 	}
+	
 	// Name Ship - format: Town_Name Cargo R[Route Number]-[incremented number]
 	local temp_name = "";
 	temp_name += AITown.GetName(AIStation.GetNearestTown(TempRoute._SourceStation));
@@ -174,6 +176,11 @@ function ManShips::AddRoute (ShipID, CargoNo)
 	temp_name += (this._AllRoutes.len() + 1) + "-1";
 	AIVehicle.SetName(ShipID, temp_name);
 	
+	// Create a Group for the route
+	local group_number = AIGroup.CreateGroup(AIVehicle.VT_WATER);
+	AIGroup.SetName(group_number, "Route " + (this._AllRoutes.len() + 1));
+	AIGroup.MoveVehicle(group_number, ShipID);
+	TempRoute._GroupID = group_number;
 	
 //	TempRoute._Depot = Marine.NearestDepot(TempRoute._SourceStation);
 	TempRoute._LastUpdate = WmDOT.GetTick();
