@@ -115,6 +115,11 @@ function WmDOT::Start()
 	local Time;
 	
 	DOT.Settings.HQTown = HQTown;
+
+	local DominionRoads = MetaLib.DLS();
+	DominionRoads.SetDatum(AITown.GetLocation(HQTown));
+	DominionRoads.AllGridPoints();
+
 	while (true) {
 		Time = this.GetTick();	
 //		Log.UpdateDebugLevel();
