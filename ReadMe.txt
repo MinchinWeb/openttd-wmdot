@@ -1,7 +1,7 @@
 ﻿WmDOT Read-me
-v.10, r.249, 2012-06-27
+v.11, 2012-11-25
 Copyright © 2011-12 by W. Minchin. For more info, please visit
-    http://openttd-noai-wmdot.googlecode.com/  or
+    https://github.com/MinchinWeb/openttd-wmdot  or
     http://www.tt-forums.net/viewtopic.php?f=65&t=53698
 
 -- About WmDOT ----------------------------------------------------------------
@@ -29,7 +29,7 @@ WmDOT requires OpenTTD version 1.2 or newer. This is available as a free
     download from OpenTTD.org
 As dependencies, WmDOT also requires:
     - MinchinWeb's MetaLibrary, v.5
-    - SuperLib, v.24 ('SuperLib-24.tar')
+    - SuperLib, v.26 ('SuperLib-26.tar')
     - Binary Heap, v.1 ('Queue.BinaryHeap-1.tar')
 
 -- Installation ---------------------------------------------------------------
@@ -38,8 +38,8 @@ The easiest (and recommended) way to install WmDOT is use OpenTTD's 'Check
     installed the required libraries, OpenTTD will prompt you to download them
     at the same time. This also makes it very easy for me to provide updates.
 Manual installation can be accomplished by putting the 'WmDOT.6.tar' file you
-    downloaded in the  '..\OpenTTD\ai'  folder. If you are manually installing,
-    the libraries mentioned above need to be in the '..\OpenTTD\ai\library'
+    downloaded in the  '.\OpenTTD\ai'  folder. If you are manually installing,
+    the libraries mentioned above need to be in the '.\OpenTTD\ai\library'
     folder.
 
 Once installed, WmDOT can be selected through 'AI Settings' on OpenTTD's main
@@ -78,17 +78,18 @@ Operation Hibernia: GO! .. no go
         from Oil Rigs to Oil Refineries to earn WmDOT a little bit of money.
 
 -- Version History ------------------------------------------------------------
-Version 10 [2012-06-27]
-    Improved ship selection
-    Dynamically add ships to routes
+Version 11 [2012-11-25]
+    Moved source control to GitHub
+    Delete extra ships
+    Name and group ships
 
 See the attached CHANGELOG.txt for full version history.
 
 -- Roadmap --------------------------------------------------------------------
 These are features I hope to add to WmDOT shortly. However, this is subject to
     change without notice. However, I am open to suggestions!
-v11 Dynamically route managmentment (delete extra ships, replace old ships)
-    Ship Pathfinder improvements
+v11 Dynamically route managmentment (replace old ships)
+v12 Ship Pathfinder improvements
 v12 Provide streetcar service in towns
 v13 Grid-based road pathfinder
 v14 Provide 'freeways' between cities
@@ -129,9 +130,9 @@ TT-Forums - all things Transport Tycoon related               www.tt-forums.net
 WmDOT's thread on TT-Forums: release announcements, bug reports, suggestions,
     and general commentary
                             http://www.tt-forums.net/viewtopic.php?f=65&t=53698
-WmDOT on Google Code: source code, and WmDOT: Bleeding Edge edition
-                                    http://code.google.com/p/openttd-noai-wmdot
-To report issues:            http://code.google.com/p/openttd-noai-wmdot/issues
+WmDOT on GitHub: source code, and WmDOT: Bleeding Edge edition
+                                    https://github.com/MinchinWeb/openttd-wmdot
+To report issues:            https://github.com/MinchinWeb/openttd-wmdot/issues
 
 My other projects (for OpenTTD):
     MinchinWeb's MetaLibrary (for AIs)
@@ -139,7 +140,15 @@ My other projects (for OpenTTD):
     Alberta Town Names      http://www.tt-forums.net/viewtopic.php?f=67&t=53313
     MinchinWeb's Random Town Name Generator
                             http://www.tt-forums.net/viewtopic.php?f=67&t=53579
+    Progressive Rail Set    http://www.tt-forums.net/viewtopic.php?f=67&t=63182
 
 -- Licence -------------------------------------------------------------------
-WmDOT (unless otherwise noted) is licensed under a
-    Creative Commons-Attribution 3.0 licence.
+Permission is granted to you to use, copy, modify, merge, publish, distribute,
+sublincense, and/or sell this software, and provide these rights to others,
+provided:
+    + The above copyright notice and this permission notice shall be included
+        in all copies or substantial portions of the software.
+    + Attribution is provided in the normal place for recognition of 3rd party
+        contributions.
+    + You accept that this software is provided to you "as is", without
+	    warranty.

@@ -1,8 +1,18 @@
-﻿/*	WmDOT v.11, r.252, [2011-06-30]
+﻿/*	WmDOT v.11, [2011-11-25]
  *	Copyright © 2011-12 by W. Minchin. For more info,
- *		please visit http://openttd-noai-wmdot.googlecode.com/
+ *		please visit https://github.com/MinchinWeb/openttd-wmdot
+ *
+ *	Permission is granted to you to use, copy, modify, merge, publish, 
+ *	distribute, sublincense, and/or sell this software, and provide these 
+ *	rights to others, provided:
+ *
+ *	+ The above copyright notice and this permission notice shall be included
+ *		in all copies or substantial portions of the software.
+ *	+ Attribution is provided in the normal place for recognition of 3rd party
+ *		contributions.
+ *	+ You accept that this software is provided to you "as is", without warranty.
  */
- 
+
 // Does the Road.Pathfinder provided by the AI Team need to be updated?
 
 import("util.MinchinWeb", "MetaLib", 5);
@@ -11,7 +21,7 @@ import("util.MinchinWeb", "MetaLib", 5);
 	Atlas <- MetaLib.Atlas;
 	Marine <- MetaLib.Marine;
 	OpLog <- MetaLib.Log;
-import("util.superlib", "SuperLib", 24);		//	For loan management
+import("util.superlib", "SuperLib", 26);		//	For loan management
 	SLMoney <- SuperLib.Money;
 	Helper <- SuperLib.Helper;
 	AIAbstractList <- AIList	// to support SuperLib v.21

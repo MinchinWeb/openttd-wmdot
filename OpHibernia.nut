@@ -1,7 +1,17 @@
 ﻿/*	Operation Hibernia v.4, r.242, [2012-06-23]
  *		part of WmDOT v.10
  *	Copyright © 2011-12 by W. Minchin. For more info,
- *		please visit http://openttd-noai-wmdot.googlecode.com/
+ *		please visit https://github.com/MinchinWeb/openttd-wmdot
+ *
+ *	Permission is granted to you to use, copy, modify, merge, publish, 
+ *	distribute, sublincense, and/or sell this software, and provide these 
+ *	rights to others, provided:
+ *
+ *	+ The above copyright notice and this permission notice shall be included
+ *		in all copies or substantial portions of the software.
+ *	+ Attribution is provided in the normal place for recognition of 3rd party
+ *		contributions.
+ *	+ You accept that this software is provided to you "as is", without warranty.
  */
  
 /*	Operation Hibernia
