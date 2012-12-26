@@ -1,5 +1,5 @@
-﻿/*	OperationDOT v.5, r.212, [2012-01-21],  
- *		part of WmDOT v.8
+﻿/*	OperationDOT v.6, [2012-12-24],  
+ *		part of WmDOT v.11
  *	Copyright © 2011-12 by W. Minchin. For more info,
  *		please visit https://github.com/MinchinWeb/openttd-wmdot
  *
@@ -310,7 +310,7 @@ function OpDOT::Run() {
 					local PathFinder;
 					local BuildCost = 0;
 					
-					Log.Note("Attempt " + Tries + " to connect " +AITown.GetName(this._PairsToConnect[0]) + " to " + AITown.GetName(this._PairsToConnect[1]) + ".", 3);
+					Log.Note("Attempt " + Tries + " to connect " + AITown.GetName(this._PairsToConnect[0]) + " to " + AITown.GetName(this._PairsToConnect[1]) + ".", 3);
 					PathFinder = RunPathfinderOnTownPairs(this._PairsToConnect);
 					
 					while (KeepTrying == true && PathFinder.GetPath() != null) {
@@ -640,12 +640,12 @@ function OpDOT::ApplyTripGenerationModel(WmAtlas)
 
 function OpDOT::PickTowns(WmAtlas)
 {	
-	//	Picks two towns to connect, returns an array with the two of them
-	//	A zero entry in the matrix is used to ignore the possibily of connecting
-	//		the two (eg. same town, connection already exists)
-	//	Assumes WmAtlas comes in the form of a 2D matrix with the first
-	//		column being the TownID and the rest being the distance between
-	//		each town pair
+//	Picks two towns to connect, returns an array with the two of them
+//	A zero entry in the matrix is used to ignore the possibily of connecting
+//		the two (eg. same town, connection already exists)
+//	Assumes WmAtlas comes in the form of a 2D matrix with the first
+//		column being the TownID and the rest being the distance between
+//		each town pair
 
 	local tick;
 	tick = AIController.GetTick();
@@ -681,16 +681,16 @@ function OpDOT::PickTowns(WmAtlas)
 
 function OpDOT::RemoveExistingConnections(WmAtlas)
 {
-	//	Zeros out distances in the Atlas of existing connections
-	//	Required as a precondition to PickTowns() to get anything useful out of it
-	//	Note that a connection could be around the far end of the map and back...
-	//	Assumes the centre of town is a road tile and that you can follow a road
-	//		'out of town'
-	//
-	//	TO-DO
-	//	- check that the centre of town is a road tile
-	//	- check to see if you can get out of town and then do something when you can't
-	//	- make it only set one check one set of routes (half the matrix)
+//	Zeros out distances in the Atlas of existing connections
+//	Required as a precondition to PickTowns() to get anything useful out of it
+//	Note that a connection could be around the far end of the map and back...
+//	Assumes the centre of town is a road tile and that you can follow a road
+//		'out of town'
+//
+//	TO-DO
+//	- check that the centre of town is a road tile
+//	- check to see if you can get out of town and then do something when you can't
+//	- make it only set one check one set of routes (half the matrix)
 	
 	Log.Note("Removing already joined towns. This can take a while...",2)
 	
@@ -698,7 +698,7 @@ function OpDOT::RemoveExistingConnections(WmAtlas)
 	tick = AIController.GetTick();
 	
 	//	create instance of road pathfinder
-	local pathfinder = RoadPathfinder();
+	local pathfinder = ExistingRoadPathfinder();
 	//	pathfinder settings
 	pathfinder.PresetCheckExisting()
 	
@@ -754,9 +754,9 @@ function OpDOT::RemoveExistingConnections(WmAtlas)
 
 function OpDOT::GetSpeed()
 {
-	//	Gets max travel speed for buses
-	//	Backup system is based on original game buses in temporate
-	//		http://wiki.openttd.org/Buses
+//	Gets max travel speed for buses
+//	Backup system is based on original game buses in temporate
+//		http://wiki.openttd.org/Buses
 	
 	local ReturnSpeed;
 	local GameYear = 0;
@@ -826,10 +826,10 @@ function OpDOT::GetSpeed()
 
 function OpDOT::GetMaxDistance(Mode)
 {
-	//	Returns the 'max' connection distance
-	//	Uses either the speed or 'quarter map'
-	//	The idea is first the towns within the closer one are all joined, then the
-	//		towns in the further one, and then lastly, all towns
+//	Returns the 'max' connection distance
+//	Uses either the speed or 'quarter map'
+//	The idea is first the towns within the closer one are all joined, then the
+//		towns in the further one, and then lastly, all towns
 	
 	local Speed = GetSpeed();
 	local FractionMap = ((AIMap.GetMapSizeX() + AIMap.GetMapSizeY()) /2) / 2;	//	That gives you access to about a quarter of the map

@@ -15,16 +15,18 @@
 
 // Does the Road.Pathfinder provided by the AI Team need to be updated?
 
-import("util.MinchinWeb", "MetaLib", 5);
-	RoadPathfinder <- MetaLib.RoadPathfinder;
+import("util.MinchinWeb", "MetaLib", 6);
+//	RoadPathfinder <- MetaLib.RoadPathfinder;
+	RoadPathfinder <- MetaLib.DLS;
+	ExistingRoadPathfinder <- MetaLib.RoadPathfinder;
 	Array <- MetaLib.Array;
 	Atlas <- MetaLib.Atlas;
 	Marine <- MetaLib.Marine;
 	OpLog <- MetaLib.Log;
-import("util.superlib", "SuperLib", 26);		//	For loan management
+import("util.superlib", "SuperLib", 27);		//	For loan management
 	SLMoney <- SuperLib.Money;
 	Helper <- SuperLib.Helper;
-	AIAbstractList <- AIList	// to support SuperLib v.21
+//	AIAbstractList <- AIList	// to support SuperLib v.21
 		
 require("OpDOT.nut");				//	OperationDOT
 require("OpMoney.nut");				//	Operation Money
@@ -116,9 +118,9 @@ function WmDOT::Start()
 	
 	DOT.Settings.HQTown = HQTown;
 
-	local DominionRoads = MetaLib.DLS();
-	DominionRoads.SetDatum(AITown.GetLocation(HQTown));
-	DominionRoads.AllGridPoints();
+//	local DominionRoads = MetaLib.DLS();
+//	DominionRoads.SetDatum(AITown.GetLocation(HQTown));
+//	DominionRoads.AllGridPoints();
 
 	while (true) {
 		Time = this.GetTick();	
