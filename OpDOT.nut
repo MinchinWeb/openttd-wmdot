@@ -1,4 +1,4 @@
-﻿/*	OperationDOT v.6, [2012-12-24],  
+﻿/*	OperationDOT v.6, [2012-12-27],  
  *		part of WmDOT v.11
  *	Copyright © 2011-12 by W. Minchin. For more info,
  *		please visit https://github.com/MinchinWeb/openttd-wmdot
@@ -317,7 +317,7 @@ function OpDOT::Run() {
 						Tries++;
 						Log.Note("Pathfinding took " + (AIController.GetTick() - tick) + " ticks. (MD = " + AIMap.DistanceManhattan(AITown.GetLocation(this._PairsToConnect[0]),AITown.GetLocation(this._PairsToConnect[1])) + ", Length = " + PathFinder.GetPathLength() + ").",3);
 						tick = AIController.GetTick();
-						CleanupCrew.AcceptBuiltTiles(PathFinder.TilesPairsToBuild() );
+						CleanupCrew.AcceptBuiltTiles(PathFinder.TilePairsToBuild() );
 						BuildCost = PathFinder.GetBuildCost();
 						Log.Note("Cost of path is " + BuildCost + "£. Took " + (AIController.GetTick() - tick) + " ticks.", 3);
 						Money.FundsRequest(BuildCost*1.1);		//	To allow for inflation during construction
