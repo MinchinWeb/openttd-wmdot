@@ -33,6 +33,7 @@ class OpFreeway {
 
 	Log = null;
 	Money = null;
+	Pathfinder = null;
 
 	constructor()
 	{
@@ -43,6 +44,7 @@ class OpFreeway {
 		this.State = this.State(this);
 		Log = OpLog();
 		Money = OpMoney();
+		Pathfinder = RoadPathfinder();
 	}
 
 }
@@ -78,6 +80,7 @@ function OpFreeway::LinkUp()
 {
 	this.Log = WmDOT.Log;
 	this.Money = WmDOT.Money;
+	this.Pathfinder = WmDOT.DLS;
 	Log.Note(this.GetName() + " linked up!",3);
 }
  
@@ -115,7 +118,8 @@ function OpFreeway::Run() {
 		local StartTile = this._tiles[i];
 		local NextTile;
 		local EndTile = null;
-		if (DLS.IsGridPoint(StartTile)) {
+		Log.Note("i: " + i + " Tile:" + Array.ToStringTiles1D([StartTile], false) + " Grid Point: " + Pathfinder.IsGridPoint(StartTile),5);
+		if (Pathfinder.IsGridPoint(StartTile)) {
 			//	is tile a grid point? if not, skip
 			local BeforeTile = StartTile;
 			local myDirection = Direction.GetDirectionToTile(this._tiles[i], this._tiles[i+1]);
@@ -125,16 +129,16 @@ function OpFreeway::Run() {
 				i++;
 				NextTile = this._tiles[i];
 				myDirection = Direction.GetDirectionToTile(BeforeTile, NextTile);
-				if (DLS.IsGridPoint(NextTile) && (oldDirection == myDirection)) {
+				if (Pathfinder.IsGridPoint(NextTile) && (oldDirection == myDirection)) {
 					//	if we get to the next grid point and haven't changed
 					//	direction, Build couplet!
 
 					//	Which way do we shift?
 					local Shift;
-					if ((myDirection == Direction.DIR_N) || (myDirection == Direction.DIR_S)) {
-						Shift = Direction.DIR_W;
-					} else if ((myDirection == Direction.DIR_E) || (myDirection == Direction.DIR_W)) {
-						Shift = Direction.DIR_S;
+					if ((myDirection == Direction.DIR_NW) || (myDirection == Direction.DIR_SE)) {
+						Shift = Direction.DIR_SW;
+					} else if ((myDirection == Direction.DIR_NE) || (myDirection == Direction.DIR_SW)) {
+						Shift = Direction.DIR_SE;
 					} else {
 						Log.Warning ("OpFreeway.Run without direction shift!!");
 					}
@@ -147,20 +151,24 @@ function OpFreeway::Run() {
 					AIRoad.SetCurrentRoadType(this._RoadType);
 					local BuildingMode = AITestMode();
 					local BeanCounter = AIAccounting();	//	To figure out costs	
-					if (AIRoad.BuildRoad(End1, End2) && AIRoad.BuildRoad(End1, StartTile) && AIRoad.BuildRoad(End2, NextTile)) {
-						BuildingMode = AIExecMode();
-						Money.FundsRequest(BeanCounter.GetCosts() * 1.2);	//	Get the money we need
-						AIRoad.BuildRoad(End1, StartTile);			//	Build it!
+					if (AIRoad.BuildRoad(End1, End2)) {
+						//	Build some roads for costs only
+						AIRoad.BuildRoad(End1, StartTile);
 						AIRoad.BuildRoad(End2, NextTile);
-						AIRoad.BuildRoad(End1, End2);
-						//	Build one way arrows
-						//	To-Do: check for exiting one-way road so we don't make the road no-entry or remove the one-way-ness
-						local OneWay11 = Direction.GetAdjacentTileInDirection(StartTile, Direction.GetDirectionToTile(StartTile, NextTile));
-						local OneWay12 = Direction.GetAdjacentTileInDirection(OneWay11, Direction.GetDirectionToTile(StartTile, NextTile));
-						local OneWay21 = Direction.GetAdjacentTileInDirection(End1, Direction.GetDirectionToTile(End1, End2));
-						local OneWay22 = Direction.GetAdjacentTileInDirection(OneWay21, Direction.GetDirectionToTile(End1, End2));
-						AIRoad.BuildOneWayRoad(OneWay11, OneWay12);
-						AIRoad.BuildOneWayRoad(OneWay22, OneWay21);
+
+						local BuildingMode2 = AIExecMode();				//	Now for real
+						Money.FundsRequest(BeanCounter.GetCosts());	//	Get the money we need
+						AIRoad.BuildRoad(End1, End2);				//	Build it!
+						if (AIRoad.BuildRoad(End1, StartTile) && AIRoad.BuildRoad(End2, NextTile)) {
+							//	Build one way arrows
+							//	To-Do: check for exiting one-way road so we don't make the road no-entry or remove the one-way-ness
+							local OneWay11 = Direction.GetAdjacentTileInDirection(StartTile, Direction.GetDirectionToTile(StartTile, NextTile));
+							local OneWay12 = Direction.GetAdjacentTileInDirection(OneWay11, Direction.GetDirectionToTile(StartTile, NextTile));
+							local OneWay21 = Direction.GetAdjacentTileInDirection(End1, Direction.GetDirectionToTile(End1, End2));
+							local OneWay22 = Direction.GetAdjacentTileInDirection(OneWay21, Direction.GetDirectionToTile(End1, End2));
+							AIRoad.BuildOneWayRoad(OneWay11, OneWay12);
+							AIRoad.BuildOneWayRoad(OneWay22, OneWay21);
+						}
 					}
 					i--;
 				}

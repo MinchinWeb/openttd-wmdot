@@ -313,52 +313,52 @@ function OpDOT::Run() {
 					local tick = AIController.GetTick();
 					local KeepTrying = true;
 					local Tries = 1;
-					// local PathFinder;
+					// local Pathfinder;
 					local BuildCost = 0;
 					
 					Log.Note("Attempt " + Tries + " to connect " + AITown.GetName(this._PairsToConnect[0]) + " to " + AITown.GetName(this._PairsToConnect[1]) + ".", 3);
-					this.PathFinder = RunPathfinderOnTownPairs(this._PairsToConnect);
+					this.Pathfinder = RunPathfinderOnTownPairs(this._PairsToConnect);
 					
-					while (KeepTrying == true && this.PathFinder.GetPath() != null) {
+					while (KeepTrying == true && this.Pathfinder.GetPath() != null) {
 						Tries++;
-						Log.Note("Pathfinding took " + (AIController.GetTick() - tick) + " ticks. (MD = " + AIMap.DistanceManhattan(AITown.GetLocation(this._PairsToConnect[0]),AITown.GetLocation(this._PairsToConnect[1])) + ", Length = " + this.PathFinder.GetPathLength() + ").",3);
+						Log.Note("Pathfinding took " + (AIController.GetTick() - tick) + " ticks. (MD = " + AIMap.DistanceManhattan(AITown.GetLocation(this._PairsToConnect[0]),AITown.GetLocation(this._PairsToConnect[1])) + ", Length = " + this.Pathfinder.GetPathLength() + ").",3);
 						tick = AIController.GetTick();
-						CleanupCrew.AcceptBuiltTiles(this.PathFinder.TilePairsToBuild() );
-						BuildCost = this.PathFinder.GetBuildCost();
+						CleanupCrew.AcceptBuiltTiles(this.Pathfinder.TilePairsToBuild() );
+						BuildCost = this.Pathfinder.GetBuildCost();
 						Log.Note("Cost of path is " + BuildCost + "£. Took " + (AIController.GetTick() - tick) + " ticks.", 3);
 						Money.FundsRequest(BuildCost*1.1);		//	To allow for inflation during construction
-						this.PathFinder.BuildPath();
-//						AILog.Info(Array.ToString2D(PathFinder.PathToTilePairs()));
+						this.Pathfinder.BuildPath();
+//						AILog.Info(Array.ToString2D(this.Pathfinder.PathToTilePairs()));
 						
 						//	Test to see if construction worked by running the
 						//		pathfinder and computing build cost of the 
 						//		second path
 						tick = AIController.GetTick();
 						Log.Note("Attempt " + Tries + " to connect " +AITown.GetName(this._PairsToConnect[0]) + " to " + AITown.GetName(this._PairsToConnect[1]) + ".", 3)
-						this.PathFinder = RunPathfinderOnTownPairs(this._PairsToConnect);
-						BuildCost = this.PathFinder.GetBuildCost();
+						this.Pathfinder = RunPathfinderOnTownPairs(this._PairsToConnect);
+						BuildCost = this.Pathfinder.GetBuildCost();
 						// TO-DO:	Check that the bridges and tunnels got
 						//			built; if unbuildable, their cost remains 0£
 						
 						if (BuildCost == 0) {
 							Log.Note("Successful connection!",3);
-							CleanupCrew.AcceptGoldenPath(this.PathFinder.PathToTilePairs());
+							CleanupCrew.AcceptGoldenPath(this.Pathfinder.PathToTilePairs());
 							CleanupCrew.SetToRun();
-							Freeways.AcceptPath(this.PathFinder.PathToTiles());
+							Freeways.AcceptPath(this.Pathfinder.PathToTiles());
 							Freeways.SetToRun();
 							KeepTrying = false;
 						}						
 						if ((Tries >= (WmDOT.GetSetting("OpDOT_RebuildAttempts") + 1)) && (KeepTrying == true)) {
 							Log.Warning("After " + Tries + " tries, unable to build path from " +AITown.GetName(this._PairsToConnect[0]) + " to " + AITown.GetName(this._PairsToConnect[1]) + ".");
-							CleanupCrew.AcceptGoldenPath(this.PathFinder.PathToTilePairs());
+							CleanupCrew.AcceptGoldenPath(this.Pathfinder.PathToTilePairs());
 							CleanupCrew.SetToRun();
-							Freeways.AcceptPath(this.PathFinder.PathToTiles());
+							Freeways.AcceptPath(this.Pathfinder.PathToTiles());
 							Freeways.SetToRun();
 							KeepTrying = false;
 						}
 					}
 					
-					if (this.PathFinder.GetPath() == null) {
+					if (this.Pathfinder.GetPath() == null) {
 						Log.Warning("Pathfinding took " + (AIController.GetTick() - tick) + " ticks and failed. (MD = " + AIMap.DistanceManhattan(AITown.GetLocation(this._PairsToConnect[0]),AITown.GetLocation(this._PairsToConnect[1])) + ").");
 					}
 
