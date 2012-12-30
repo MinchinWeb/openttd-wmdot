@@ -1,4 +1,4 @@
-/*	Operation Freeway v.1, [2012-12-28],  
+/*	Operation Freeway v.1, [2012-12-29],  
  *		part of WmDOT v.11
  *	Copyright © 2012 by W. Minchin. For more info,
  *		please visit https://github.com/MinchinWeb/openttd-wmdot
@@ -23,8 +23,8 @@
 
 class OpFreeway {
 	function GetVersion()       { return 1; }
-	function GetRevision()		{ return 121228; }
-	function GetDate()          { return "2012-12-28"; }
+	function GetRevision()		{ return 121229; }
+	function GetDate()          { return "2012-12-29"; }
 	function GetName()          { return "Operation Freeway"; }
 
 	_NextRun = null;
@@ -105,6 +105,13 @@ function OpFreeway::Run() {
 	//	into a couplet of one-way roads, one in each direction
 	Log.Note("OpFreeway running at tick " + AIController.GetTick() + ".",1);
 
+	//	check to see if we're turned on
+	if ((WmDOT.GetSetting("Freeways") != 1) || (AIGameSettings.IsDisabledVehicleType(AIVehicle.VT_ROAD) == true)) {
+		this._NextRun = AIController.GetTick() + 13001;			//	6500 ticks is about a year
+		Log.Note("** OpFreeway has been disabled. **", 0);
+		return;
+	}
+
 	//	check to see if we have tiles to work with
 	if (this._tiles == null) {
 		Log.Note("No tile array for OpFreeway... skipping!", 2);
@@ -145,31 +152,108 @@ function OpFreeway::Run() {
 					// Get shifted endpoints
 					local End1 = Direction.GetAdjacentTileInDirection(StartTile, Shift);
 					local End2 = Direction.GetAdjacentTileInDirection(NextTile, Shift);
+					local SquareEnd11 = StartTile;
+					local SquareEnd12 = Direction.GetAdjacentTileInDirection(SquareEnd11, Direction.DIR_SW);
+					local SquareEnd13 = Direction.GetAdjacentTileInDirection(SquareEnd12, Direction.DIR_SE);
+					local SquareEnd14 = Direction.GetAdjacentTileInDirection(SquareEnd13, Direction.DIR_NE);
+					local SquareEnd21 = NextTile;
+					local SquareEnd22 = Direction.GetAdjacentTileInDirection(SquareEnd21, Direction.DIR_SW);
+					local SquareEnd23 = Direction.GetAdjacentTileInDirection(SquareEnd22, Direction.DIR_SE);
+					local SquareEnd24 = Direction.GetAdjacentTileInDirection(SquareEnd23, Direction.DIR_NE);
 
 					//	test to see if we can build from End1 to End2
 					//	this won't work if we need a bridge or a tunnel
 					AIRoad.SetCurrentRoadType(this._RoadType);
 					local BuildingMode = AITestMode();
-					local BeanCounter = AIAccounting();	//	To figure out costs	
+					local BeanCounter = AIAccounting();				//	To figure out costs	
 					if (AIRoad.BuildRoad(End1, End2)) {
+						Log.Note("Parallel road buildable!", 6);
 						//	Build some roads for costs only
 						AIRoad.BuildRoad(End1, StartTile);
 						AIRoad.BuildRoad(End2, NextTile);
+						AIRoad.BuildRoad(SquareEnd11, SquareEnd12);
+						AIRoad.BuildRoad(SquareEnd12, SquareEnd13);
+						AIRoad.BuildRoad(SquareEnd13, SquareEnd14);
+						AIRoad.BuildRoad(SquareEnd14, SquareEnd11);
+						AIRoad.BuildRoad(SquareEnd21, SquareEnd22);
+						AIRoad.BuildRoad(SquareEnd22, SquareEnd23);
+						AIRoad.BuildRoad(SquareEnd23, SquareEnd24);
+						AIRoad.BuildRoad(SquareEnd24, SquareEnd21);
 
-						local BuildingMode2 = AIExecMode();				//	Now for real
+						local BuildingMode2 = AIExecMode();			//	Now for real
 						Money.FundsRequest(BeanCounter.GetCosts());	//	Get the money we need
 						AIRoad.BuildRoad(End1, End2);				//	Build it!
-						if (AIRoad.BuildRoad(End1, StartTile) && AIRoad.BuildRoad(End2, NextTile)) {
+						AIRoad.BuildRoad(SquareEnd11, SquareEnd12);
+						AIRoad.BuildRoad(SquareEnd12, SquareEnd13);
+						AIRoad.BuildRoad(SquareEnd13, SquareEnd14);
+						AIRoad.BuildRoad(SquareEnd14, SquareEnd11);
+						AIRoad.BuildRoad(SquareEnd21, SquareEnd22);
+						AIRoad.BuildRoad(SquareEnd22, SquareEnd23);
+						AIRoad.BuildRoad(SquareEnd23, SquareEnd24);
+						AIRoad.BuildRoad(SquareEnd24, SquareEnd21);
+
+						local String1 = "" + AIRoad.AreRoadTilesConnected(SquareEnd11, SquareEnd12) + " || " + AIRoad.AreRoadTilesConnected(SquareEnd13, SquareEnd14) + ", " + AIRoad.AreRoadTilesConnected(SquareEnd11, SquareEnd14) + " || " + AIRoad.AreRoadTilesConnected(SquareEnd12, SquareEnd13) + ", " + AIRoad.AreRoadTilesConnected(SquareEnd21, SquareEnd22) + " || " + AIRoad.AreRoadTilesConnected(SquareEnd23, SquareEnd24) + ", " + AIRoad.AreRoadTilesConnected(SquareEnd21, SquareEnd24) + " || " + AIRoad.AreRoadTilesConnected(SquareEnd22, SquareEnd23);
+						local String2 = "" + (AIRoad.AreRoadTilesConnected(SquareEnd11, SquareEnd12) || AIRoad.AreRoadTilesConnected(SquareEnd13, SquareEnd14)) + " &&  " + (AIRoad.AreRoadTilesConnected(SquareEnd11, SquareEnd14) || AIRoad.AreRoadTilesConnected(SquareEnd12, SquareEnd13)) + " &&  " + (AIRoad.AreRoadTilesConnected(SquareEnd21, SquareEnd22) || AIRoad.AreRoadTilesConnected(SquareEnd23, SquareEnd24)) + " &&  " + (AIRoad.AreRoadTilesConnected(SquareEnd21, SquareEnd24) || AIRoad.AreRoadTilesConnected(SquareEnd22, SquareEnd23));
+						local String3 = "" + ((AIRoad.AreRoadTilesConnected(SquareEnd11, SquareEnd12) || AIRoad.AreRoadTilesConnected(SquareEnd13, SquareEnd14)) && (AIRoad.AreRoadTilesConnected(SquareEnd11, SquareEnd14) || AIRoad.AreRoadTilesConnected(SquareEnd12, SquareEnd13)) && (AIRoad.AreRoadTilesConnected(SquareEnd21, SquareEnd22) || AIRoad.AreRoadTilesConnected(SquareEnd23, SquareEnd24)) && (AIRoad.AreRoadTilesConnected(SquareEnd21, SquareEnd24) || AIRoad.AreRoadTilesConnected(SquareEnd22, SquareEnd23)));
+						Log.Note("Connections : " + String1 + " : " + String2 + " : " + String3, 6);
+						if ((AIRoad.AreRoadTilesConnected(SquareEnd11, SquareEnd12) || AIRoad.AreRoadTilesConnected(SquareEnd13, SquareEnd14)) && (AIRoad.AreRoadTilesConnected(SquareEnd11, SquareEnd14) || AIRoad.AreRoadTilesConnected(SquareEnd12, SquareEnd13)) && (AIRoad.AreRoadTilesConnected(SquareEnd21, SquareEnd22) || AIRoad.AreRoadTilesConnected(SquareEnd23, SquareEnd24)) && (AIRoad.AreRoadTilesConnected(SquareEnd21, SquareEnd24) || AIRoad.AreRoadTilesConnected(SquareEnd22, SquareEnd23))) {
 							//	Build one way arrows
 							//	To-Do: check for exiting one-way road so we don't make the road no-entry or remove the one-way-ness
-							local OneWay11 = Direction.GetAdjacentTileInDirection(StartTile, Direction.GetDirectionToTile(StartTile, NextTile));
-							local OneWay12 = Direction.GetAdjacentTileInDirection(OneWay11, Direction.GetDirectionToTile(StartTile, NextTile));
-							local OneWay21 = Direction.GetAdjacentTileInDirection(End1, Direction.GetDirectionToTile(End1, End2));
-							local OneWay22 = Direction.GetAdjacentTileInDirection(OneWay21, Direction.GetDirectionToTile(End1, End2));
-							AIRoad.BuildOneWayRoad(OneWay11, OneWay12);
-							AIRoad.BuildOneWayRoad(OneWay22, OneWay21);
+							local OneWay11;
+							local OneWay12;
+							local OneWay21;
+							local OneWay22;
+							if (max(max(max(StartTile, NextTile), End1), End2) == StartTile) {
+								Log.Note("StartTile [1] is largest." + Array.ToStringTiles1D([StartTile, NextTile, End1, End2]), 6);
+								OneWay11 = StartTile;
+								OneWay12 = NextTile;
+								OneWay21 = End2;
+								OneWay22 = End1;
+							} else if (max(max(max(StartTile, NextTile), End1), End2) == NextTile) {
+								Log.Note("NextTile [2] is largest." + Array.ToStringTiles1D([StartTile, NextTile, End1, End2]), 6);
+								OneWay11 = NextTile;
+								OneWay12 = StartTile;
+								OneWay21 = End1;
+								OneWay22 = End2;
+							} else if (max(max(max(StartTile, NextTile), End1), End2) == End1) {
+								Log.Note("End1 [3] is largest." + Array.ToStringTiles1D([StartTile, NextTile, End1, End2]), 6);
+								OneWay11 = End1;
+								OneWay12 = End2;
+								OneWay21 = NextTile;
+								OneWay22 = StartTile;
+							} else if (max(max(max(StartTile, NextTile), End1), End2) == End2) {
+								Log.Note("End2 [4] is largest." + Array.ToStringTiles1D([StartTile, NextTile, End1, End2]), 6);
+								OneWay11 = End2;
+								OneWay12 = End1;
+								OneWay21 = StartTile;
+								OneWay22 = NextTile;
+							} else {
+								Log.Warning("None are largest!!" + Array.ToStringTiles1D([StartTile, NextTile, End1, End2]));
+								break;
+								//	should never get here
+							}
+							
+							local from = OneWay11;
+							local to;
+							for (local i = 0; i < AIMap.DistanceManhattan(OneWay11, OneWay12); i++) {
+								to = Direction.GetAdjacentTileInDirection(from, Direction.GetDirectionToTile(from, OneWay12));
+								Log.Note("OneWay 1 " + Array.ToStringTiles1D([from, to]), 7);
+								AIRoad.BuildOneWayRoad(from, to);
+								from = to;
+							}
+
+							from = OneWay21;
+							for (local i = 0; i < AIMap.DistanceManhattan(OneWay21, OneWay22); i++) {
+								to = Direction.GetAdjacentTileInDirection(from, Direction.GetDirectionToTile(from, OneWay22));
+								Log.Note("OneWay 2 " + Array.ToStringTiles1D([from, to]), 7);
+								AIRoad.BuildOneWayRoad(from, to);
+								from = to;
+							}
+						} else {
+							Log.Note("Not building one-way section...", 6);
 						}
 					}
+					i--;
 					i--;
 				}
 				BeforeTile = NextTile;

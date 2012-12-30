@@ -1,4 +1,4 @@
-﻿/*	WmDOT v.11, [2011-12-28]
+﻿/*	WmDOT v.11, [2011-12-29]
  *	Copyright © 2011-12 by W. Minchin. For more info,
  *		please visit https://github.com/MinchinWeb/openttd-wmdot
  *
@@ -46,7 +46,7 @@ require("OpFreeway.nut");			//	Freeway Builder
 	WmDOTv = 11;
 	/*	Version number of AI
 	 */	
-	WmDOTr = 121228;
+	WmDOTr = 121229;
 	/*	Reversion number of AI
 	 */
 	 
