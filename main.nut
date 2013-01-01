@@ -1,5 +1,5 @@
-﻿/*	WmDOT v.11.1, [2011-12-31]
- *	Copyright © 2011-12 by W. Minchin. For more info,
+﻿/*	WmDOT v.12.1, [2011-12-31]
+ *	Copyright © 2011-13 by W. Minchin. For more info,
  *		please visit https://github.com/MinchinWeb/openttd-wmdot
  *
  *	Permission is granted to you to use, copy, modify, merge, publish, 
@@ -43,7 +43,7 @@ require("OpFreeway.nut");			//	Freeway Builder
  class WmDOT extends AIController 
 {
 	//	SETTINGS
-	WmDOTv = 12;
+	WmDOTv = 13;
 	/*	Version number of AI
 	 */	
 	WmDOTr = 121231;

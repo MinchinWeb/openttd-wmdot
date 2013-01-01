@@ -182,6 +182,7 @@ function ManShips::AddRoute (ShipID, CargoNo)
 	// Name Ship - format: Town_Name Cargo R[Route Number]-[incremented number]
 	local temp_name = "";
 	temp_name += AITown.GetName(AIStation.GetNearestTown(TempRoute._SourceStation));
+	if (temp_name.len() > 19) { temp_name = temp_name.slice(0,19); }	//	limit town name part to 19 characters
 	temp_name = temp_name + " " + AICargo.GetCargoLabel(CargoNo) + " R";
 	temp_name += (this._AllRoutes.len() + 1) + "-1";
 	AIVehicle.SetName(ShipID, temp_name);

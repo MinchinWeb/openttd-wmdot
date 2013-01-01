@@ -1,6 +1,6 @@
-﻿/*	Cleanup Crew v.4, [2012-12-27] 
- *		part of WmDOT v.11
- *	Copyright © 2011-12 by W. Minchin. For more info,
+﻿/*	Cleanup Crew v.4.1, [2013-01-01] 
+ *		part of WmDOT v.12.1
+ *	Copyright © 2011-13 by W. Minchin. For more info,
  *		please visit https://github.com/MinchinWeb/openttd-wmdot
  *
  *	Permission is granted to you to use, copy, modify, merge, publish, 
@@ -28,8 +28,8 @@
 
 class OpCleanupCrew {
 	function GetVersion()       { return 4; }
-	function GetRevision()		{ return 121227; }
-	function GetDate()          { return "2012-12-27"; }
+	function GetRevision()		{ return 130101; }
+	function GetDate()          { return "2013-01-01"; }
 	function GetName()          { return "Cleanup Crew"; }
 
 	_heap_class = import("Queue.Fibonacci_Heap", "", 3);
@@ -130,7 +130,7 @@ function OpCleanupCrew::SetToRun()
 //			Therefore, put CleanupCrew above OpDOT in the loop lists to be sure
 //			that CleanupCrew runs before OpDOT does again.
 
-	this._next_run = AIController.GetTick();
+	this._next_run = AIController.GetTick() - 1;
 	return this._next_run;
 }
 

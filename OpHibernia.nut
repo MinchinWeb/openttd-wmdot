@@ -489,7 +489,7 @@ function OpHibernia::Run() {
 	
 //	Sleep for three months after last OpHibernia run, or a month after the last
 //		ship was added, or ignore if we have no debt
-	this._NextRun = WmDOT.GetTick() + 6500*this._SleepLength/365;	//	Approx. three months
+	this._NextRun = WmDOT.GetTick() + (6500 * this._SleepLength) / 365;	//	Approx. three months
 
 	Log.Note("OpHibernia finished. Took " + (WmDOT.GetTick() - tick) + " ticks.", 2);
 	

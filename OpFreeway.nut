@@ -1,6 +1,6 @@
-/*	Operation Freeway v.1.1, [2012-12-31],  
- *		part of WmDOT v.11.1
- *	Copyright © 2012 by W. Minchin. For more info,
+/*	Operation Freeway v.1.2, [2013-01-o1],  
+ *		part of WmDOT v.12.1
+ *	Copyright © 2012-13 by W. Minchin. For more info,
  *		please visit https://github.com/MinchinWeb/openttd-wmdot
  *
  *	Permission is granted to you to use, copy, modify, merge, publish, 
@@ -23,8 +23,8 @@
 
 class OpFreeway {
 	function GetVersion()       { return 1; }
-	function GetRevision()		{ return 121231; }
-	function GetDate()          { return "2012-12-31"; }
+	function GetRevision()		{ return 130101; }
+	function GetDate()          { return "2013-01-01"; }
 	function GetName()          { return "Operation Freeway"; }
 
 	_NextRun = null;
@@ -81,7 +81,7 @@ function OpFreeway::LinkUp()
 	this.Log = WmDOT.Log;
 	this.Money = WmDOT.Money;
 	this.Pathfinder = WmDOT.DLS;
-	Log.Note(this.GetName() + " linked up!",3);
+	Log.Note(this.GetName() + " linked up!", 3);
 }
  
 function OpFreeway::AcceptPath(PathToTiles) {
@@ -92,7 +92,7 @@ function OpFreeway::AcceptPath(PathToTiles) {
 
 function OpFreeway::SetToRun() {
 	//	sets OpFreeway to run on next pass
-	this._NextRun = AIController.GetTick();
+	this._NextRun = AIController.GetTick() - 1;
 	return this._NextRun;
 }
 
