@@ -1,6 +1,6 @@
-﻿/*	Operation Hibernia v.4, r.242, [2012-06-23]
- *		part of WmDOT v.10
- *	Copyright © 2011-12 by W. Minchin. For more info,
+﻿/*	Operation Hibernia v.5, [2013-01-01]
+ *		part of WmDOT v.12.1
+ *	Copyright © 2011-13 by W. Minchin. For more info,
  *		please visit https://github.com/MinchinWeb/openttd-wmdot
  *
  *	Permission is granted to you to use, copy, modify, merge, publish, 
@@ -31,9 +31,8 @@
 //			industries do not include towns but they probably should...
 
  class OpHibernia {
-	function GetVersion()       { return 4; }
-	function GetRevision()		{ return 242; }
-	function GetDate()          { return "2012-06-23"; }
+	function GetVersion()       { return 5; }
+	function GetRevision()		{ return 130101; }
 	function GetName()          { return "Operation Hibernia"; }
 	
 	
@@ -417,13 +416,21 @@ function OpHibernia::Run() {
 								
 								//	Keep only ships under max capacity
 								//		"In case it can transport multiple cargoes, it returns the first/main."
+								local PreCapacityEngines = AIList();	// temp copy
+								PreCapacityEngines.AddList(Engines);
+
 								local MaxCargo = (AIIndustry.GetLastMonthProduction(MetaLib.Industry.GetIndustryID(BuildPair[0]), CargoNo) * this._CapacityDays)/30;
 								Engines.Valuate(AIEngine.GetCapacity);
 								Engines.RemoveAboveValue(MaxCargo);
 								Log.Note("Only " + Engines.Count() + " have capacity below " + MaxCargo + ". (" + AIIndustry.GetLastMonthProduction(MetaLib.Industry.GetIndustryID(BuildPair[0]), CargoNo) + " * " + this._CapacityDays + " / 30)", 5);
+
+								if (Engines.Count() == 0) {
+									//	If capping capacity eliminates all ships, don't eliminate ships based on capacity
+									Engines.AddList(PreCapacityEngines);
+									Log.Note("Reverting to ship list from before capacity check... (now " + Engines.Count() + " engines.)", 5);
+								}
 								
 								//	Pick the best rated one
-								Marine.RateShips(1, 40, 0);
 								Engines.Valuate(Marine.RateShips, 40, CargoNo);
 								Engines.Sort(AIList.SORT_BY_VALUE, AIList.SORT_DESCENDING);
 								
