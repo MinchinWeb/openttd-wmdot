@@ -28,7 +28,7 @@
 
 class OpCleanupCrew {
 	function GetVersion()       { return 4; }
-	function GetRevision()		{ return 0; }
+	function GetRevision()		{ return 121227; }
 	function GetDate()          { return "2012-12-27"; }
 	function GetName()          { return "Cleanup Crew"; }
 

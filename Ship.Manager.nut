@@ -18,8 +18,8 @@
  */
  
 class ManShips {
-	function GetVersion()       { return 1; }
-	function GetRevision()		{ return 0; }
+	function GetVersion()       { return 2; }
+	function GetRevision()		{ return 121125; }
 	function GetDate()          { return "2012-11-25"; }
 	function GetName()          { return "Ship Manager"; }
 	
@@ -198,7 +198,3 @@ function ManShips::AddRoute (ShipID, CargoNo)
 	this._AllRoutes.push(TempRoute);
 	Log.Note("Route added! Ship " + TempRoute._EngineID + "; " + TempRoute._Capacity + " tons of " + AICargo.GetCargoLabel(TempRoute._Cargo) + "; starting at " + TempRoute._SourceStation + "; build at " + TempRoute._Depot + "; updated at tick " + TempRoute._LastUpdate + ".", 4);
 }
-
-
-
-

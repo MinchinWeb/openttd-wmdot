@@ -223,7 +223,7 @@ function Events::Run() {
 				local Event2 = AIEventVehicleWaitingInDepot.Convert(Event);
 				local Vehicle = Event2.GetVehicleID();
 				local Result = AIVehicle.SellVehicle(Vehicle);
-				Log.Note("Vehcile " + Vehicle + " sold! : " + Result, 4);
+				Log.Note("Vehicle " + Vehicle + " sold! : " + Result, 4);
 				break;
 				
 			case AIEvent.ET_ENGINE_PREVIEW:

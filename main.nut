@@ -1,4 +1,4 @@
-﻿/*	WmDOT v.11, [2011-12-29]
+﻿/*	WmDOT v.11, [2011-12-31]
  *	Copyright © 2011-12 by W. Minchin. For more info,
  *		please visit https://github.com/MinchinWeb/openttd-wmdot
  *
@@ -46,7 +46,7 @@ require("OpFreeway.nut");			//	Freeway Builder
 	WmDOTv = 11;
 	/*	Version number of AI
 	 */	
-	WmDOTr = 121229;
+	WmDOTr = 121231;
 	/*	Reversion number of AI
 	 */
 	 
@@ -78,7 +78,7 @@ require("OpFreeway.nut");			//	Freeway Builder
 function WmDOT::Start()
 {
 //	For debugging crashes...
-	local Debug_2 = "/* Settings: " + GetSetting("DOT_name1") + "-" + GetSetting("DOT_name2") + " - dl" + GetSetting("Debug_Level") + " // OpDOT: " + GetSetting("OpDOT") + " - " + GetSetting("OpDOT_MinTownSize") + " - " + GetSetting("TownRegistrar_AtlasSize") + " - " + GetSetting("OpDOT_RebuildAttempts") + " // OpHibernia: " + GetSetting("OpHibernia") + " */" ;
+	local Debug_2 = "/* Settings: " + GetSetting("DOT_name1") + "-" + GetSetting("DOT_name2") + " - dl" + GetSetting("Debug_Level") + " // OpDOT: " + GetSetting("OpDOT") + " - " + GetSetting("OpDOT_MinTownSize") + " - " + GetSetting("TownRegistrar_AtlasSize") + " - " + GetSetting("OpDOT_RebuildAttempts") + " - " + GetSetting(Freeways") + "" // OpHibernia: " + GetSetting("OpHibernia") + " */" ;
 	local Debug_1 = "/* v." + WmDOTv + ", r." + WmDOTr + " // r." + MetaLib.Extras.GetOpenTTDRevision() + " // " + AIDate.GetYear(AIDate.GetCurrentDate()) + "-" + AIDate.GetMonth(AIDate.GetCurrentDate()) + "-" + AIDate.GetDayOfMonth(AIDate.GetCurrentDate()) + " start // " + AIMap.GetMapSizeX() + "x" + AIMap.GetMapSizeY() + " map - " + AITown.GetTownCount() + " towns */";
 	
 //	AILog.Info("Welcome to WmDOT, version " + GetVersion() + ", revision " + WmDOTr + " by " + GetAuthor() + ".");
@@ -87,28 +87,28 @@ function WmDOT::Start()
 	Log.Note("     For more info, please visit http://www.tt-forums.net/viewtopic.php?f=65&t=53698", 0)
 	Log.Note(" ", 0);
 	
-	Log.Note("Loading Libraries...",0);		// Actually, by this point it's already happened
+	Log.Note("Loading Libraries...", 0);		// Actually, by this point it's already happened
 	Log.Note("     " + MetaLib.GetName() + ", v." + MetaLib.GetVersion() + " r." + MetaLib.GetRevision() + "  loaded!", 0);
-	Log.Note("     " + Log.GetName() + ", v." + Log.GetVersion() + " r." + Log.GetRevision() + "  loaded!",0);
-	Log.Note("     " + Money.GetName() + ", v." + Money.GetVersion() + " r." + Money.GetRevision() + "  loaded!",0);
-	Log.Note("     " + DOT.GetName() + ", v." + DOT.GetVersion() + " r." + DOT.GetRevision() + "  loaded!",0);
-	Log.Note("     " + Towns.GetName() + ", v." + Towns.GetVersion() + " r." + Towns.GetRevision() + "  loaded!",0);
-	Log.Note("     " + CleanupCrew.GetName() + ", v." + CleanupCrew.GetVersion() + " r." + CleanupCrew.GetRevision() + "  loaded!",0);
-	Log.Note("     " + Hibernia.GetName() + ", v." + Hibernia.GetVersion() + " r." + Hibernia.GetRevision() + "  loaded!",0);
-	Log.Note("     " + Manager_Ships.GetName() + ", v." + Manager_Ships.GetVersion() + " r." + Manager_Ships.GetRevision() + "  loaded!",0);
-	Log.Note("     " + Event.GetName() + ", v." + Event.GetVersion() + " r." + Event.GetRevision() + "  loaded!",0);
-	Log.Note("     " + Freeways.GetName() + ", v." + Freeways.GetVersion() + " r." + Freeways.GetRevision() + "  loaded!",0);
+	Log.Note("     " + Log.GetName() + ", v." + Log.GetVersion() + " r." + Log.GetRevision() + "  loaded!", 0);
+	Log.Note("     " + Money.GetName() + ", v." + Money.GetVersion() + " r." + Money.GetRevision() + "  loaded!", 0);
+	Log.Note("     " + DOT.GetName() + ", v." + DOT.GetVersion() + " r." + DOT.GetRevision() + "  loaded!", 0);
+	Log.Note("     " + Towns.GetName() + ", v." + Towns.GetVersion() + " r." + Towns.GetRevision() + "  loaded!", 0);
+	Log.Note("     " + CleanupCrew.GetName() + ", v." + CleanupCrew.GetVersion() + " r." + CleanupCrew.GetRevision() + "  loaded!", 0);
+	Log.Note("     " + Hibernia.GetName() + ", v." + Hibernia.GetVersion() + " r." + Hibernia.GetRevision() + "  loaded!", 0);
+	Log.Note("     " + Manager_Ships.GetName() + ", v." + Manager_Ships.GetVersion() + " r." + Manager_Ships.GetRevision() + "  loaded!", 0);
+	Log.Note("     " + Event.GetName() + ", v." + Event.GetVersion() + " r." + Event.GetRevision() + "  loaded!", 0);
+	Log.Note("     " + Freeways.GetName() + ", v." + Freeways.GetVersion() + " r." + Freeways.GetRevision() + "  loaded!", 0);
 	StartInfo();		//	AyStarInfo()
 						//	RoadPathfinder()
 						//	NeighbourhoodInfo()
 						//	Fibonacci_Heap_Info()
-	Log.Note("",0);
+	Log.Note("", 0);
 	
 	TheGreatLinkUp();
 		
 	if (GetSetting("Debug_Level") == 0) {
-		Log.Note("Increase Debug Level in AI settings to get more verbose output.",0);
-		Log.Note("",0);
+		Log.Note("Increase Debug Level in AI settings to get more verbose output.", 0);
+		Log.Note("", 0);
 	}
 	
 	AIRoad.SetCurrentRoadType(AIRoad.ROADTYPE_ROAD);
@@ -541,3 +541,4 @@ function TestAI::Save()
    //TODO: Add your loading routines.
  }
  */
+ 

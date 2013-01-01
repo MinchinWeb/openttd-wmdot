@@ -1,5 +1,5 @@
 ﻿WmDOT Read-me
-v.11, 2012-12-28
+v.11, 2012-12-31
 Copyright © 2011-12 by W. Minchin. For more info, please visit
     https://github.com/MinchinWeb/openttd-wmdot  or
     http://www.tt-forums.net/viewtopic.php?f=65&t=53698
@@ -62,7 +62,7 @@ Debug Level: 0..5
         Probably only useful to me, or if you wonder what WmDOT is doing
     - This setting can be changing in-game, but takes a little while for the
         change to be registered
-Operation DOT: GO! .. no go
+Operation DOT: On/Off
     - whether Operation DOT (WmDOT's highway building routine) runs or not.
 The minimum size of towns to connect: 0..10000
     - this is the minimum size of towns WmDOT connects to the highway network
@@ -73,28 +73,31 @@ Atlas Size: 20..150
 Rebuild Attempts: 1..15
     - if for some reason WmDOT couldn't finish a route (e.g. a bus was in the
         in way), it will try again this many times
-Operation Hibernia: GO! .. no go
+Build Freeways: On/Off
+    - whether or not OpDOT will build freeways (or dual carriageways) between
+        cities
+Operation Hibernia: On/Off
     - whether Operation Hibernia runs or not. Operation Hibernia transports oil
         from Oil Rigs to Oil Refineries to earn WmDOT a little bit of money.
 
 -- Version History ------------------------------------------------------------
-Version 11 [2012-11-25]
-    Moved source control to GitHub
+Version 11 [2012-12-31]
+    Moved pathfinder to grid-based
+    Build Freeways (or dual carriageways)
     Delete extra ships
     Name and group ships
+    Move to GitHub (and update URL's)
+    Update license statement
 
 See the attached CHANGELOG.txt for full version history.
 
 -- Roadmap --------------------------------------------------------------------
 These are features I hope to add to WmDOT shortly. However, this is subject to
     change without notice. However, I am open to suggestions!
-v11 Dynamically route managmentment (replace old ships)
 v12 Ship Pathfinder improvements
-v12 Provide streetcar service in towns
-v13 Grid-based road pathfinder
-v14 Provide 'freeways' between cities
-v15 Provide inter-city valuables transportation
-v16 Bring water and food to towns in the desert and above the snowline to help
+v13 Provide streetcar service in towns
+v14 Provide inter-city valuables transportation
+v15 Bring water and food to towns in the desert and above the snowline to help
         them grow
 
 -- Known Issues ---------------------------------------------------------------
@@ -122,7 +125,7 @@ WmDOT will add ships, but does not currently remove them. Therefore, if industry
 If WmDOT crashes, please help me fix it! Save a screenshot (under the ? on the
     far right of the in-game toolbar) and report the bug to either:
         http://www.tt-forums.net/viewtopic.php?f=65&t=53698
-        http://code.google.com/p/openttd-noai-wmdot/issues/
+        https://github.com/MinchinWeb/openttd-wmdot/issues/new
 
 -- Helpful Links --------------------------------------------------------------
 Get OpenTTD!                                                    www.openttd.org
@@ -132,7 +135,7 @@ WmDOT's thread on TT-Forums: release announcements, bug reports, suggestions,
                             http://www.tt-forums.net/viewtopic.php?f=65&t=53698
 WmDOT on GitHub: source code, and WmDOT: Bleeding Edge edition
                                     https://github.com/MinchinWeb/openttd-wmdot
-To report issues:            https://github.com/MinchinWeb/openttd-wmdot/issues
+To report issues:        https://github.com/MinchinWeb/openttd-wmdot/issues/new
 
 My other projects (for OpenTTD):
     MinchinWeb's MetaLibrary (for AIs)
@@ -142,7 +145,7 @@ My other projects (for OpenTTD):
                             http://www.tt-forums.net/viewtopic.php?f=67&t=53579
     Progressive Rail Set    http://www.tt-forums.net/viewtopic.php?f=67&t=63182
 
--- Licence -------------------------------------------------------------------
+-- License -------------------------------------------------------------------
 Permission is granted to you to use, copy, modify, merge, publish, distribute,
 sublincense, and/or sell this software, and provide these rights to others,
 provided:

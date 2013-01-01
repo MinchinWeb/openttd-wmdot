@@ -1,5 +1,5 @@
 ﻿WmDOT Changelog
-v.11, 2012-12-28
+v.11, 2012-12-31
 Copyright © 2011-12 by W. Minchin. For more info, please visit
     https://github.com/MinchinWeb/openttd-wmdot  or
     http://www.tt-forums.net/viewtopic.php?f=65&t=53698
@@ -16,9 +16,13 @@ WmDOT (short for "William's Department of Transportation") is an AI for
 For full details on WmDOT, see the attached README.txt
 
 -- Full Version History -------------------------------------------------------
-Version 11 [ date ]
+Version 11 [2012-12-31]
+    Moved pathfinder to grid-based
+    Build Freeways (or dual carriageways)
+    Delete extra ships
+    Name and group ships
     Move to GitHub (and update URL's)
-	Update license statement
+    Update license statement
 Version 10 [2012-06-27]
     Improved ship selection
     Dynamically add ships to routes
@@ -63,7 +67,7 @@ Version 1
 If WmDOT crashes, please help me fix it! Save a screenshot (under the ? on the
     far right of the in-game toolbar) and report the bug to either:
         http://www.tt-forums.net/viewtopic.php?f=65&t=53698
-        http://code.google.com/p/openttd-noai-wmdot/issues/
+        https://github.com/MinchinWeb/openttd-wmdot/issues/new
 
 -- Helpful Links --------------------------------------------------------------
 Get OpenTTD!                                                    www.openttd.org
@@ -73,7 +77,7 @@ WmDOT's thread on TT-Forums: release announcements, bug reports, suggestions,
                             http://www.tt-forums.net/viewtopic.php?f=65&t=53698
 WmDOT on GitHub: source code, and WmDOT: Bleeding Edge edition
                                     https://github.com/MinchinWeb/openttd-wmdot
-To report issues:            https://github.com/MinchinWeb/openttd-wmdot/issues
+To report issues:        https://github.com/MinchinWeb/openttd-wmdot/issues/new
 
 My other projects (for OpenTTD):
     MinchinWeb's MetaLibrary (for AIs)
@@ -83,7 +87,7 @@ My other projects (for OpenTTD):
                             http://www.tt-forums.net/viewtopic.php?f=67&t=53579
     Progressive Rail Set    http://www.tt-forums.net/viewtopic.php?f=67&t=63182
 
--- Licence -------------------------------------------------------------------
+-- License -------------------------------------------------------------------
 Permission is granted to you to use, copy, modify, merge, publish, distribute,
 sublincense, and/or sell this software, and provide these rights to others,
 provided:
