@@ -1,5 +1,5 @@
-/*	Operation Freeway v.1, [2012-12-29],  
- *		part of WmDOT v.11
+/*	Operation Freeway v.1.1, [2012-12-31],  
+ *		part of WmDOT v.11.1
  *	Copyright © 2012 by W. Minchin. For more info,
  *		please visit https://github.com/MinchinWeb/openttd-wmdot
  *
@@ -23,8 +23,8 @@
 
 class OpFreeway {
 	function GetVersion()       { return 1; }
-	function GetRevision()		{ return 121229; }
-	function GetDate()          { return "2012-12-29"; }
+	function GetRevision()		{ return 121231; }
+	function GetDate()          { return "2012-12-31"; }
 	function GetName()          { return "Operation Freeway"; }
 
 	_NextRun = null;
@@ -233,20 +233,24 @@ function OpFreeway::Run() {
 								//	should never get here
 							}
 							
-							local from = OneWay11;
+							local from = OneWay12;
 							local to;
-							for (local i = 0; i < AIMap.DistanceManhattan(OneWay11, OneWay12); i++) {
-								to = Direction.GetAdjacentTileInDirection(from, Direction.GetDirectionToTile(from, OneWay12));
+							local Shifting = Direction.GetDirectionToTile(from, OneWay11);
+							for (local i = 0; i < (AIMap.DistanceManhattan(OneWay11, OneWay12) / 2) + 1; i++) {
+								to = Direction.GetAdjacentTileInDirection(from, Shifting);
 								Log.Note("OneWay 1 " + Array.ToStringTiles1D([from, to]), 7);
 								AIRoad.BuildOneWayRoad(from, to);
+								to = Direction.GetAdjacentTileInDirection(to, Shifting);
 								from = to;
 							}
 
-							from = OneWay21;
-							for (local i = 0; i < AIMap.DistanceManhattan(OneWay21, OneWay22); i++) {
-								to = Direction.GetAdjacentTileInDirection(from, Direction.GetDirectionToTile(from, OneWay22));
+							from = OneWay22;
+							Shifting = Direction.GetDirectionToTile(from, OneWay21);
+							for (local i = 0; i < (AIMap.DistanceManhattan(OneWay21, OneWay22) / 2) + 1; i++) {
+								to = Direction.GetAdjacentTileInDirection(from, Shifting);
 								Log.Note("OneWay 2 " + Array.ToStringTiles1D([from, to]), 7);
 								AIRoad.BuildOneWayRoad(from, to);
+								to = Direction.GetAdjacentTileInDirection(to, Shifting);
 								from = to;
 							}
 						} else {
