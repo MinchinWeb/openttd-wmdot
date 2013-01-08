@@ -1,4 +1,4 @@
-﻿/*	WmDOT v.12.1, [2011-12-31]
+﻿/*	WmDOT v.12.1, [2011-01-01]
  *	Copyright © 2011-13 by W. Minchin. For more info,
  *		please visit https://github.com/MinchinWeb/openttd-wmdot
  *
@@ -17,6 +17,7 @@ import("util.MinchinWeb", "MetaLib", 6);
 //	RoadPathfinder <- MetaLib.RoadPathfinder;
 	RoadPathfinder <- MetaLib.DLS;
 	ExistingRoadPathfinder <- MetaLib.RoadPathfinder;
+	StreetcarPathfinder <- MetaLib.RoadPathfinder;
 	Array <- MetaLib.Array;
 	Atlas <- MetaLib.Atlas;
 	Marine <- MetaLib.Marine;
@@ -37,6 +38,7 @@ require("OpHibernia.nut");			//	Operation Hibernia
 require("Ship.Manager.nut");		//	Ship Manager
 require("Event.Handler.nut");		//	Event Handler
 require("OpFreeway.nut");			//	Freeway Builder
+require("OpStreetcar.nut");			//	Operation Streetcar
 		
 
  
@@ -46,7 +48,7 @@ require("OpFreeway.nut");			//	Freeway Builder
 	WmDOTv = 13;
 	/*	Version number of AI
 	 */	
-	WmDOTr = 121231;
+	WmDOTr = 130101;
 	/*	Reversion number of AI
 	 */
 	 
@@ -67,7 +69,8 @@ require("OpFreeway.nut");			//	Freeway Builder
 	Event = Events();
 	Freeways = OpFreeway();
 	DLS = RoadPathfinder();
-  
+	StreetCars = OpStreetcar();
+
 	function Start();
 }
 
@@ -78,7 +81,7 @@ require("OpFreeway.nut");			//	Freeway Builder
 function WmDOT::Start()
 {
 //	For debugging crashes...
-//	local Debug_2 = "/* Settings: " + GetSetting("DOT_name1") + "-" + GetSetting("DOT_name2") + " - dl" + GetSetting("Debug_Level") + " // OpDOT: " + GetSetting("OpDOT") + " - " + GetSetting("OpDOT_MinTownSize") + " - " + GetSetting("TownRegistrar_AtlasSize") + " - " + GetSetting("OpDOT_RebuildAttempts") + " - " + GetSetting("Freeways") + " // OpHibernia: " + GetSetting("OpHibernia") + " */" ;
+	local Debug_2 = "/* Settings: " + GetSetting("DOT_name1") + "-" + GetSetting("DOT_name2") + " - dl" + GetSetting("Debug_Level") + " // OpDOT: " + GetSetting("OpDOT") + " - " + GetSetting("OpDOT_MinTownSize") + " - " + GetSetting("TownRegistrar_AtlasSize") + " - " + GetSetting("OpDOT_RebuildAttempts") + " - " + GetSetting("Freeways") + " // OpHibernia: " + GetSetting("OpHibernia") + " */" ;
 	local Debug_1 = "/* v." + WmDOTv + ", r." + WmDOTr + " // r." + MetaLib.Extras.GetOpenTTDRevision() + " // " + AIDate.GetYear(AIDate.GetCurrentDate()) + "-" + AIDate.GetMonth(AIDate.GetCurrentDate()) + "-" + AIDate.GetDayOfMonth(AIDate.GetCurrentDate()) + " start // " + AIMap.GetMapSizeX() + "x" + AIMap.GetMapSizeY() + " map - " + AITown.GetTownCount() + " towns */";
 	
 //	AILog.Info("Welcome to WmDOT, version " + GetVersion() + ", revision " + WmDOTr + " by " + GetAuthor() + ".");
@@ -98,6 +101,7 @@ function WmDOT::Start()
 	Log.Note("     " + Manager_Ships.GetName() + ", v." + Manager_Ships.GetVersion() + " r." + Manager_Ships.GetRevision() + "  loaded!", 0);
 	Log.Note("     " + Event.GetName() + ", v." + Event.GetVersion() + " r." + Event.GetRevision() + "  loaded!", 0);
 	Log.Note("     " + Freeways.GetName() + ", v." + Freeways.GetVersion() + " r." + Freeways.GetRevision() + "  loaded!", 0);
+	Log.Note("     " + StreetCars.GetName() + ", v." + StreetCars.GetVersion() + " r." + StreetCars.GetRevision() + "  loaded!", 0);
 	StartInfo();		//	AyStarInfo()
 						//	RoadPathfinder()
 						//	NeighbourhoodInfo()
@@ -119,6 +123,7 @@ function WmDOT::Start()
 	local Time;
 	
 	DOT.Settings.HQTown = HQTown;
+	StreetCars.Settings.StartTile = AITown.GetLocation(HQTown);
 
 	while (true) {
 		Time = this.GetTick();	
@@ -129,6 +134,7 @@ function WmDOT::Start()
 		if (Time > CleanupCrew.State.NextRun)	{ CleanupCrew.Run(); }
 		if (Time > DOT.State.NextRun)			{ DOT.Run(); }
 		if (Time > Freeways.State.NextRun)		{ Freeways.Run(); }
+		if (Time > StreetCars.State.NextRun)	{ StreetCars.Run(); }
 		if (Time > Hibernia.State.NextRun)		{ Hibernia.Run(); }
 		if (Time > Manager_Ships.State.NextRun)	{ Manager_Ships.Run(); }
 		if (Time > Event.State.NextRun)			{ Event.Run(); }
