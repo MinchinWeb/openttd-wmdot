@@ -119,7 +119,7 @@ function ManShips::Run() {
 	Log.Note("Ship Manager running at tick " + AIController.GetTick() + ".",1);
 	
 	//	reset counter
-	this._NextRun = AIController.GetTick() + this._SleepLength * 17;
+	this._NextRun = AIController.GetTick() + this._SleepLength * 17;	//	SleepLength in days
 	
 	for (local i=0; i < this._AllRoutes.len(); i++) {
 		//	Add Ships
