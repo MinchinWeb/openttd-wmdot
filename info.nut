@@ -1,4 +1,4 @@
-﻿/*	WmDOT v.12.1, [2012-12-31]
+﻿/*	WmDOT v.12.1, [2012-01-16]
  *	Copyright © 2011-13 by W. Minchin. For more info,
  *		please visit https://github.com/MinchinWeb/openttd-wmdot
  *		OR  http://www.tt-forums.net/viewtopic.php?f=65&t=53698
@@ -18,10 +18,10 @@ class WmDOT extends AIInfo
 {
 	function GetAuthor()        { return "W. Minchin"; }
 	function GetName()          { return "WmDOT"; }
-	function GetDescription()   { return "An AI that doesn't compete with you but rather builds out the highway network. It makes a little money transporting offshore oil. v.12.1 (r.121231)"; }
+	function GetDescription()   { return "An AI that doesn't compete with you but rather builds out the highway network. It makes a little money transporting offshore oil and running public trnasit. v.12.1 (r.130116)"; }
 	function GetVersion()       { return 13; }
 	function MinVersionToLoad() { return 1; }
-	function GetDate()          { return "2012-12-31"; }
+	function GetDate()          { return "2013-01-16"; }
 	function GetShortName()     { return "}}mW"; }	//	0x576D7D7D
 	function CreateInstance()   { return "WmDOT"; }
 	function GetAPIVersion()    { return "1.2"; }
@@ -42,15 +42,17 @@ class WmDOT extends AIInfo
 //		AddLabels("OpDOT", {_0 = "no go ----------------------- :,-(", _1 = "GO!  ------------------------ :-)"});
 		AddSetting({name = "OpDOT_MinTownSize", description = "     The minimal size of towns to connect", min_value = 0, max_value = 10000, easy_value = 100, medium_value = 500, hard_value = 1000, custom_value = 300, flags = CONFIG_INGAME, step_size=50});
 		AddSetting({name = "TownRegistrar_AtlasSize", description = "     Max Atlas Size", min_value = 20, max_value = 150, easy_value = 50, medium_value = 50, hard_value = 50, custom_value = 50, step_size = 5, flags = CONFIG_DEVELOPER});
-		AddSetting({name = "OpDOT_RebuildAttempts", description = "     Build Attemps", min_value = 1, max_value = 15, easy_value = 2, medium_value = 2, hard_value = 2, custom_value = 2, flags = CONFIG_INGAME});
+		AddSetting({name = "OpDOT_RebuildAttempts", description = "     Build Attemps", min_value = 1, max_value = 15, easy_value = 2, medium_value = 2, hard_value = 2, custom_value = 2, flags = (CONFIG_DEVELOPER, CONFIG_INGAME)});
 		AddSetting({name = "Freeways", description = "     Build Freeways", easy_value = 1, medium_value = 1, hard_value = 1, custom_value = 1, flags = CONFIG_BOOLEAN});	// 1 == true
 
-		AddSetting({name = "OpHibernia", description = "--  Operation Hibernia  --  is ", easy_value = 1, medium_value = 1, hard_value = 1, custom_value = 1, flags = CONFIG_BOOLEAN});
+		AddSetting({name = "OpHibernia", description = "--  Operation Hibernia  --  is ", easy_value = 0, medium_value = 0, hard_value = 0, custom_value = 0, flags = CONFIG_BOOLEAN});
 //		AddLabels("OpHibernia", {_0 = "no go ------------------- :,-(", _1 = "GO!  -------------------- :-)"});
 
 //		AddLabels("Grid_Spacing", {_12 = "12 (default)", _14 = "14 (min. for full-sized airports)"});
 //		AddSetting({name = "Hwy_Prefix", description = "Highway Prefix", min_value = 0, max_value = 4, easy_value = 0, medium_value = 0, hard_value = 0, custom_value = 0, flags = 0});
 //		AddLabels("Hwy_Prefix", {_0 = "Match DOT name", _1 = "Hwy", _2 = "I-", _3 = "US", _4 = "RN"});
+
+		AddSetting({name = "OpStreetcar", description = "--  Operation Streetcar  --  is ", easy_value = 1, medium_value = 1, hard_value = 1, custom_value = 1, flags = CONFIG_BOOLEAN});
 
 		AddSetting({name = "info0", description = "-------------------------------------------------------------------- ", min_value = 0, max_value = 1, easy_value = 0, medium_value = 0, hard_value = 0, custom_value = 0, flags = 0});
 		AddLabels("info0", {_0 = "", _1 = ""});

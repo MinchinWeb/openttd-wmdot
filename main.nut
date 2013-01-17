@@ -83,6 +83,7 @@ require("Streetcar.Manager.nut");	//	Streetcar (Route) Manager
 function WmDOT::Start()
 {
 //	For debugging crashes...
+	local Debug_3 = "/*           OpStreetcar: " + GetSetting("OpStreetcar") + " */";
 	local Debug_2 = "/* Settings: " + GetSetting("DOT_name1") + "-" + GetSetting("DOT_name2") + " - dl" + GetSetting("Debug_Level") + " // OpDOT: " + GetSetting("OpDOT") + " - " + GetSetting("OpDOT_MinTownSize") + " - " + GetSetting("TownRegistrar_AtlasSize") + " - " + GetSetting("OpDOT_RebuildAttempts") + " - " + GetSetting("Freeways") + " // OpHibernia: " + GetSetting("OpHibernia") + " */" ;
 	local Debug_1 = "/* v." + WmDOTv + ", r." + WmDOTr + " // r." + MetaLib.Extras.GetOpenTTDRevision() + " // " + AIDate.GetYear(AIDate.GetCurrentDate()) + "-" + AIDate.GetMonth(AIDate.GetCurrentDate()) + "-" + AIDate.GetDayOfMonth(AIDate.GetCurrentDate()) + " start // " + AIMap.GetMapSizeX() + "x" + AIMap.GetMapSizeY() + " map - " + AITown.GetTownCount() + " towns */";
 	
@@ -126,7 +127,7 @@ function WmDOT::Start()
 	local Time;
 	
 	DOT.Settings.HQTown = HQTown;
-	StreetCars.Settings.StartTile = AITown.GetLocation(HQTown);
+	StreetCars._StartTile = AITown.GetLocation(HQTown);
 
 	while (true) {
 		Time = this.GetTick();	
