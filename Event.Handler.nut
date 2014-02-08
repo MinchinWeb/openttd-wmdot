@@ -183,13 +183,20 @@ function Events::Run() {
 				local Company = Event2.GetCompanyID();
 				local Value = Event2.GetValue();
 				local Name = AICompany.GetName(Company);
-				Name.find("DOT")== null
-				if ((Name.find("DOT") != null) || (Value < 2)) {
-					Money.FundsRequest(Value);
-					local Accepted = Event2.AcceptMerger();
-					Log.Note("Merger Accepted with " + Name + " (Value: " + Value + "£) : " + Accepted, 4);
-				} else {
-					Log.Note("Merger request with " + Name + " (Value: " + Value + "£) : Declined", 4);
+				
+				// if Name == null, then the company has ceased to exist, and
+				// so we can't accept the merger.
+				if Name != null {
+					Name.find("DOT")== null
+					if ((Name.find("DOT") != null) || (Value < 2)) {
+						Money.FundsRequest(Value);
+						local Accepted = Event2.AcceptMerger();
+						Log.Note("Merger Accepted with " + Name + " (Value: " + Value + "£) : " + Accepted, 4);
+					} else {
+						Log.Note("Merger request with " + Name + " (Value: " + Value + "£) : Declined", 4);
+					}
+				else {
+					Log.Note("Merger offered, but we're too late.", 4)
 				}
 				break;
 				
