@@ -13,19 +13,17 @@
  *	+ You accept that this software is provided to you "as is", without warranty.
  */
 
-import("util.MinchinWeb", "MetaLib", 6);
-//	RoadPathfinder <- MetaLib.RoadPathfinder;
+import("util.MinchinWeb", "MetaLib", 7);
 	RoadPathfinder <- MetaLib.DLS;
 	ExistingRoadPathfinder <- MetaLib.RoadPathfinder;
 	Array <- MetaLib.Array;
 	Atlas <- MetaLib.Atlas;
 	Marine <- MetaLib.Marine;
 	OpLog <- MetaLib.Log;
-import("util.superlib", "SuperLib", 27);		//	For loan management
+import("util.superlib", "SuperLib", 36);		//	For loan management
 	SLMoney <- SuperLib.Money;
 	Helper <- SuperLib.Helper;
 	Direction <- SuperLib.Direction;
-//	AIAbstractList <- AIList	// to support SuperLib v.21
 		
 require("OpDOT.nut");				//	OperationDOT
 require("OpMoney.nut");				//	Operation Money
