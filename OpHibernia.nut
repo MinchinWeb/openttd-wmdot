@@ -1,10 +1,10 @@
-﻿/*	Operation Hibernia v.5, [2013-01-01]
+﻿/*	Operation Hibernia v.6, [2014-02-28]
  *		part of WmDOT v.12.1
- *	Copyright © 2011-13 by W. Minchin. For more info,
+ *	Copyright © 2011-14 by W. Minchin. For more info,
  *		please visit https://github.com/MinchinWeb/openttd-wmdot
  *
  *	Permission is granted to you to use, copy, modify, merge, publish, 
- *	distribute, sublincense, and/or sell this software, and provide these 
+ *	distribute, sublicense, and/or sell this software, and provide these 
  *	rights to others, provided:
  *
  *	+ The above copyright notice and this permission notice shall be included
@@ -20,19 +20,19 @@
  *		Hibernia is the world's largest oil platform.
  *
  *		Operation Hibernia seeks out oil platforms, and then transports oil to
- *		Oil Refinaries.
+ *		Oil Refineries.
  */
  
-//	Requires MinchinWeb's MetaLibrary v.5
-//	Requires Zuu's SuperLib v.24
+//	Requires MinchinWeb's MetaLibrary v.7
+//	Requires Zuu's SuperLib v.36
 
 //	TO-DO
-//		- if the cargo is passengers (or, I assume, mail), the recieving
+//		- if the cargo is passengers (or, I assume, mail), the receiving
 //			industries do not include towns but they probably should...
 
  class OpHibernia {
-	function GetVersion()       { return 5; }
-	function GetRevision()		{ return 130101; }
+	function GetVersion()       { return 6; }
+	function GetRevision()		{ return 140228; }
 	function GetName()          { return "Operation Hibernia"; }
 	
 	
@@ -46,13 +46,15 @@
 	_Atlas = null;
 	_AtlasModel = null;
 	_Serviced = null;		//	Industries that have already been serviced
+	_Pathfinder_class = null;
+	_PF = null;				//	actual pathfinder
+	_WBC = null;			//	used for Water Body checks
 	
 	Log = null;
 	Money = null;
 	Manager_Ships = null;
 	
-	constructor()
-	{
+	constructor() {
 		this._NextRun = 0;
 		this._SleepLength = 90;
 		this._TransportedCutOff = 50;	// Turn this into an AI setting??
@@ -62,6 +64,10 @@
 		this._AtlasModel = ModelType.DISTANCE_SHIP;
 		this._Atlas.SetModel(this._AtlasModel);
 		this._Serviced = [];
+		
+		this._Pathfinder_class = MetaLib.ShipPathfinder;
+		//this._PF = this._Pathfinder_class();
+		//this._WBC = this._PF._WBC;
 		
 		this.Settings = this.Settings(this);
 		this.State = this.State(this);
@@ -75,8 +81,7 @@ class OpHibernia.Settings {
 
 	_main = null;
 	
-	function _set(idx, val)
-	{
+	function _set(idx, val) {
 		switch (idx) {
 			case "SleepLength":			this._main._SleepLength = val; break;
 			case "TransportedCutOff":	this._main._TransportedCutOff = val; break;
@@ -95,8 +100,7 @@ class OpHibernia.Settings {
 		return val;
 	}
 		
-	function _get(idx)
-	{
+	function _get(idx) {
 		switch (idx) {
 			case "SleepLength":			return this._main._SleepLength; break;
 			case "TransportedCutOff":	return this._main._TransportedCutOff; break;
@@ -114,8 +118,7 @@ class OpHibernia.Settings {
 		}
 	}
 	
-	constructor(main)
-	{
+	constructor(main) {
 		this._main = main;
 	}
 }
@@ -124,8 +127,7 @@ class OpHibernia.State {
 
 	_main = null;
 	
-	function _get(idx)
-	{
+	function _get(idx) {
 		switch (idx) {
 //			case "Mode":			return this._main._Mode; break;
 			case "NextRun":			return this._main._NextRun; break;
@@ -135,19 +137,23 @@ class OpHibernia.State {
 		}
 	}
 	
-	constructor(main)
-	{
+	constructor(main) {
 		this._main = main;
 	}
 }
 
-function OpHibernia::LinkUp() 
-{
+function OpHibernia::LinkUp() {
 	this.Log = WmDOT.Log;
 	this.Money = WmDOT.Money;
 	this.Manager_Ships = WmDOT.Manager_Ships;
 //	ship manager...
 	Log.Note(this.GetName() + " linked up!",3);
+}
+ 
+function OpHibernia::StartPathfinder() {
+	//	this takes too long to run as part of the constructor function
+	this._PF = this._Pathfinder_class();
+	this._WBC = this._PF._WBC;
 }
  
 function OpHibernia::Run() {
@@ -191,7 +197,7 @@ function OpHibernia::Run() {
 			//				SuperLib.Engine.DoesEngineExistForCargo(cargo_id, vehicle_type = -1, no_trams = true, no_articulated = true, only_small_aircrafts = false)
 			
 			///	Get a list of Oil Rigs, and add those without our ships to the sources list;
-			//	Keep only those that are underserviced (less than 25%, typically)
+			//	Keep only those that are under-serviced (less than 25%, typically)
 			MyIndustries = AIIndustryList();
 			MyIndustries.Valuate(AIIndustry.HasDock);
 			MyIndustries.KeepValue(true.tointeger());
@@ -209,7 +215,7 @@ function OpHibernia::Run() {
 				Log.Note("Atlas.AddSource([" + AIMap.GetTileX(AIIndustry.GetLocation(Location)) + ", " + AIMap.GetTileY(AIIndustry.GetLocation(Location)) + "], " + (AIIndustry.GetLastMonthProduction(Location, CargoNo) * (( 100 - AIIndustry.GetLastMonthTransportedPercentage(Location, CargoNo) ) ) / 100) + ")   (" + AIIndustry.GetName(Location) + ")", 5);
 			}	//	end of  foreach (Location in MyIndustries)
 
-			///	Get a list of Oil Refinaries and add to the attraction list; Priority is the goods production level
+			///	Get a list of Oil Refineries and add to the attraction list; Priority is the goods production level
 			//	Actually, this is for industries that accept CargoNo
 			local InIndustries = AIIndustryList_CargoAccepting(CargoNo);
 			InIndustries.Valuate(Helper.ItemValuator);
@@ -275,7 +281,7 @@ function OpHibernia::Run() {
 							//				the same waterbody as BuildPair[0]
 							
 							local PossibilitesList = Marine.GetPossibleDockTiles(MetaLib.Industry.GetIndustryID(BuildPair[1]));
-							Log.Note("Build Possibilites: " + Array.ToStringTiles1D(PossibilitesList, true), 5);
+							Log.Note("Build Possibilities: " + Array.ToStringTiles1D(PossibilitesList, true), 5);
 							if (PossibilitesList.len() == 0) {
 								Log.Note("     No dock possible near" + Array.ToStringTiles1D([BuildPair[1]]) + ".", 3);
 								//	Let the routine come up with another pair from the Atlas
@@ -312,11 +318,10 @@ function OpHibernia::Run() {
 					
 					if (DockLocation == MetaLib.Constants.InvalidTile()) {
 						Log.Note("No valid dock location.", 3);
-						//	probably keep KeepTrying = ture
+						//	probably keep KeepTrying = true
 					} else {
 						Log.Note("DockLocation is" + Array.ToStringTiles1D([DockLocation]) + ".", 3);
-						///	Run Waterbody Check to see if Oil Refinary dock and Oil Rig are connected
-						local WBC = MetaLib.WaterbodyCheck();
+						///	Run Waterbody Check to see if Oil Refinery dock and Oil Rig are connected
 						local Starts = Marine.GetDockFrontTiles(BuildPair[0]);
 						local Ends = Marine.GetDockFrontTiles(DockLocation);
 						Log.Note("starts: " + Array.ToStringTiles1D(Starts) + "  -> ends: " + Array.ToStringTiles1D(Ends), 5);
@@ -340,12 +345,13 @@ function OpHibernia::Run() {
 							
 						while (KeepTrying2 == true) {
 							Log.Note("WBC:: start: " + Array.ToStringTiles1D([start]) + "  -> end: " + Array.ToStringTiles1D([end]), 5);
-							WBC.InitializePath([start], [end]);
-							WBC.PresetSafety(start, end);
-							WBCResults = WBC.FindPath(-1);
+							this._WBC.InitializePath([start], [end]);
+							do {
+								WBCResults = this._WBC.FindPath(1000);
+							} while (WBCResults == false)
 							WBCTries ++;
 							if (WBCResults != null) {
-								Log.Note("Waterbody Check returns positive. Took " + WBCTries + " tries and " + (WmDOT.GetTick() - tick2) + " ticks.",3);
+								Log.Note("Waterbody Check returns positive. Took " + WBCTries + " tries and " + (WmDOT.GetTick() - tick2) + " ticks.", 3);
 								KeepTrying2 = false;
 							} else if (Starts2.IsEnd()) {
 							//	this tree will test all pairs of starts and ends
@@ -365,26 +371,34 @@ function OpHibernia::Run() {
 						if (WBCResults != null) {
 							///	Run Ship Pathfinder, and build buoys
 							tick2 = WmDOT.GetTick();
-							local Pathfinder = MetaLib.ShipPathfinder();
-							Pathfinder.InitializePath([start], [end]);
+							local SPFResults;
 							//	Ship Pathfinder must be given a single start tile and a
 							//		single end tile
-							//	Tell the pathfinder to skip Waterbody Check
-							Pathfinder.OverrideWBC();
-							local SPFResults = Pathfinder.FindPath(-1);
+							this._PF.InitializePath([start], [end]);
+							local loops = 0;
+							do {
+								SPFResults = this._PF.FindPath(1000);
+								loops++;
+							} while ((loops < 12) && (SPFResults == false))
+							Log.Note("SPFResults: " + SPFResults, 7);
+							if (SPFResults == false) {
+								//	To-Do: add a way to come back and keep trying
+								Log.Warning("        Ship Pathfinder failed to return a result. Took " + (WmDOT.GetTick() - tick2) + " ticks. Exiting Operation Hibernia...");
+								return;
+							}
 							
 							if (SPFResults != null) {
 								Log.Note("Ship Pathfinder returns positive. Took " + (WmDOT.GetTick() - tick2) + " ticks.",3);
 								
 								//	Build Buoys
-								local NumberOfBuoys = Pathfinder.CountPathBuoys();
+								local NumberOfBuoys = this._PF.CountPathBuoys();
 								Log.Note(NumberOfBuoys + " buoys may be needed.", 5);
 								
 								//	request funds for Buoys
 								//	request funds for Depots
 								Money.FundsRequest((AIMarine.GetBuildCost(AIMarine.BT_BUOY) * NumberOfBuoys) + (AIMarine.GetBuildCost(AIMarine.BT_DEPOT) * 2));
-								Pathfinder.BuildPathBuoys();
-								SPFResults = Pathfinder.GetPath();
+								this._PF.BuildPathBuoys();
+								SPFResults = this._PF.GetPath();
 								
 								//	Build Depots						
 								local Depot1 = Marine.BuildDepot(start, MetaLib.Extras.NextCardinalTile(BuildPair[0], BuildPair[1]));
@@ -398,7 +412,7 @@ function OpHibernia::Run() {
 								}
 								
 								//	Pick an engine (ship)
-								//	TO-DO: More sophisicated engine selection; weight all the factors at once
+								//	TO-DO: More sophisticated engine selection; weight all the factors at once
 								local Engines = AIEngineList(AIVehicle.VT_WATER);
 								Log.Note("Start with " + Engines.Count() + " engines.", 5);
 								
@@ -502,3 +516,4 @@ function OpHibernia::Run() {
 	
 	return;
 }
+//	EOF

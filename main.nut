@@ -103,7 +103,7 @@ function WmDOT::Start()
 	Log.Note("", 0);
 	
 	TheGreatLinkUp();
-		
+			
 	if (GetSetting("Debug_Level") == 0) {
 		Log.Note("Increase Debug Level in AI settings to get more verbose output.", 0);
 		Log.Note("", 0);
@@ -520,6 +520,7 @@ function WmDOT::TheGreatLinkUp()
 	Manager_Ships.LinkUp();
 	Event.LinkUp();
 	Freeways.LinkUp();
+	Hibernia.StartPathfinder();
 	Log.Note("The Great Link Up is Complete!",1);
 	Log.Note("",1);
 }

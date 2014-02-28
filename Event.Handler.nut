@@ -186,7 +186,7 @@ function Events::Run() {
 				
 				// if Name == null, then the company has ceased to exist, and
 				// so we can't accept the merger.
-				if Name != null {
+				if (Name != null) {
 					Name.find("DOT")== null
 					if ((Name.find("DOT") != null) || (Value < 2)) {
 						Money.FundsRequest(Value);
@@ -195,8 +195,8 @@ function Events::Run() {
 					} else {
 						Log.Note("Merger request with " + Name + " (Value: " + Value + "£) : Declined", 4);
 					}
-				else {
-					Log.Note("Merger offered, but we're too late.", 4)
+				} else {
+					Log.Note("Merger offered, but we're too late.", 4);
 				}
 				break;
 				
