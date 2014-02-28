@@ -1,10 +1,10 @@
-﻿/*	WmDOT v.12.1, [2012-12-31]
- *	Copyright © 2011-13 by W. Minchin. For more info,
+﻿/*	WmDOT v.13, [2014-02-28]
+ *	Copyright © 2011-14 by W. Minchin. For more info,
  *		please visit https://github.com/MinchinWeb/openttd-wmdot
  *		OR  http://www.tt-forums.net/viewtopic.php?f=65&t=53698
  *
  *	Permission is granted to you to use, copy, modify, merge, publish, 
- *	distribute, sublincense, and/or sell this software, and provide these 
+ *	distribute, sublicense, and/or sell this software, and provide these 
  *	rights to others, provided:
  *
  *	+ The above copyright notice and this permission notice shall be included
@@ -18,13 +18,13 @@ class WmDOT extends AIInfo
 {
 	function GetAuthor()        { return "W. Minchin"; }
 	function GetName()          { return "WmDOT"; }
-	function GetDescription()   { return "An AI that doesn't compete with you but rather builds out the highway network. It makes a little money transporting offshore oil. v.12.1 (r.121231)"; }
+	function GetDescription()   { return "An AI that doesn't compete with you but rather builds out the highway network. It makes a little money transporting offshore oil. v.13 (r.140227)"; }
 	function GetVersion()       { return 13; }
 	function MinVersionToLoad() { return 1; }
-	function GetDate()          { return "2012-12-31"; }
+	function GetDate()          { return "2014-02-28"; }
 	function GetShortName()     { return "}}mW"; }	//	0x576D7D7D
 	function CreateInstance()   { return "WmDOT"; }
-	function GetAPIVersion()    { return "1.2"; }
+	function GetAPIVersion()    { return "1.3"; }
 	function UseAsRandomAI()	{ return false; }
 	function GetURL()			{ return "http://www.tt-forums.net/viewtopic.php?f=65&t=53698"; }
 //	function GetURL()			{ return "http://code.google.com/p/openttd-noai-wmdot/issues/"; }
@@ -36,7 +36,7 @@ class WmDOT extends AIInfo
 		AddSetting({name = "DOT_name2", description = "DOT State (second letter) ", min_value = 0, max_value = 26, easy_value = 0, medium_value = 0, hard_value = 0, custom_value = 0, flags = 0});
 		AddLabels("DOT_name2", {_0 = "none", _1 = "A", _2 = "B", _3 = "C", _4 = "D", _5 = "E", _6 = "F", _7 = "G", _8 = "H", _9 = "I", _10 = "J", _11 = "K", _12 = "L", _13 = "M", _14 = "N", _15 = "O", _16 = "P", _17 = "Q", _18 = "R", _19 = "S", _20 = "T", _21 = "U", _22 = "V", _23 = "W", _24 = "X", _25 = "Y", _26 = "Z"});
 
-		AddSetting({name = "Debug_Level", description = "Debug Level ", min_value = 0, max_value = 7, easy_value = 3, medium_value = 3, hard_value = 3, custom_value = 3, flags = CONFIG_INGAME});
+		AddSetting({name = "Debug_Level", description = "Debug Level ", min_value = 0, max_value = 8, easy_value = 3, medium_value = 3, hard_value = 3, custom_value = 3, flags = CONFIG_INGAME});
 
 		AddSetting({name = "OpDOT", description = "--  Operation DOT  --  is ", easy_value = 1, medium_value = 1, hard_value = 1, custom_value = 1, flags = CONFIG_BOOLEAN});
 //		AddLabels("OpDOT", {_0 = "no go ----------------------- :,-(", _1 = "GO!  ------------------------ :-)"});
@@ -65,6 +65,6 @@ class WmDOT extends AIInfo
 RegisterAI(WmDOT());
 
 //	Requires:
-//		SuperLib, v.27
-//		MinchinWeb's MetaLib, v.6
+//		SuperLib, v.36
+//		MinchinWeb's MetaLib, v.7
 //		Queue.Fibonacci_Heap v.3  (for Cleanup Crew)

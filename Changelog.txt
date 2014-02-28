@@ -1,5 +1,5 @@
 ﻿WmDOT Changelog
-v.11, 2012-12-31
+v.12, 2012-12-31
 Copyright © 2011-12 by W. Minchin. For more info, please visit
     https://github.com/MinchinWeb/openttd-wmdot  or
     http://www.tt-forums.net/viewtopic.php?f=65&t=53698
@@ -16,6 +16,8 @@ WmDOT (short for "William's Department of Transportation") is an AI for
 For full details on WmDOT, see the attached README.txt
 
 -- Full Version History -------------------------------------------------------
+Version 12 [2012-12-31]
+    Fix typo
 Version 11 [2012-12-31]
     Moved pathfinder to grid-based
     Build Freeways (or dual carriageways)
@@ -34,7 +36,7 @@ Version 9 [2012-03-14]
     Updated to SuperLib v21 and MetaLibrary v4
 Version 8 [2012-01-21]
     Can now bridge over canals, rivers, and railroad tracks
-	Fixes bug where WmDOT would crash is the generated Atlas contained no towns
+    Fixes bug where WmDOT would crash is the generated Atlas contained no towns
 Version 7 [2011-01-12]
     Added Operation Hibernia
     Bug fixes
