@@ -1,4 +1,4 @@
-﻿/*	WmDOT v.12.1, [2011-12-31]
+﻿/*	WmDOT v.13, [2011-12-31]
  *	Copyright © 2011-13 by W. Minchin. For more info,
  *		please visit https://github.com/MinchinWeb/openttd-wmdot
  *
@@ -13,14 +13,14 @@
  *	+ You accept that this software is provided to you "as is", without warranty.
  */
 
-import("util.MinchinWeb", "MetaLib", 7);
+import("util.MinchinWeb", "MetaLib", 8);
 	RoadPathfinder <- MetaLib.DLS;
 	ExistingRoadPathfinder <- MetaLib.RoadPathfinder;
 	Array <- MetaLib.Array;
 	Atlas <- MetaLib.Atlas;
 	Marine <- MetaLib.Marine;
 	OpLog <- MetaLib.Log;
-import("util.superlib", "SuperLib", 36);		//	For loan management
+import("util.superlib", "SuperLib", 37);		//	For loan management
 	SLMoney <- SuperLib.Money;
 	Helper <- SuperLib.Helper;
 	Direction <- SuperLib.Direction;

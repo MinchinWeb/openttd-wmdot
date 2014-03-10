@@ -1,6 +1,6 @@
 ﻿WmDOT Read-me
-v.11, 2012-12-31
-Copyright © 2011-12 by W. Minchin. For more info, please visit
+v.13, 2014-03-10
+Copyright © 2011-14 by W. Minchin. For more info, please visit
     https://github.com/MinchinWeb/openttd-wmdot  or
     http://www.tt-forums.net/viewtopic.php?f=65&t=53698
 
@@ -28,8 +28,8 @@ WmDOT starts by selecting a 'capital' and builds its Headquarters there. (If
 WmDOT requires OpenTTD version 1.2 or newer. This is available as a free
     download from OpenTTD.org
 As dependencies, WmDOT also requires:
-    - MinchinWeb's MetaLibrary, v.6
-    - SuperLib, v.27 ('SuperLib-27.tar')
+    - MinchinWeb's MetaLibrary, v.8
+    - SuperLib, v.37
     - Binary Heap, v.1 ('Queue.BinaryHeap-1.tar')
 
 -- Installation ---------------------------------------------------------------
@@ -56,7 +56,7 @@ Number of days to start this AI after the previous one: 1..3600
 DOT State (first letter) and (second letter): Default, A..Z
     - what do you want WmDOT to call itself? The default is 'WmDOT'. Note that
         two instances of WmDOT will not take the same name.
-Debug Level: 0..5
+Debug Level: 0..8
     - How much debugging output do you want on the AI Debug screen in-game?
         0 = next to nothing, 5 = more than you can follow, including signs
         Probably only useful to me, or if you wonder what WmDOT is doing
@@ -81,23 +81,18 @@ Operation Hibernia: On/Off
         from Oil Rigs to Oil Refineries to earn WmDOT a little bit of money.
 
 -- Version History ------------------------------------------------------------
-Version 11 [2012-12-31]
-    Moved pathfinder to grid-based
-    Build Freeways (or dual carriageways)
-    Delete extra ships
-    Name and group ships
-    Move to GitHub (and update URL's)
-    Update license statement
+Version 13 [2014-03-10]
+    Updated to MetaLibrary v.8
 
 See the attached CHANGELOG.txt for full version history.
 
 -- Roadmap --------------------------------------------------------------------
 These are features I hope to add to WmDOT shortly. However, this is subject to
     change without notice. However, I am open to suggestions!
-v12 Ship Pathfinder improvements
-v13 Provide streetcar service in towns
-v14 Provide inter-city valuables transportation
-v15 Bring water and food to towns in the desert and above the snowline to help
+v14 Ship Pathfinder improvements
+v15 Provide streetcar service in towns
+v16 Provide inter-city valuables transportation
+v17 Bring water and food to towns in the desert and above the snowline to help
         them grow
 
 -- Known Issues ---------------------------------------------------------------

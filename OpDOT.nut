@@ -372,7 +372,7 @@ function OpDOT::Run() {
 					this._Atlas = RemoveBuiltConnections(this._Atlas, [this._PairsToConnect]);
 					this._SomeoneElseConnected.push(this._PairsToConnect);	//	Add the pair to the list of roads built by someone else
 				} else {
-					Log.Note("Unexplected result from route checking module in OpDOT. Returned " + TestAtlas[0][2] + ".",0);
+					Log.Note("Unexpected result from route checking module in OpDOT. Returned " + TestAtlas[0][2] + ".",0);
 				}
 			}
 			

@@ -1,4 +1,4 @@
-﻿/*	WmDOT v.13, [2014-02-28]
+﻿/*	WmDOT v.13, [2014-03-10]
  *	Copyright © 2011-14 by W. Minchin. For more info,
  *		please visit https://github.com/MinchinWeb/openttd-wmdot
  *		OR  http://www.tt-forums.net/viewtopic.php?f=65&t=53698
@@ -18,10 +18,10 @@ class WmDOT extends AIInfo
 {
 	function GetAuthor()        { return "W. Minchin"; }
 	function GetName()          { return "WmDOT"; }
-	function GetDescription()   { return "An AI that doesn't compete with you but rather builds out the highway network. It makes a little money transporting offshore oil. v.13 (r.140227)"; }
+	function GetDescription()   { return "An AI that doesn't compete with you but rather builds out the highway network. It makes a little money transporting offshore oil. v.13 (r.140310)"; }
 	function GetVersion()       { return 13; }
 	function MinVersionToLoad() { return 1; }
-	function GetDate()          { return "2014-02-28"; }
+	function GetDate()          { return "2014-03-10"; }
 	function GetShortName()     { return "}}mW"; }	//	0x576D7D7D
 	function CreateInstance()   { return "WmDOT"; }
 	function GetAPIVersion()    { return "1.3"; }
@@ -65,6 +65,6 @@ class WmDOT extends AIInfo
 RegisterAI(WmDOT());
 
 //	Requires:
-//		SuperLib, v.36
-//		MinchinWeb's MetaLib, v.7
+//		SuperLib, v.37
+//		MinchinWeb's MetaLib, v.8
 //		Queue.Fibonacci_Heap v.3  (for Cleanup Crew)
