@@ -161,3 +161,9 @@ pip-log.txt
 
 # Mac crap
 .DS_Store
+
+# dOxygen generated output
+docs/
+
+# compiled releases
+releases/
