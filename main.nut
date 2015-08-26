@@ -1,4 +1,4 @@
-﻿/*	WmDOT v.13, [2011-12-31]
+﻿/*	WmDOT v.13, [2012-12-31]
  *	Copyright © 2011-13 by W. Minchin. For more info,
  *		please visit https://github.com/MinchinWeb/openttd-wmdot
  *
@@ -521,8 +521,8 @@ function WmDOT::TheGreatLinkUp()
 	Event.LinkUp();
 	Freeways.LinkUp();
 	Hibernia.StartPathfinder();
-	Log.Note("The Great Link Up is Complete!",1);
-	Log.Note("",1);
+	Log.Note("The Great Link Up is Complete!", 1);
+	Log.Note("", 1);
 }
 
 

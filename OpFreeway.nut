@@ -1,4 +1,4 @@
-/*	Operation Freeway v.1.2, [2013-01-o1],  
+/*	Operation Freeway v.1.2, [2013-01-01],  
  *		part of WmDOT v.12.1
  *	Copyright © 2012-13 by W. Minchin. For more info,
  *		please visit https://github.com/MinchinWeb/openttd-wmdot

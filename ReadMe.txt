@@ -76,6 +76,8 @@ Atlas Size: 20..150
     - this is how many towns WmDOT deals with at a time. Larger values
         can significantly slow down WmDOT's building speed and may lock
         the game
+	- Note that this setting will only show up if you have AI Developer
+        settings turned on
 Rebuild Attempts: 1..15
     - if for some reason WmDOT couldn't finish a route (e.g. a bus was in
         the in way), it will try again this many times
