@@ -31,8 +31,8 @@
 //			industries do not include towns but they probably should...
 
  class OpHibernia {
-	function GetVersion()       { return 6; }
-	function GetRevision()		{ return 140228; }
+	function GetVersion()       { return 7; }
+	function GetRevision()		{ return 160829; }
 	function GetName()          { return "Operation Hibernia"; }
 	
 	
@@ -471,7 +471,8 @@ function OpHibernia::Run() {
 											Log.Note("Order: " + MyVehicle + " : " + Array.ToStringTiles1D([SPFResults[i]]) + ".", 5);
 										}
 										//	end station
-										AIOrder.AppendOrder(MyVehicle, DockLocation, AIOrder.OF_NONE);
+										//// don't rely on automatic unloading, as nearby oil wells can break this
+										AIOrder.AppendOrder(MyVehicle, DockLocation, AIOrder.OF_UNLOAD | AIOrder.OF_NO_LOAD);
 										Log.Note("Order (End): " + MyVehicle + " : " + Array.ToStringTiles1D([DockLocation]) + ".", 5);
 										//	buoys, but backwards
 										for (local i = SPFResults.len() - 1; i >= 0; i--) {

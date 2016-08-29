@@ -1,6 +1,6 @@
 ﻿WmDOT Read-me
-v.13, 2014-03-10
-Copyright © 2011-14 by W. Minchin. For more info, please visit
+v.14, 2016-08-29
+Copyright © 2011-16 by W. Minchin. For more info, please visit
     https://github.com/MinchinWeb/openttd-wmdot  or
     http://www.tt-forums.net/viewtopic.php?f=65&t=53698
 
@@ -90,18 +90,19 @@ Operation Hibernia: On/Off
         little bit of money.
 
 == Version History =======================================================
-Version 13 [2014-03-10]
-    Updated to MetaLibrary v.8
+Version 14 [2016-08-29]
+    Fix a bug in Operation Hibernia where there are oil wells near the
+        destination oil refinery.
 
 See the attached CHANGELOG.txt for full version history.
 
 == Roadmap ===============================================================
 These are features I hope to add to WmDOT shortly. However, this is
     subject to change without notice. However, I am open to suggestions!
-v14 Ship Pathfinder improvements
-v15 Provide streetcar service in towns
-v16 Provide inter-city valuables transportation
-v17 Bring water and food to towns in the desert and above the snowline to
+v15 Ship Pathfinder improvements
+v16 Provide streetcar service in towns
+v17 Provide inter-city valuables transportation
+v18 Bring water and food to towns in the desert and above the snowline to
         help them grow
 
 == Known Issues ==========================================================

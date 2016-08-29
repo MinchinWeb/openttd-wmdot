@@ -13,14 +13,14 @@
  *	+ You accept that this software is provided to you "as is", without warranty.
  */
 
-import("util.MinchinWeb", "MetaLib", 8);
+import("util.MinchinWeb", "MetaLib", 9);
 	RoadPathfinder <- MetaLib.DLS;
 	ExistingRoadPathfinder <- MetaLib.RoadPathfinder;
 	Array <- MetaLib.Array;
 	Atlas <- MetaLib.Atlas;
 	Marine <- MetaLib.Marine;
 	OpLog <- MetaLib.Log;
-import("util.superlib", "SuperLib", 37);		//	For loan management
+import("util.superlib", "SuperLib", 39);		//	For loan management
 	SLMoney <- SuperLib.Money;
 	Helper <- SuperLib.Helper;
 	Direction <- SuperLib.Direction;
@@ -41,10 +41,10 @@ require("OpFreeway.nut");			//	Freeway Builder
  class WmDOT extends AIController 
 {
 	//	SETTINGS
-	WmDOTv = 13;
+	WmDOTv = 14;
 	/*	Version number of AI
 	 */	
-	WmDOTr = 121231;
+	WmDOTr = 160829;
 	/*	Reversion number of AI
 	 */
 	 
