@@ -1,8 +1,8 @@
-﻿#! python27
+﻿#! python3.5
 # -*- coding: utf-8 -*-
 
-#	WmDOT v13 [2014-03-10],  
-#	Copyright © 2011-14 by W. Minchin. For more info,
+#	WmDOT v14 [2016-08-29],  
+#	Copyright © 2011-16 by W. Minchin. For more info,
 #		please visit https://github.com/MinchinWeb/openttd-metalibrary
 #
 #	Permission is granted to you to use, copy, modify, merge, publish, 
@@ -58,7 +58,7 @@ with open(join(SourceDir, "info.nut"), 'r') as VersionFile:
 
 # Create AI version
 WmDOTVersion = "WmDOT-" + version
-LineCount = 0
+#LineCount = 0
 TarFileName = join(OutputDir, WmDOTVersion + ".tar")
 MyTarFile = tarfile.open(name=TarFileName, mode='w')
 for File in os.listdir(SourceDir):
@@ -72,10 +72,10 @@ for File in os.listdir(SourceDir):
 			winshell.copy_file(join(SourceDir, File), File, rename_on_collision=False)
 			for line in fileinput.input(File, inplace=1):
 				# replace the characters escaped for dOxygen
-				print multiple_replace(line, *mdReplacements),
+				print(multiple_replace(line, *mdReplacements),)
 			MyTarFile.add(File, join(WmDOTVersion, File[:-3] + ".txt"))
 			winshell.delete_file(File, no_confirm=True, allow_undo=False)							
 MyTarFile.close()
 
 print ("    " + WmDOTVersion + ".tar created!")
-# print ("        " + str(LineCount) + " lines of code")
+#print ("        " + str(LineCount) + " lines of code")
